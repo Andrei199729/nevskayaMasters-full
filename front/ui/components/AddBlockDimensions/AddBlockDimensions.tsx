@@ -1,0 +1,527 @@
+import {Pressable, StyleSheet, Text, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Colors, Fonts} from '../../../shared/tokens';
+import {
+  ClickButtonBlockDimensions,
+  ClickSelection,
+  IAddBlockDimensions,
+  IDataElementsWall,
+  IElement,
+  IElementData,
+  TClickButtonBlockDimensions,
+} from '../../../shared/types';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import ModalWall from '../ModalWall/ModalWall';
+import BlockStateElements from '../BlockStateElements/BlockStateElements';
+import SizeWallText from '../../../shared/SizeWallText/SizeWallText';
+
+export default function AddBlockDimensions({
+  numberWall,
+  saveSizeWall,
+  setSizeWalls,
+  setNumberCurrentWall,
+  numberCurrentWall,
+  setModalVisibleBacklight,
+  modalVisibleBacklight,
+  onClickWallIncrease,
+  setModalVisible,
+  modalVisible,
+  arrElements,
+  setIsVisibleEditModal,
+  externalData,
+  ...props
+}: IAddBlockDimensions) {
+  const wallIndex = numberWall - 1;
+
+  let size = saveSizeWall?.[wallIndex]?.size;
+
+  let widthTop = size?.widthTop || externalData?.widthTop;
+  let widthBottom = size?.widthBottom || externalData?.widthBottom;
+  let heightRight = size?.heightRight || externalData?.heightRight;
+  let heightLeft = size?.heightLeft || externalData?.heightLeft;
+  let radiusWall = size?.radiusWall || externalData?.radiusWall;
+  let wallAngleDegree = size?.wallAngleDegree || externalData?.wallAngleDegree;
+
+  const [clickDataWall, setClickDataWall] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [elementsData, setElementsData] = useState<IElement[]>(
+    arrElements || [],
+  );
+  const [dataObj, setDataObj] = useState({
+    nameElement: '',
+    stateElement: '',
+    id: 0,
+  });
+  const [visibleElements, setVisibleElements] = useState<{
+    [key: number]: boolean;
+  }>({});
+
+  const toggleElementVisibility = (index: number, isVisible: boolean) => {
+    setVisibleElements(prev => ({
+      ...prev,
+      [index]: isVisible, // Устанавливаем видимость только для конкретного элемента
+    }));
+  };
+
+  const addElementToData = (data: IElementData) => {
+    setElementsData(prev => {
+      const updatedElements = [...prev, {data, dataObj}];
+      return updatedElements;
+    });
+  };
+  const onSaveElement = (dataEl: IDataElementsWall) => {
+    setDataObj(prev => {
+      const update = {...prev, ...dataEl};
+      return update;
+    });
+  };
+  const updateSizeWalls = (data: IElementData, wallId: number) => {
+    setSizeWalls(prevSizeWall => {
+      if (!Array.isArray(prevSizeWall)) {
+        console.error(
+          '❌ Ошибка: prevSizeWall не является массивом!',
+          prevSizeWall,
+        );
+        return [];
+      }
+
+      // Создаем глубокую копию массива стен
+      const newWalls = prevSizeWall.map(wall => {
+        const updatedDrawingData = {...wall.drawingData};
+
+        // Обновляем массив стен внутри drawingData
+        updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
+          if (wallData.size.id === numberCurrentWall) {
+            return {
+              ...wallData,
+              size: {
+                ...wallData.size,
+                arrElements: {
+                  // wallId,
+                  elements: [
+                    ...(wallData.size?.arrElements?.elements ?? []),
+                    {data, dataObj},
+                  ], // Добавляем новый элемент
+                },
+              },
+            };
+          }
+          return wallData;
+        });
+
+        return {
+          ...wall,
+          drawingData: updatedDrawingData,
+        };
+      });
+
+      return newWalls;
+    });
+  };
+
+  const editElement = useCallback(
+    (updatedData: any, wallId: number, elementId: number) => {
+      setSizeWalls(prevSizeWall => {
+        if (!Array.isArray(prevSizeWall)) {
+          console.error(
+            '❌ Ошибка: prevSizeWall не является массивом!',
+            prevSizeWall,
+          );
+          return prevSizeWall;
+        }
+
+        // Создаем глубокую копию массива стен
+        const newWalls = prevSizeWall.map(wall => {
+          const updatedDrawingData = {...wall.drawingData};
+
+          // Обновляем массив стен внутри drawingData
+          updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
+            // Проверяем, совпадает ли ID стены
+            if (wallData.size.id === wallId) {
+              // Удаляем элемент с определенным индексом
+              const updatedElements = elementsData.map(
+                (item: IElement, index: number) =>
+                  index === elementId ? {...item, data: updatedData} : item,
+              );
+
+              setElementsData(updatedElements);
+              return {
+                ...wallData,
+                size: {
+                  ...wallData.size,
+                  arrElements: {
+                    ...wallData.size.arrElements,
+                    elements: updatedElements, // Обновляем элементы без удаленного
+                  },
+                },
+              };
+            }
+            return wallData;
+          });
+
+          return {
+            ...wall,
+            drawingData: updatedDrawingData,
+          };
+        });
+
+        return newWalls; // Возвращаем обновленный массив
+      });
+      toggleElementVisibility(elementId, false);
+    },
+    [],
+  );
+
+  const deleteElement = useCallback(
+    (wallId: number | boolean | null, elementId: number) => {
+      setSizeWalls(prevSizeWall => {
+        if (!Array.isArray(prevSizeWall)) {
+          console.error(
+            '❌ Ошибка: prevSizeWall не является массивом!',
+            prevSizeWall,
+          );
+          return prevSizeWall;
+        }
+
+        // Создаем глубокую копию массива стен
+        const newWalls = prevSizeWall.map(wall => {
+          const updatedDrawingData = {...wall.drawingData};
+
+          // Обновляем массив стен внутри drawingData
+          updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
+            // Проверяем, совпадает ли ID стены
+            if (wallData.size.id === wallId) {
+              // Удаляем элемент с определенным индексом
+              const updatedElements =
+                wallData?.size?.arrElements?.elements?.filter(
+                  (element, index) => index !== elementId,
+                ) || [];
+              setElementsData(updatedElements);
+              return {
+                ...wallData,
+                size: {
+                  ...wallData.size,
+                  arrElements: {
+                    ...wallData.size.arrElements,
+                    elements: updatedElements, // Обновляем элементы без удаленного
+                  },
+                },
+              };
+            }
+            return wallData;
+          });
+
+          return {
+            ...wall,
+            drawingData: updatedDrawingData,
+          };
+        });
+
+        return newWalls; // Возвращаем обновленный массив
+      });
+      toggleElementVisibility(elementId, false);
+    },
+    [],
+  );
+
+  const onClickDataWall = (
+    isVisible: boolean,
+    nameButton: TClickButtonBlockDimensions,
+  ) => {
+    setClickDataWall(prev => ({
+      ...prev,
+      [nameButton]: isVisible, // Устанавливаем видимость только для конкретного элемента
+    }));
+  };
+
+  // Синхронизируем elementsData с arrElements при изменении пропса
+  useEffect(() => {
+    setElementsData(arrElements || []);
+  }, [arrElements]);
+
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.centeredView}>
+        <ModalWall
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          numberWall={numberWall}
+          saveSizeWall={saveSizeWall}
+          externalData={externalData}
+          numberCurrentWall={numberCurrentWall}
+          wallIndex={wallIndex}
+          arrElements={arrElements}
+          addElementToData={addElementToData}
+          onSaveElement={onSaveElement}
+          updateSizeWalls={updateSizeWalls}
+          setElementsData={setElementsData}
+          elementsData={elementsData}
+          deleteElement={deleteElement}
+          setVisible={toggleElementVisibility}
+          visibleElements={visibleElements}
+          editElement={editElement}
+        />
+        <Pressable
+          onPress={() =>
+            onClickWallIncrease(size, wallIndex, ClickSelection.Wall)
+          }>
+          <View>
+            <Text style={styles.textDimensions}>Стена №{numberWall}</Text>
+            <View
+              style={[
+                styles.wallBlock,
+                {
+                  ...styles.addedWall,
+                  borderColor: modalVisibleBacklight
+                    ? Colors.green
+                    : Colors.black,
+                },
+              ]}>
+              {
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    gap: 5,
+                    margin: 5,
+                  }}>
+                  <Pressable
+                    onPress={() =>
+                      onClickDataWall(
+                        !clickDataWall.width,
+                        ClickButtonBlockDimensions.Width,
+                      )
+                    }>
+                    <View
+                      style={{
+                        borderBlockColor: 'black',
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                      }}>
+                      <Text>Ширина стены</Text>
+                    </View>
+                    {clickDataWall.width && (
+                      <View
+                        style={{
+                          borderBlockColor: 'black',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          marginTop: 10,
+                          flexDirection: 'column',
+                          gap: 10,
+                        }}>
+                        <View style={{flexDirection: 'column', gap: 5}}>
+                          <Text>Ширина сверху:</Text>
+                          <Text>{widthTop}</Text>
+                        </View>
+                        <View style={{flexDirection: 'column', gap: 5}}>
+                          <Text>Ширина снизу:</Text>
+                          <Text>{widthBottom}</Text>
+                        </View>
+                        <View style={{flexDirection: 'column', gap: 5}}>
+                          <Text>Радиус внутренней стены:</Text>
+                          {radiusWall ? (
+                            <>
+                              <View
+                                style={[
+                                  styles.sizeWall,
+                                  styles.borderLineAngle,
+                                ]}></View>
+                              <View
+                                style={[styles.sizeWall, styles.radiusWall]}>
+                                <Text>{radiusWall}</Text>
+                              </View>
+                            </>
+                          ) : (
+                            <Text>Нет</Text>
+                          )}
+                        </View>
+                      </View>
+                    )}
+                  </Pressable>
+                  <Pressable
+                    onPress={() =>
+                      onClickDataWall(
+                        !clickDataWall.height,
+                        ClickButtonBlockDimensions.Height,
+                      )
+                    }>
+                    <View
+                      style={{
+                        borderBlockColor: 'black',
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                      }}>
+                      <Text>Высота стены</Text>
+                    </View>
+                    {clickDataWall.height && (
+                      <View
+                        style={{
+                          borderBlockColor: 'black',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          marginTop: 10,
+                          flexDirection: 'column',
+                          gap: 10,
+                        }}>
+                        <View style={{flexDirection: 'column', gap: 5}}>
+                          <Text>Высота справа:</Text>
+                          <Text>{heightRight}</Text>
+                        </View>
+                        <View style={{flexDirection: 'column', gap: 5}}>
+                          <Text>Высота слева:</Text>
+                          <Text>{heightLeft}</Text>
+                        </View>
+                        <View style={{flexDirection: 'column', gap: 5}}>
+                          <Text>Градус угла стены:</Text>
+                          <View>
+                            {wallAngleDegree ? (
+                              <Text>{wallAngleDegree}</Text>
+                            ) : null}
+                          </View>
+                        </View>
+                      </View>
+                    )}
+                  </Pressable>
+                  <Pressable
+                    onPress={() =>
+                      onClickDataWall(
+                        !clickDataWall.elements,
+                        ClickButtonBlockDimensions.Elements,
+                      )
+                    }>
+                    <View
+                      style={{
+                        borderBlockColor: 'black',
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                        padding: 5,
+                      }}>
+                      <Text>Элементы стены</Text>
+                    </View>
+                    {clickDataWall.elements && (
+                      <View
+                        style={{
+                          borderBlockColor: 'black',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          marginTop: 10,
+                        }}>
+                        {Array.isArray(elementsData) &&
+                        elementsData.length > 0 ? (
+                          elementsData.map((element, index) => (
+                            <BlockStateElements
+                              key={index}
+                              nameElement={
+                                element?.dataObj?.nameElement || 'Без имени'
+                              }
+                              stateElement={
+                                element?.dataObj?.stateElement || 'Не задано'
+                              }
+                              position={index}
+                              onPressVisible={() => {}}
+                            />
+                          ))
+                        ) : (
+                          <Text>Добавьте элементы</Text>
+                        )}
+                      </View>
+                    )}
+                  </Pressable>
+                </View>
+              }
+              <SizeWallText wallPosition={styles.wallTop} dataText={widthTop} />
+              <SizeWallText
+                wallPosition={styles.wallRight}
+                dataText={heightRight}
+              />
+              <SizeWallText
+                wallPosition={styles.wallBottom}
+                dataText={widthBottom}
+              />
+              <SizeWallText
+                wallPosition={styles.wallLeft}
+                dataText={heightLeft}
+              />
+              {radiusWall && (
+                <>
+                  <View
+                    style={[styles.sizeWall, styles.borderLineAngle]}></View>
+                  <SizeWallText
+                    wallPosition={styles.radiusWall}
+                    dataText={radiusWall}
+                  />
+                </>
+              )}
+            </View>
+            <View>
+              {wallAngleDegree ? <Text>{wallAngleDegree}</Text> : null}
+            </View>
+          </View>
+        </Pressable>
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  centeredView: {
+    width: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  wallBlock: {
+    width: '100%',
+    backgroundColor: Colors.white,
+  },
+  addedWall: {
+    position: 'relative',
+    width: 350,
+    flex: 1,
+    borderWidth: 2,
+    borderColor: Colors.black,
+    borderStyle: 'solid',
+    height: 300,
+  },
+
+  sizeWall: {
+    position: 'absolute',
+  },
+  wallTop: {
+    left: '50%',
+    top: 0,
+  },
+  wallRight: {
+    right: 0,
+    top: '50%',
+    transform: [{translateY: -10}],
+  },
+  wallBottom: {
+    bottom: 0,
+    left: '50%',
+  },
+  wallLeft: {
+    top: '50%',
+    left: 0,
+    transform: [{translateY: -10}],
+  },
+  borderLineAngle: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.black,
+    borderStyle: 'dashed',
+    top: '70%',
+    width: '100%',
+  },
+  radiusWall: {
+    top: '50%',
+    left: '50%',
+    transform: [{translateX: -2}],
+  },
+
+  textDimensions: {
+    color: Colors.black,
+    fontSize: Fonts.f12,
+  },
+});
