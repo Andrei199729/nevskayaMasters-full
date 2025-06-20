@@ -11,8 +11,9 @@ import {INavigationScreenProps} from '../../shared/types';
 import useInput from '../../hooks/useInput';
 import auth from '../../utils/auth';
 import * as Keychain from 'react-native-keychain';
+import api from '../../utils/api';
 
-function LoginScreen({navigation}: INavigationScreenProps) {
+function LoginScreen({navigation, setEmail}: any) {
   const emailInput = useInput('');
   const passwordInput = useInput('');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
@@ -21,7 +22,7 @@ function LoginScreen({navigation}: INavigationScreenProps) {
     errorTextEmail,
   );
 
-  const [email, setEmail] = useState('');
+  // const [email, setEmail] = useState('');
 
   useEffect(() => {
     const isFormValid = emailInput && passwordInput.value.length > 6; // Проверяем, что и email, и пароль введены
@@ -36,25 +37,19 @@ function LoginScreen({navigation}: INavigationScreenProps) {
         console.log(res);
 
         if (res) {
-          // handleInfoTooltip({
-          //   union: unionTrue,
-          //   text: 'Вы успешно зарегистрировались!',
-          // });
-          // if (res) {
-          navigation.navigate('Main');
-          // }
           console.log(res.token, 'Вы успешно авторизовались');
-          setEmail(email);
+
+          // setEmail(email);
           const token = res.token;
-          return Keychain.setGenericPassword('authToken', token);
+          Keychain.resetGenericPassword();
+          Keychain.setGenericPassword('authToken', token);
+          api.setToken(token);
+          console.log(token, 'token');
+          navigation.navigate('Main');
         }
       })
       .catch((err: any) => {
         console.log(err);
-        // handleInfoTooltip({
-        //   union: unionFalse,
-        //   text: 'Что-то пошло не так! Попробуйте ещё раз.',
-        // });
       });
   };
 

@@ -14,7 +14,7 @@ export enum PathScreenHeader {
 }
 
 export enum PathScreenAuth {
-  Register = 'signin',
+  Register = 'Register',
   Login = 'Login',
   RestorePassword = 'RestorePassword',
   Success = 'Success',
@@ -232,4 +232,6 @@ export interface IElementData {
 export interface IProductRoom {
   dataProduct: IDrawing[];
   nameRoom: string;
+  _id: any;
+  owner: any;
 }

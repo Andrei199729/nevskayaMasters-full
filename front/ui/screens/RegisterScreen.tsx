@@ -18,6 +18,7 @@ import useInput from '../../hooks/useInput';
 import {RadioButton} from 'react-native-paper';
 import auth from '../../utils/auth';
 import * as Keychain from 'react-native-keychain';
+import api from '../../utils/api';
 
 function RegisterScreen({navigation}: INavigationScreenProps) {
   const emailInput = useInput('');
@@ -56,26 +57,32 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
     password: string,
     rules: string,
   ) => {
-    auth
-      .register(email, password, rules)
-      .then((res: any) => {
-        if (res) {
+    try {
+      auth
+        .register(email, password, rules)
+        .then((res: any) => {
+          if (res) {
+            // handleInfoTooltip({
+            //   union: unionTrue,
+            //   text: 'Вы успешно зарегистрировались!',
+            // });
+            Keychain.resetGenericPassword();
+            Keychain.setGenericPassword('authToken', res.token);
+            api.setToken(res.token);
+            navigation.navigate(PathScreenAuth.Login);
+            console.log(res, 'Вы успешно зарегистрировались');
+          }
+        })
+        .catch((err: any) => {
+          console.log(err);
           // handleInfoTooltip({
-          //   union: unionTrue,
-          //   text: 'Вы успешно зарегистрировались!',
+          //   union: unionFalse,
+          //   text: 'Что-то пошло не так! Попробуйте ещё раз.',
           // });
-          navigation.navigate(PathScreenAuth.Login);
-          console.log(res, 'Вы успешно зарегистрировались');
-          return Keychain.setGenericPassword('authToken', res.token);
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-        // handleInfoTooltip({
-        //   union: unionFalse,
-        //   text: 'Что-то пошло не так! Попробуйте ещё раз.',
-        // });
-      });
+        });
+    } catch (err) {
+      console.error('❌ Ошибка регистрации:', err);
+    }
   };
 
   return (

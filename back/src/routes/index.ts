@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { register, login } from "../controllers/users";
 import userRoute from "./users";
+import productRoute from "./products";
 import auth from "../middlewares/auth";
 import { loginValid, registerValid } from "../middlewares/validationJoi";
 import ErrorNotFound from "../errors/ErrorNotFound";
@@ -12,7 +13,7 @@ router.post("/signin", loginValid, login);
 router.use(auth);
 
 router.use("/users", userRoute);
-// router.use("/cards", cardsRoute);
+router.use("/products", productRoute);
 
 router.use((req, res, next) => {
   return next(new ErrorNotFound({ message: "Данный путь не найден" }));

@@ -31,7 +31,7 @@ const login = async (email: string, password: string) => {
     );
     return response.data; // вернёт данные от сервера
   } catch (error) {
-    console.error('Ошибка при регистрации:', error);
+    console.error('Ошибка при входе:', error);
     throw error; // пробрасываем ошибку дальше
   }
 };

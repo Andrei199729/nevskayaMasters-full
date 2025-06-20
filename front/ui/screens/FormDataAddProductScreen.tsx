@@ -9,6 +9,7 @@ import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
 import IndexWallContext from '../../context/IndexWallContext/IndexWallContext';
+import api from '../../utils/api';
 
 export default function FormDataAddProductScreen() {
   const navigation =
@@ -37,11 +38,15 @@ export default function FormDataAddProductScreen() {
       console.warn('⚠️ Нет данных для сохранения!');
       return;
     }
-
-    navigation.navigate('UnwrappedProduct', {
-      dataProduct: sizeWalls,
-      nameRoom: nameRoom.value,
-    });
+    api
+      .addProduct(nameRoom.value, sizeWalls)
+      .then(({nameRoom, dataProduct}) => {
+        navigation.navigate('UnwrappedProduct', {
+          dataProduct: dataProduct,
+          nameRoom: nameRoom,
+        });
+      })
+      .catch(err => console.log(err));
   };
 
   return (

@@ -15,85 +15,113 @@ import UnwrappedProductScreen from '../ui/screens/UnwrappedProductScreen';
 import FormDataAddProductScreen from '../ui/screens/FormDataAddProductScreen';
 import ProductScreen from '../ui/screens/ProductScreen';
 import SplashScreen from '../ui/components/SplashScreen/SplashScreen';
+import {StatusBar} from 'react-native';
 const Stack = createStackNavigator();
 
-function Navigate({isAuthenticated}: any) {
+function Navigate({
+  isAuthenticated,
+  setEmail,
+  products,
+  currentUser,
+  setProducts,
+  setCurrentUser,
+}: any) {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="SplashScreen"
-          component={SplashScreen}
-        />
+    <>
+      <StatusBar hidden={true} />
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="SplashScreen"
+            component={SplashScreen}
+          />
 
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Register"
-          component={RegisterScreen}
-        />
-        <Stack.Screen
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Register"
+            component={RegisterScreen}
+          />
+          {/* <Stack.Screen
           options={{headerShown: false}}
           name="Login"
           component={LoginScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="RestorePassword"
-          component={RestorePasswordScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Success"
-          component={SuccessScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="NewPassword"
-          component={NewPasswordScreen}
-        />
-        <Stack.Screen
+        /> */}
+          <Stack.Screen name="Login" options={{headerShown: false}}>
+            {props => <LoginScreen {...props} setEmail={setEmail} />}
+          </Stack.Screen>
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="RestorePassword"
+            component={RestorePasswordScreen}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Success"
+            component={SuccessScreen}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="NewPassword"
+            component={NewPasswordScreen}
+          />
+          {/* <Stack.Screen
           options={{headerShown: false}}
           name="Main"
           component={Main}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Filter"
-          component={FilterPopup}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Search"
-          component={SearchPopup}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="CreateProject"
-          component={CreateProjectScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Policy"
-          component={PrivacyPolicy}
-        />
-        <Stack.Screen
+        /> */}
+          <Stack.Screen name="Main" options={{headerShown: false}}>
+            {props => <Main {...props} products={products} />}
+          </Stack.Screen>
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Filter"
+            component={FilterPopup}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Search"
+            component={SearchPopup}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="CreateProject"
+            component={CreateProjectScreen}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Policy"
+            component={PrivacyPolicy}
+          />
+          {/* <Stack.Screen
           options={{headerShown: false}}
           name="UnwrappedProduct"
           component={UnwrappedProductScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="FormDataAddProduct"
-          component={FormDataAddProductScreen}
-        />
-        <Stack.Screen
-          options={{headerShown: false}}
-          name="Product"
-          component={ProductScreen}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+        /> */}
+          <Stack.Screen name="UnwrappedProduct" options={{headerShown: false}}>
+            {props => (
+              <UnwrappedProductScreen
+                {...props}
+                products={products}
+                currentUser={currentUser}
+                setProducts={setProducts}
+                setCurrentUser={setCurrentUser}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="FormDataAddProduct"
+            component={FormDataAddProductScreen}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Product"
+            component={ProductScreen}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 

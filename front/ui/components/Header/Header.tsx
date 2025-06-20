@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {Colors, Fonts, Gaps, Radius} from '../../../shared/tokens';
 import ButtonHeader from '../../../shared/ButtonHeader/ButtonHeader';
 import {useContext, useEffect, useState} from 'react';
@@ -11,6 +11,9 @@ import {PathScreenAuth, PathScreenHeader} from '../../../shared/types';
 import ProfilePopup from '../ProfilePopup/ProfilePopup';
 import ButtonContext from '../../../shared/ButtonContext/ButtonContext';
 import LogoIcon from '../../../assets/images/icon/iconFunc/LogoIcon';
+import * as Keychain from 'react-native-keychain';
+import api from '../../../utils/api';
+
 interface IButtonState {
   icon: JSX.Element; // Элемент JSX для иконки
   state: boolean;
@@ -20,11 +23,12 @@ type RootStackParamList = {
   Search: undefined;
   Filter: undefined;
   Profile: undefined;
+  Register: undefined;
 };
 
 type HeaderNavigationProp = StackNavigationProp<RootStackParamList>;
 
-export default function Header() {
+export default function Header({setProducts, setCurrentUser}: any) {
   const navigation = useNavigation<HeaderNavigationProp>();
   const currentRouteName = useNavigationState(
     state => state.routes[state.index].name,
@@ -74,13 +78,30 @@ export default function Header() {
       );
     }
   };
-
+  const onLogout = async () => {
+    try {
+      setProducts([]);
+      setCurrentUser(null);
+      await Keychain.resetGenericPassword();
+      api.setToken('');
+      navigation.reset({
+        index: 0,
+        routes: [{name: PathScreenAuth.Register}],
+      });
+      console.log('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
   return (
     <View style={styles.header}>
       <View>
         <LogoIcon />
       </View>
       <View style={styles.blockButtonsHeader}>
+        <Pressable onPress={onLogout}>
+          <Text>Выход</Text>
+        </Pressable>
         {buttonActive.map((active, index) => (
           <ButtonHeader
             key={index}

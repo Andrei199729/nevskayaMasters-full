@@ -1,7 +1,7 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts, Gaps} from '../../shared/tokens';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import HeaderScreen from './HeaderScreen';
 import {
   IDrawing,
@@ -15,7 +15,12 @@ import UnwrappedProductObject from '../../shared/UnwrappedProductObject/Unwrappe
 import Title from '../../shared/Title/Title';
 import ButtonDownload from '../../shared/ButtonDownload/ButtonDownload';
 import ButtonAddProduct from '../../shared/ButtonAddProduct/ButtonAddProduct';
-import {NavigationProp, RouteProp} from '@react-navigation/native';
+import {
+  NavigationProp,
+  RouteProp,
+  useFocusEffect,
+} from '@react-navigation/native';
+import api from '../../utils/api';
 
 type TUnwrappedProductScreenRouteProp = RouteProp<
   {
@@ -31,6 +36,10 @@ interface IUnwrappedProductScreen {
   applicationNumber?: string;
   navigation: NavigationProp<RootStackParamList, PathScreen.Product>;
   route: any;
+  products?: any;
+  currentUser?: any;
+  setCurrentUser?: any;
+  setProducts?: any;
 }
 
 function UnwrappedProductScreen({
@@ -38,7 +47,9 @@ function UnwrappedProductScreen({
   route,
   ...props
 }: IUnwrappedProductScreen) {
-  const {dataProduct, nameRoom} = route.params ?? {};
+  // const {dataProduct, nameRoom} = route.params ?? {};
+  const currentUser = route.params?.currentUser;
+  console.log(currentUser, 'currentUsercurrentUser');
 
   const [productsRooms, setProductsRooms] = useState<IProductRoom[]>([]);
 
@@ -52,11 +63,25 @@ function UnwrappedProductScreen({
     });
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      api
+        .getInitialProducts()
+        .then(data => {
+          if (data.product && Array.isArray(data.product)) {
+            setProductsRooms(data.product);
+          }
+        })
+        .catch(err => console.error(err));
+    }, []),
+  ); // пустой массив зависимостей — чтобы вызвать один раз при монтировании
+
   useEffect(() => {
+    const {nameRoom, dataProduct} = route.params ?? {};
     if (nameRoom && dataProduct) {
-      setProductsRooms(prevProducts => {
+      setProductsRooms((prevProducts: any) => {
         const existingRoomIndex = prevProducts.findIndex(
-          room => room.nameRoom === nameRoom,
+          (room: {nameRoom: any}) => room.nameRoom === nameRoom,
         );
 
         if (existingRoomIndex !== -1) {
@@ -75,8 +100,11 @@ function UnwrappedProductScreen({
       });
     }
   }, [route.params]);
+
   return (
-    <HeaderScreen>
+    <HeaderScreen
+      setCurrentUser={props.setCurrentUser}
+      setProducts={props.setProducts}>
       <MainScreen mainTitle={`№ ${'заявки'}`}>
         <UnwrappedProductObject status={ObjectStatus.Created} />
         <View style={styles.boxTitle}>
@@ -99,18 +127,24 @@ function UnwrappedProductScreen({
             <ButtonAddProduct onClickAddProduct={onClickAddProduct} />
           </View>
           <View style={styles.boxTitle}>
-            {productsRooms?.map((productRoom: IProductRoom, index: number) => {
-              return (
-                <Pressable
-                  key={index}
-                  onPress={() => onClickLinkProduct(productRoom)}>
-                  <Text style={styles.textProduct}>
-                    {index + 1}
-                    {productRoom.nameRoom}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {productsRooms
+              ?.filter(data => data.owner === props.currentUser.data._id)
+              .map((productRoom: IProductRoom, index: number) => {
+                console.log(productRoom.owner, 'owner');
+                console.log(productRoom, '_id');
+                console.log(props.currentUser.data._id, 'currentUser');
+
+                return (
+                  <Pressable
+                    key={index}
+                    onPress={() => onClickLinkProduct(productRoom)}>
+                    <Text style={styles.textProduct}>
+                      {index + 1}
+                      {productRoom.nameRoom}
+                    </Text>
+                  </Pressable>
+                );
+              })}
           </View>
         </View>
         <View style={styles.boxTitle}>

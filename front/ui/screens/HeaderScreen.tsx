@@ -1,10 +1,14 @@
 import {View, StyleSheet} from 'react-native';
 import Header from '../components/Header/Header';
 
-function HeaderScreen({children}: {children: React.ReactNode}) {
+function HeaderScreen({
+  children,
+  setProducts,
+  setCurrentUser,
+}: {children: React.ReactNode} & any) {
   return (
     <View style={styles.container}>
-      <Header />
+      <Header setProducts={setProducts} setCurrentUser={setCurrentUser} />
       <View style={styles.content}>{children}</View>
     </View>
   );

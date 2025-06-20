@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import userRoutes from "./routes";
+import routerErrorWay from "./routes";
 import path from "path";
 import errorHandler from "./middlewares/errorHandler";
 import { errorLoger, requestLogger } from "./middlewares/logger";
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 mongoose.connect(DB_URL);
 app.disable("x-powered-by");
-app.use(userRoutes);
+app.use(routerErrorWay);
 app.use(errorLoger);
 app.use(errors());
 app.use(errorHandler);

@@ -12,6 +12,7 @@ import BadRequestError from "../errors/BadRequestError";
 import Unauthorized from "../errors/Unauthorized";
 import ErrorConflict from "../errors/ErrorConflict";
 import InternalServerError from "../errors/InternalServerError";
+import { AuthenticatedRequest } from "../middlewares/auth";
 
 export const getUsers = async (
   req: Request,
@@ -26,6 +27,36 @@ export const getUsers = async (
     return next(err);
   }
 };
+
+export function getUserMe(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    User.findById(req?.user?._id)
+      .then((user) => {
+        if (!user?._id) {
+          return next(
+            new ErrorNotFound({
+              message: "Запрашиваемый пользователь не найден",
+            })
+          );
+        }
+        return res.send({ data: user });
+      })
+      .catch((err) => {
+        if (err.name === "CastError") {
+          return next(
+            new BadRequestError({ message: "Переданы некорректные данные" })
+          );
+        }
+        return next(err);
+      });
+  } catch (err) {
+    return next(err);
+  }
+}
 
 export const getUserId = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -68,8 +99,8 @@ export const register = async (
     if (!email || !password) {
       return next(new Unauthorized("Указан некорректный Email или пароль."));
     }
-    if (rules === "Supervisor") {
-      const existingSupervisor = await User.findOne({ rules: "Supervisor" });
+    if (rules === "supervisor") {
+      const existingSupervisor = await User.findOne({ rules: "supervisor" });
       if (existingSupervisor) {
         return next(new ErrorConflict("Руководитель уже зарегистрирован"));
       }
