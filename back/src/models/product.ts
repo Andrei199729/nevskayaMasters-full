@@ -142,16 +142,16 @@ const ShapsSchema = new mongoose.Schema(
 
 const ElementDataSchema = new mongoose.Schema(
   {
-    nameElementWall: String,
-    locationElementTop: String,
-    locationElementRight: String,
-    locationElementLeft: String,
-    locationElementBottom: String,
-    widthTop: String,
-    widthBottom: String,
-    heightLeft: String,
-    heightRight: String,
-    radiusElement: String,
+    nameElementWall: { type: String, required: false },
+    locationElementTop: { type: String, required: false },
+    locationElementRight: { type: String, required: false },
+    locationElementLeft: { type: String, required: false },
+    locationElementBottom: { type: String, required: false },
+    widthTop: { type: String, required: false },
+    widthBottom: { type: String, required: false },
+    heightLeft: { type: String, required: false },
+    heightRight: { type: String, required: false },
+    radiusElement: { type: String, required: false },
   },
   { _id: false }
 );
@@ -217,7 +217,7 @@ const DataProductSchema = new mongoose.Schema(
 
 const productSchema = new mongoose.Schema({
   nameRoom: { type: String, required: true },
-  dataProduct: { type: [mongoose.Schema.Types.Mixed], required: true },
+  dataProduct: [DataProductSchema],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 

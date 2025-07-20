@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { createProduct, getProducts } from "../controllers/products";
+import {
+  createProduct,
+  deleteProductElement,
+  getProduct,
+  getProducts,
+  updateProduct,
+  //   updateProductElement,
+} from "../controllers/products";
 
 // import {
 //   getCards,
@@ -15,9 +22,12 @@ import { createProduct, getProducts } from "../controllers/products";
 const router = Router();
 
 router.get("/", getProducts);
+router.get("/:cardId", getProduct);
 router.post("/", createProduct);
 
-// router.post("/", createCardValid, createCard);
+router.patch("/:cardId", updateProduct);
+router.delete("/:cardId/:sizeId/:elementId", deleteProductElement);
+// router.patch("/:cardId/:sizeId/:elementId", updateProductElement);
 // router.delete("/:cardId", parameterIdValid("cardId"), deleteCardId);
 // router.put("/:cardId/likes", parameterIdValid("cardId"), likeCard);
 // router.delete("/:cardId/likes", parameterIdValid("cardId"), dislikeCard);

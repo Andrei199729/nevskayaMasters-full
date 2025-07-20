@@ -21,6 +21,6 @@ app.use(routerErrorWay);
 app.use(errorLoger);
 app.use(errors());
 app.use(errorHandler);
-app.listen(PORT, () => {
+app.listen(3000, "0.0.0.0", () => {
   console.log(`App listening on port ${PORT}`);
 });
