@@ -13,6 +13,9 @@ import ButtonContext from '../../../shared/ButtonContext/ButtonContext';
 import LogoIcon from '../../../assets/images/icon/iconFunc/LogoIcon';
 import * as Keychain from 'react-native-keychain';
 import api from '../../../utils/api';
+import {useDispatch} from 'react-redux';
+import {postLogoutAuth, setUserData} from '../../../services/actions/user';
+import {getKeychain} from '../../../utils/keychain';
 
 interface IButtonState {
   icon: JSX.Element; // Элемент JSX для иконки
@@ -28,8 +31,9 @@ type RootStackParamList = {
 
 type HeaderNavigationProp = StackNavigationProp<RootStackParamList>;
 
-export default function Header({setProducts, setCurrentUser}: any) {
+export default function Header() {
   const navigation = useNavigation<HeaderNavigationProp>();
+  const dispatch = useDispatch();
   const currentRouteName = useNavigationState(
     state => state.routes[state.index].name,
   );
@@ -80,10 +84,21 @@ export default function Header({setProducts, setCurrentUser}: any) {
   };
   const onLogout = async () => {
     try {
-      setProducts([]);
-      setCurrentUser(null);
-      await Keychain.resetGenericPassword();
-      api.setToken('');
+      const refreshToken = await getKeychain('refreshToken'); // Важно получить именно accessToken
+      console.log('accessToken для logout:', refreshToken);
+
+      if (!refreshToken) {
+        // Если токена нет, просто очисти состояние и навигируй
+        dispatch(setUserData(null, undefined));
+        navigation.reset({
+          index: 0,
+          routes: [{name: PathScreenAuth.Register}],
+        });
+        return;
+      }
+
+      dispatch(postLogoutAuth(refreshToken));
+
       navigation.reset({
         index: 0,
         routes: [{name: PathScreenAuth.Register}],
@@ -100,7 +115,9 @@ export default function Header({setProducts, setCurrentUser}: any) {
       </View>
       <View style={styles.blockButtonsHeader}>
         <Pressable onPress={onLogout}>
-          <Text>Выход</Text>
+          <View style={{borderWidth: 1, width: 30}}>
+            <Text>Выход</Text>
+          </View>
         </Pressable>
         {buttonActive.map((active, index) => (
           <ButtonHeader

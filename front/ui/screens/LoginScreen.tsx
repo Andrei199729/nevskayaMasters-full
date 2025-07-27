@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {KeyboardAvoidingView, Platform, StyleSheet, View} from 'react-native';
 import AuthSection from '../section/AuthSection';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Input} from '../../shared/Input/Input';
@@ -12,8 +12,12 @@ import useInput from '../../hooks/useInput';
 import auth from '../../utils/auth';
 import * as Keychain from 'react-native-keychain';
 import api from '../../utils/api';
+import {useDispatch, useSelector} from 'react-redux';
+import {postLoginAuth} from '../../services/actions/user';
 
-function LoginScreen({navigation, setEmail}: any) {
+function LoginScreen({navigation}: any) {
+  const dispatch = useDispatch();
+  const {accessToken} = useSelector((state: any) => state.user);
   const emailInput = useInput('');
   const passwordInput = useInput('');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
@@ -30,27 +34,14 @@ function LoginScreen({navigation, setEmail}: any) {
     setDisabledLoginState(!isFormValid); // Отключаем кнопку, если форма не валидна
   }, [emailInput, passwordInput]);
 
+  useEffect(() => {
+    if (accessToken) {
+      navigation.navigate('Main');
+    }
+  }, [accessToken]);
+
   const onSubmitMainScreen = (email: string, password: string) => {
-    auth
-      .login(email, password)
-      .then((res: any) => {
-        console.log(res);
-
-        if (res) {
-          console.log(res.token, 'Вы успешно авторизовались');
-
-          // setEmail(email);
-          const token = res.token;
-          Keychain.resetGenericPassword();
-          Keychain.setGenericPassword('authToken', token);
-          api.setToken(token);
-          console.log(token, 'token');
-          navigation.navigate('Main');
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-      });
+    dispatch(postLoginAuth(email, password));
   };
 
   return (
@@ -61,7 +52,9 @@ function LoginScreen({navigation, setEmail}: any) {
         textBtn={'Восстановить пароль'}
         pathLink={'RestorePassword'}
         textWithBtn="Забыли пароль?">
-        <View style={styles.inputs}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.inputs}>
           <Input
             textPlaceholder="Введите Email"
             inputModeText="email"
@@ -82,7 +75,7 @@ function LoginScreen({navigation, setEmail}: any) {
               onSubmitMainScreen(emailInput.value, passwordInput.value)
             }
           />
-        </View>
+        </KeyboardAvoidingView>
         {emailError && emailInput.value.length > 0 && (
           <ErrorText errorText={localError} />
         )}

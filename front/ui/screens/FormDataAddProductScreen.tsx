@@ -1,4 +1,12 @@
-import {ScrollView, Text, View} from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import {Input} from '../../shared/Input/Input';
 import {useContext, useState} from 'react';
 import useInput from '../../hooks/useInput';
@@ -32,6 +40,7 @@ export default function FormDataAddProductScreen() {
     return null;
   }
   const {activeWallIndex, setActiveWallIndex} = indexWallContext;
+  console.log(sizeWalls, 'sizeWallssizeWalls');
 
   const onSaveDataWall = () => {
     if (!sizeWalls.length) {
@@ -50,37 +59,50 @@ export default function FormDataAddProductScreen() {
   };
 
   return (
-    <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
-      <View>
-        <Text>Введите название комнаты</Text>
-        <Input onChangeText={nameRoom.onChangeText} />
-      </View>
-      <View>
-        <Text>Выберите количество стен</Text>
-        <SelectCustom
-          isSelect
-          options={arrCountWall}
-          textDefaultSelect={selectedTextDefault.defaultCount}
-          isActiveBtnState={(item: boolean) => setIsActiveBtn(item)}
-          onSelectedReset={() => {}}
-          countWallText={(item: string) => setCountWall(item)}
-        />
-        <View>
-          <Draw
-            setSizeWalls={setSizeWalls}
-            sizeWalls={sizeWalls}
-            setNumberCurrentWall={setActiveWallIndex}
-            numberCurrentWall={activeWallIndex}
-            setModalVisibleBacklight={setModalVisibleBacklight}
-            modalVisibleBacklight={modalVisibleBacklight}
-          />
-        </View>
-      </View>
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+      <ScrollView
+        horizontal={false}
+        showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        // contentContainerStyle={{paddingBottom: 50}}
+        contentContainerStyle={{flexGrow: 1}}>
+        <View
+          style={{flex: 1, justifyContent: 'space-between', paddingBottom: 16}}>
+          <View>
+            <Text>Введите название комнаты</Text>
+            <Input onChangeText={nameRoom.onChangeText} />
+          </View>
+          <View>
+            <Text>Выберите количество стен</Text>
+            <SelectCustom
+              isSelect
+              options={arrCountWall}
+              textDefaultSelect={selectedTextDefault.defaultCount}
+              isActiveBtnState={(item: boolean) => setIsActiveBtn(item)}
+              onSelectedReset={() => {}}
+              countWallText={(item: string) => setCountWall(item)}
+            />
+            <View>
+              <Draw
+                setSizeWalls={setSizeWalls}
+                sizeWalls={sizeWalls}
+                setNumberCurrentWall={setActiveWallIndex}
+                numberCurrentWall={activeWallIndex}
+                setModalVisibleBacklight={setModalVisibleBacklight}
+                modalVisibleBacklight={modalVisibleBacklight}
+              />
+            </View>
+          </View>
 
-      {!isActiveBtn && (
-        <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
-      )}
-      <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
-    </ScrollView>
+          {!isActiveBtn && (
+            <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
+          )}
+          <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

@@ -47,13 +47,30 @@ class Api {
     }
   }
 
+  async editProduct(dataProduct: {dataProduct: any}, dataId: any) {
+    try {
+      const response = await this.client.patch(`/products/${dataId}`, {
+        dataProduct,
+      });
+      return response.data;
+    } catch (err: any) {
+      console.log(err, 'err');
+
+      console.error(
+        'Ошибка при редактировании продукта:',
+        err.response?.data || err.message,
+      );
+      throw err;
+    }
+  }
+
   async setToken(token: string) {
     this.client.defaults.headers['Authorization'] = `Bearer ${token}`;
-    console.log(token, 'token');
   }
 }
 
 const api = new Api({
+  // address: 'http://10.207.190.140:3000',
   address: 'http://10.0.2.2:3000',
   token: '',
 });

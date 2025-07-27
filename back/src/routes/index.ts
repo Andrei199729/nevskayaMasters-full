@@ -3,12 +3,18 @@ import { register, login } from "../controllers/users";
 import userRoute from "./users";
 import productRoute from "./products";
 import auth from "../middlewares/auth";
-import { loginValid, registerValid } from "../middlewares/validationJoi";
+import {
+  loginValid,
+  refreshTokenBodyValidation,
+  registerValid,
+} from "../middlewares/validationJoi";
+import refreshTokenRoutes from "../routes/refreshToken";
 import ErrorNotFound from "../errors/ErrorNotFound";
 const router = Router();
 
 router.post("/signup", registerValid, register);
 router.post("/signin", loginValid, login);
+router.use("/refreshtoken", refreshTokenBodyValidation, refreshTokenRoutes);
 
 router.use(auth);
 

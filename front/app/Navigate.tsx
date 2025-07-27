@@ -6,7 +6,7 @@ import RestorePasswordScreen from '../ui/screens/RestorePasswordScreen';
 import SuccessScreen from '../ui/screens/SuccessScreen';
 import NewPasswordScreen from '../ui/screens/NewPasswordScreen';
 import Main from '../ui/components/Main/Main';
-import React, {useEffect} from 'react';
+import React from 'react';
 import FilterPopup from '../ui/components/FilterPopup/FilterPopup';
 import SearchPopup from '../ui/components/SearchPopup/SearchPopup';
 import CreateProjectScreen from '../ui/screens/CreateProjectScreen';
@@ -18,14 +18,7 @@ import SplashScreen from '../ui/components/SplashScreen/SplashScreen';
 import {StatusBar} from 'react-native';
 const Stack = createStackNavigator();
 
-function Navigate({
-  isAuthenticated,
-  setEmail,
-  products,
-  currentUser,
-  setProducts,
-  setCurrentUser,
-}: any) {
+function Navigate() {
   return (
     <>
       <StatusBar hidden={true} />
@@ -48,7 +41,7 @@ function Navigate({
           component={LoginScreen}
         /> */}
           <Stack.Screen name="Login" options={{headerShown: false}}>
-            {props => <LoginScreen {...props} setEmail={setEmail} />}
+            {props => <LoginScreen {...props} />}
           </Stack.Screen>
           <Stack.Screen
             options={{headerShown: false}}
@@ -71,7 +64,7 @@ function Navigate({
           component={Main}
         /> */}
           <Stack.Screen name="Main" options={{headerShown: false}}>
-            {props => <Main {...props} products={products} />}
+            {props => <Main {...props} />}
           </Stack.Screen>
           <Stack.Screen
             options={{headerShown: false}}
@@ -99,15 +92,7 @@ function Navigate({
           component={UnwrappedProductScreen}
         /> */}
           <Stack.Screen name="UnwrappedProduct" options={{headerShown: false}}>
-            {props => (
-              <UnwrappedProductScreen
-                {...props}
-                products={products}
-                currentUser={currentUser}
-                setProducts={setProducts}
-                setCurrentUser={setCurrentUser}
-              />
-            )}
+            {props => <UnwrappedProductScreen {...props} />}
           </Stack.Screen>
           <Stack.Screen
             options={{headerShown: false}}

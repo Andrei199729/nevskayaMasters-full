@@ -97,7 +97,7 @@ export type RootStackParamList = {
   Main: undefined;
   UnwrappedProduct: {
     dataProduct: IDrawing[];
-    nameRoom: string;
+    nameRoom?: string;
   };
   Product: {productRoom: IProductRoom};
 };
