@@ -14,7 +14,7 @@ const router = Router();
 
 router.post("/signup", registerValid, register);
 router.post("/signin", loginValid, login);
-router.use("/refreshtoken", refreshTokenBodyValidation, refreshTokenRoutes);
+router.use("/logout", refreshTokenBodyValidation, refreshTokenRoutes);
 
 router.use(auth);
 
