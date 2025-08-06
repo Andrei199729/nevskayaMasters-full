@@ -18,6 +18,8 @@ import {
 import ModalElementsWall from '../ModalElementsWall/ModalElementsWall';
 import ElementWallAdd from '../ElementWallAdd/ElementWallAdd';
 import SizeWallTextModal from '../../../shared/SizeWallTextModal/SizeWallTextModal';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {setElementsDataBulk} from '../../../services/actions/room';
 interface IModalWall {
   numberWall: number;
   saveSizeWall?: ISaveSizeWall | undefined;
@@ -26,12 +28,10 @@ interface IModalWall {
   numberCurrentWall: boolean | number | null;
   wallIndex: number;
   arrElements: IElement[] | undefined;
-  addElementToData: (data: IElementData) => void;
-  onSaveElement: (dataEl: IDataElementsWall) => void;
+  addElementToData: (data: IElementData, wallId: number) => void;
+  onSaveElement: (dataEl: IDataElementsWall, index: number) => void;
   updateSizeWalls: (data: IElementData, wallId: number) => void;
-  setElementsData: Dispatch<SetStateAction<IElement[]>>;
-  elementsData: IElement[];
-  deleteElement: (wallId: number | boolean | null, elementId: number) => void;
+  // deleteElement: (wallId: number | boolean | null, elementId: number) => void;
   setVisible: (index: number, isVisible: boolean) => void;
   visibleElements: {[key: number]: boolean};
   editElement: (updatedData: any, wallId: number, elementId: number) => void;
@@ -49,15 +49,15 @@ export default function ModalWall({
   addElementToData,
   onSaveElement,
   updateSizeWalls,
-  setElementsData,
-  elementsData,
-  deleteElement,
+  // deleteElement,
   setVisible,
   visibleElements,
   editElement,
   externalData,
   ...props
 }: IModalWall) {
+  const dispatch = useDispatch();
+  const {elementsData} = useSelector(state => state.room);
   const [elementsWallModalVisible, setElementsWallModalVisible] = useState<
     boolean | number | null
   >(false);
@@ -77,18 +77,21 @@ export default function ModalWall({
   };
 
   const onSaveDataElement = (data: IElementData, wallId: number) => {
-    addElementToData(data);
+    addElementToData(data, wallId);
     updateSizeWalls(data, wallId);
   };
 
   const handleClose = () => {
     setModalVisible(false);
   };
-
+  const elementsForCurrentWall = elementsData.filter(
+    el => el.wallId === numberWall - 1,
+  );
+  // Обновляем, если `arrElements` изменилось
   useEffect(() => {
-    setElementsData(arrElements ?? []);
-  }, [arrElements]); // Обновляем, если `arrElements` изменилось
-
+    if (arrElements) dispatch(setElementsDataBulk(arrElements || []));
+    console.log(arrElements, 'arrElements');
+  }, [arrElements]);
   return (
     <>
       <Modal
@@ -106,25 +109,25 @@ export default function ModalWall({
                   left: '10%',
                   zIndex: 4,
                 }}>
-                {elementsData?.map((element: IElement, index: number) => {
-                  return (
-                    <ElementWallAdd
-                      key={index}
-                      element={element}
-                      position={index}
-                      nameElement={element?.dataObj?.nameElement || ''}
-                      stateElement={element?.dataObj?.stateElement || ''}
-                      onPressVisible={() => setVisible(index, true)}
-                      isVisible={visibleElements}
-                      setVisible={setVisible}
-                      elementsData={elementsData}
-                      setElementsData={setElementsData}
-                      setModalVisibleWall={setElementsWallModalVisible}
-                      numberCurrentWall={numberCurrentWall}
-                      deleteElement={deleteElement}
-                    />
-                  );
-                })}
+                {elementsForCurrentWall?.map(
+                  (element: IElement, index: number) => {
+                    return (
+                      <ElementWallAdd
+                        key={index}
+                        element={element}
+                        position={index}
+                        nameElement={element?.dataObj?.nameElement || ''}
+                        stateElement={element?.dataObj?.stateElement || ''}
+                        onPressVisible={() => setVisible(index, true)}
+                        isVisible={visibleElements}
+                        setVisible={setVisible}
+                        setModalVisibleWall={setElementsWallModalVisible}
+                        numberCurrentWall={numberCurrentWall}
+                        // deleteElement={deleteElement}
+                      />
+                    );
+                  },
+                )}
               </View>
               <Pressable onPress={onClickElementModal}>
                 <View style={{backgroundColor: Colors.white}}>

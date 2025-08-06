@@ -44,7 +44,6 @@ export function Input({
   );
   const onClickClear = () => {
     if (!isDimmed) {
-      console.log('reset');
       setSearchText('');
     }
   };

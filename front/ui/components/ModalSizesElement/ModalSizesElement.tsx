@@ -4,6 +4,7 @@ import {Colors} from '../../../shared/tokens';
 import {Dispatch, SetStateAction, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
+import {useDispatch, useSelector} from '../../../services/hooks';
 
 interface IModalSizesElement {
   setVisible: (position: number, bool: boolean) => void;
@@ -11,10 +12,8 @@ interface IModalSizesElement {
   nameElement: string;
   position: number;
   element: IElement;
-  elementsData: IElement[];
-  setElementsData: Dispatch<SetStateAction<IElement[]>>;
   setModalVisibleWall: Dispatch<SetStateAction<number | boolean | null>>;
-  deleteElement: (wallId: number | boolean | null, elementId: number) => void;
+  // deleteElement: (wallId: number | boolean | null, elementId: number) => void;
   numberCurrentWall: number | boolean | null;
 }
 
@@ -24,13 +23,13 @@ export default function ModalSizesElement({
   nameElement,
   position,
   element,
-  elementsData,
-  setElementsData,
   setModalVisibleWall,
   numberCurrentWall,
-  deleteElement,
+  // deleteElement,
   ...props
 }: IModalSizesElement) {
+  const dispatch = useDispatch();
+  const {elementsData} = useSelector(state => state.room);
   const [isVisibleEditModal, setIsVisibleEditModal] = useState<
     number | boolean | null
   >(false);
@@ -42,16 +41,14 @@ export default function ModalSizesElement({
     if (!element.data) return;
     // Здесь вам нужно найти элемент в массиве elementsData, соответствующий текущей позиции
     const elementToEdit = elementsData[position]?.data;
+
     if (elementToEdit) {
       setIsVisibleEditModal(true);
     }
   };
 
   const onSaveEditedElement = (updatedData: IElementData) => {
-    const updatedElements = elementsData.map((item: IElement, index: number) =>
-      index === position ? {...item, data: updatedData} : item,
-    );
-    setElementsData(updatedElements); // Обновляем состояние
+    dispatch(updateElementData(position, updatedData)); // Обновляем состояние
     setIsVisibleEditModal(false); // Закрываем модальное окно редактирования
   };
 
@@ -137,7 +134,7 @@ export default function ModalSizesElement({
               <ButtonCustom textBtn="Редактировать" onPress={onClickEdit} />
               <ButtonCustom
                 textBtn="Удалить"
-                onPress={() => deleteElement(numberCurrentWall, position)}
+                // onPress={() => deleteElement(numberCurrentWall, position)}
               />
               <ButtonCustom textBtn="Закрыть" onPress={onClickModalClose} />
             </View>
@@ -170,3 +167,6 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
 });
+function updateElementData(position: number, updatedData: IElementData): any {
+  throw new Error('Function not implemented.');
+}

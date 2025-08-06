@@ -18,20 +18,22 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
 import IndexWallContext from '../../context/IndexWallContext/IndexWallContext';
 import api from '../../utils/api';
+import {useDispatch, useSelector} from '../../services/hooks';
+import {addRoom, resetCurrentDrawing} from '../../services/actions/room';
 
 export default function FormDataAddProductScreen() {
   const navigation =
     useNavigation<
       NavigationProp<RootStackParamList, PathScreen.UnwrappedProduct>
     >();
+  const dispatch = useDispatch();
+  const {sizeWalls} = useSelector(state => state.room);
   const nameRoom = useInput('');
-  const [selectedTextDefault, setSelectedTextDefault] = useState({
-    defaultCount: 'Выберите количество стен',
-  });
+  // const [selectedTextDefault, setSelectedTextDefault] = useState({
+  //   defaultCount: 'Выберите количество стен',
+  // });
 
   const [isActiveBtn, setIsActiveBtn] = useState<boolean>(true);
-  const [countWall, setCountWall] = useState('');
-  const [sizeWalls, setSizeWalls] = useState<IDrawing[]>([]);
   const [modalVisibleBacklight, setModalVisibleBacklight] = useState<
     boolean | number | null
   >(false);
@@ -40,16 +42,16 @@ export default function FormDataAddProductScreen() {
     return null;
   }
   const {activeWallIndex, setActiveWallIndex} = indexWallContext;
-  console.log(sizeWalls, 'sizeWallssizeWalls');
 
   const onSaveDataWall = () => {
     if (!sizeWalls.length) {
       console.warn('⚠️ Нет данных для сохранения!');
       return;
     }
-    api
-      .addProduct(nameRoom.value, sizeWalls)
-      .then(({nameRoom, dataProduct}) => {
+    dispatch(addRoom(nameRoom.value, sizeWalls))
+      .then(result => {
+        if (!result) return;
+        const {dataProduct, nameRoom} = result;
         navigation.navigate('UnwrappedProduct', {
           dataProduct: dataProduct,
           nameRoom: nameRoom,
@@ -76,7 +78,7 @@ export default function FormDataAddProductScreen() {
             <Input onChangeText={nameRoom.onChangeText} />
           </View>
           <View>
-            <Text>Выберите количество стен</Text>
+            {/* <Text>Выберите количество стен</Text>
             <SelectCustom
               isSelect
               options={arrCountWall}
@@ -84,11 +86,9 @@ export default function FormDataAddProductScreen() {
               isActiveBtnState={(item: boolean) => setIsActiveBtn(item)}
               onSelectedReset={() => {}}
               countWallText={(item: string) => setCountWall(item)}
-            />
+            /> */}
             <View>
               <Draw
-                setSizeWalls={setSizeWalls}
-                sizeWalls={sizeWalls}
                 setNumberCurrentWall={setActiveWallIndex}
                 numberCurrentWall={activeWallIndex}
                 setModalVisibleBacklight={setModalVisibleBacklight}

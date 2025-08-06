@@ -18,8 +18,8 @@ import {postLoginAuth} from '../../services/actions/user';
 function LoginScreen({navigation}: any) {
   const dispatch = useDispatch();
   const {accessToken} = useSelector((state: any) => state.user);
-  const emailInput = useInput('');
-  const passwordInput = useInput('');
+  const emailInput = useInput('19972910mana@gmail.com');
+  const passwordInput = useInput('123456789');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
   const [emailError, setEmailError] = useState<boolean>(true);
   const [localError, setLocalError] = useState<string | undefined>(

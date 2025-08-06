@@ -17,44 +17,59 @@ import {
   IExternalSizeWall,
   IPaths,
   IPoint,
-  IWall,
 } from '../../../shared/types';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  clearPaths,
+  clearPoints,
+  notificationSaveRoom,
+  setCountWallDraw,
+  setCurrentPath,
+  setLastPoint,
+  setPaths,
+  setPoints,
+  setWallsData,
+  updateLastDrawingWalls,
+} from '../../../services/actions/room';
 interface IDraw {
-  setSizeWalls: Dispatch<SetStateAction<IDrawing[]>>;
-  sizeWalls: IDrawing[];
   setNumberCurrentWall: Dispatch<SetStateAction<number | boolean | null>>;
   numberCurrentWall: number | boolean | null;
   setModalVisibleBacklight: Dispatch<SetStateAction<number | boolean | null>>;
   modalVisibleBacklight: number | boolean | null;
+  // sizeWalls: any;
 }
 export default function Draw({
-  setSizeWalls,
-  sizeWalls,
   setNumberCurrentWall,
   numberCurrentWall,
   setModalVisibleBacklight,
   modalVisibleBacklight,
 }: IDraw) {
+  const dispatch = useDispatch();
+  // Хранит текущий путь, который пользователь рисует. currentPath
+  // который будет хранить все AddBlockDimensions wallsData
+  // Хранит массив объектов, каждый из которых представляет путь (path) и его длину. paths
+  // Хранит все точки, используемые для вычислений, включая углы. points
+  // Сохраняет последнюю точку, чтобы реализовать привязку при близком расположении. lastPoint
+  // Количество стен countWallDraw
+  const {
+    wallsData,
+    currentPath,
+    lastPoint,
+    paths,
+    points,
+    sizeWalls,
+    countWallDraw,
+  } = useSelector(state => state.room);
+
   const [modalVisible, setModalVisible] = useState<number | boolean | null>(
     false,
   );
   const [openFormDataSize, setOpenFormDataSize] = useState<boolean>(false);
-  // Хранит массив объектов, каждый из которых представляет путь (path) и его длину.
-  const [paths, setPaths] = useState<IPaths[]>([]);
-  // массив стен
 
-  // Хранит текущий путь, который пользователь рисует.
-  const [currentPath, setCurrentPath] = useState<string>('');
-  // Сохраняет последнюю точку, чтобы реализовать привязку при близком расположении.
-  const [lastPoint, setLastPoint] = useState<IPoint | null>(null);
-  // Хранит все точки, используемые для вычислений, включая углы.
-  const [points, setPoints] = useState<IPoint[]>([]);
   // Хранит углы между линиями для отображения дополнительной информации.
   const [angles, setAngles] = useState<number[]>([]); // Массив углов между линиями
 
-  const [countWallDraw, setCountWallDraw] = useState(0); // Количество стен
-  const [wallsData, setWallsData] = useState<IWall[]>([]); // который будет хранить все AddBlockDimensions
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
 
   const [indexLineWallDraw, setIndexLineWallDraw] = useState(0); // клик на линию
@@ -119,24 +134,27 @@ export default function Draw({
       // Привязываем к последней точке, если пользователь рядом
       adjustedPoint = lastPoint;
     }
+
     if (lastPoint) {
-      setCurrentPath((prev: string) => {
-        const newPath = `${prev} L${Math.round(adjustedPoint.x)},${Math.round(
-          adjustedPoint.y,
-        )}`;
-        return newPath;
-      }); // Добавляем точку в текущий путь.
+      const newPath = `${currentPath} L${Math.round(
+        adjustedPoint.x,
+      )},${Math.round(adjustedPoint.y)}`;
+      dispatch(setCurrentPath(newPath));
+      // Добавляем точку в текущий путь.
     } else {
       // Если это первая точка новой линии, проверяем привязку
       const startPoint =
         points.length > 0 && isNearPoint(points[points.length - 1], {x, y})
           ? points[points.length - 1]
           : adjustedPoint;
+      const startNewPath = `M${startPoint.x},${startPoint.y}`;
       if (isNaN(startPoint.x) || isNaN(startPoint.y)) {
         return;
       }
-      setCurrentPath(`M${startPoint.x},${startPoint.y}`); // Начало нового пути.
-      setLastPoint(startPoint); // Устанавливаем первую точку.
+
+      dispatch(setLastPoint(startPoint)); // Устанавливаем первую точку.
+      // Начало нового пути.
+      dispatch(setCurrentPath(startNewPath));
     }
   };
 
@@ -163,8 +181,8 @@ export default function Draw({
         const pathExists = paths.some(path => path.path === newPath); // Проверяем, существует ли такой путь
 
         if (!pathExists) {
-          setPaths([...paths, {path: newPath, length: newLength}]); // Добавляем новый путь, если его еще нет в paths
-          setPoints([...points, {x: startX, y: startY}, {x: endX, y: endY}]); // Обновляем точки
+          dispatch(setPaths(newPath, newLength)); // Добавляем новый путь, если его еще нет в paths
+          dispatch(setPoints(startX, startY, endX, endY)); // Обновляем точки
         }
 
         // Проверяем замыкание линии на начальную точку первой линии
@@ -179,10 +197,7 @@ export default function Draw({
             );
 
             if (!closingPathExists) {
-              setPaths(prevPaths => [
-                ...prevPaths,
-                {path: closingPath, length: newLength},
-              ]);
+              dispatch(setPaths(closingPath, newLength));
             }
           }
         }
@@ -190,38 +205,19 @@ export default function Draw({
       }
     }
 
-    setCurrentPath('');
-    setLastPoint(null);
+    dispatch(setCurrentPath(''));
+    dispatch(setLastPoint(null));
   };
 
   // Показывает уведомление о сохранении.
   const saveDrawing = () => {
-    setSizeWalls(prevDrawing => {
-      // Определяем номер стены
-      const numberWall = prevDrawing.length;
-      const countWallDraw = paths.length;
-      // Строим структуру для сохранения
-      const drawingData = {
-        numberWall,
-        countWallDraw,
-        shapes: paths.map((path, index) => ({
-          id: index + 1,
-          path: path.path, // Путь
-          length: path.length, // Длина линии
-          points: points, // Все точки на рисунке
-        })),
-        walls: wallsData,
-      };
-
-      // Обновляем состояние и передаём в `onSaveSizeWall`
-      const newDrawing = [...prevDrawing, {drawingData}];
-      return newDrawing;
-    });
-
-    setCountWallDraw(countWallDraw);
+    dispatch(notificationSaveRoom(points, wallsData));
+    dispatch(setCountWallDraw(countWallDraw));
     // Очистка путей после сохранения
-    setPaths([]);
+    dispatch(clearPaths());
+    dispatch(clearPoints());
   };
+
   const isLast = (index: number, paths: IPaths[]): boolean =>
     index === paths.length - 1;
 
@@ -243,17 +239,7 @@ export default function Draw({
       valueDegree: size.valueDegree || '',
     };
 
-    setWallsData(prevWalls => {
-      const updatedWalls = prevWalls.map(wall =>
-        wall.numberWall === numberWall - 1
-          ? {...wall, size: normalizedSize}
-          : wall,
-      );
-      return prevWalls.some(wall => wall.numberWall === numberWall - 1)
-        ? updatedWalls
-        : [...prevWalls, {size: normalizedSize, numberWall: numberWall - 1}];
-    });
-
+    dispatch(setWallsData(wallsData, normalizedSize, numberWall));
     setIsStyleLine(true);
     if (openFormDataSize) setIsStyleLine(false);
     updateStrokeDasharray(numberWall - 1);
@@ -332,31 +318,13 @@ export default function Draw({
     // Обновляем количество линий для последнего рисунка
     if (sizeWalls.length > 0) {
       const lastDrawing = sizeWalls[sizeWalls.length - 1];
-      setCountWallDraw(lastDrawing?.drawingData?.shapes?.length - 1);
+      dispatch(setCountWallDraw(lastDrawing?.drawingData?.shapes?.length - 1));
     }
   }, [sizeWalls]);
 
   useEffect(() => {
     if (wallsData.length === 0) return;
-
-    setSizeWalls(prevSizeWalls => {
-      const updatedWalls = prevSizeWalls.map(
-        (drawing: IDrawing, index: number) => {
-          if (index === prevSizeWalls.length - 1) {
-            return {
-              ...drawing,
-              drawingData: {
-                ...drawing.drawingData,
-                walls: [...wallsData], // Синхронизируем wallsData с drawingData
-              },
-            };
-          }
-          return drawing;
-        },
-      );
-
-      return updatedWalls;
-    });
+    dispatch(updateLastDrawingWalls(wallsData));
   }, [wallsData]); // Срабатывает, когда изменяется wallsData
 
   return (
@@ -472,7 +440,9 @@ export default function Draw({
                 drawing={drawing?.drawingData}
                 isLast={isLast}
                 setCountWallDraw={() =>
-                  setCountWallDraw(drawing?.drawingData?.shapes.length)
+                  dispatch(
+                    setCountWallDraw(drawing?.drawingData?.shapes.length),
+                  )
                 }
                 onClickLine={onClickLine}
                 selectedLine={selectedLine}
@@ -484,7 +454,7 @@ export default function Draw({
             );
           })
         ) : (
-          <Text>No walls to display</Text> // Если массив пуст
+          <Text>Стен не существует</Text> // Если массив пуст
         )}
         <FlatList
           horizontal
@@ -501,7 +471,6 @@ export default function Draw({
                 <AddBlockDimensions
                   key={index}
                   numberWall={index + 1}
-                  setSizeWalls={setSizeWalls}
                   setNumberCurrentWall={setNumberCurrentWall}
                   numberCurrentWall={numberCurrentWall}
                   setModalVisibleBacklight={setModalVisibleBacklight}

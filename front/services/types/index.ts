@@ -1,15 +1,12 @@
-// import {TBurgerIngredientsConstructorAction} from '../actions/constructor';
-// import {TBurgerIngredientsAction} from '../actions/ingredient';
-// import {TIngredientDataModalAction} from '../actions/popupIngredient';
-// import {TOrderAction} from '../actions/popupOrder';
 import {Action} from 'redux';
 import {TUserAction} from '../actions/user';
 // import {TWsConnectionAction} from '../actions/wsAction';
 import {rootReducer} from '../reducers/rootReducer';
 import {ThunkAction, ThunkDispatch} from 'redux-thunk';
+import {TRoomAction} from '../actions/room';
 // import {TWsConnectionProfileAction} from '../actions/wsActionProfile';
 
-type TApplicationActions = TUserAction;
+type TApplicationActions = TUserAction | TRoomAction;
 //   | TWsConnectionAction
 //   | TWsConnectionProfileAction;
 
@@ -17,9 +14,13 @@ export type RootState = ReturnType<typeof rootReducer>;
 
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
-  unknown,
   RootState,
-  Action<string>
+  unknown,
+  TApplicationActions
 >;
 
-export type AppDispatch = ThunkDispatch<RootState, unknown, Action<string>>;
+export type AppDispatch = ThunkDispatch<
+  RootState,
+  unknown,
+  TApplicationActions
+>;

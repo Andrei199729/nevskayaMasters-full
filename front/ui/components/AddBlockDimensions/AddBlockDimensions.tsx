@@ -14,11 +14,18 @@ import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import ModalWall from '../ModalWall/ModalWall';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
 import SizeWallText from '../../../shared/SizeWallText/SizeWallText';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setDataObj,
+  setEditElement,
+  setElementsData,
+  setElementsDataBulk,
+  setUpdateSizeWalls,
+} from '../../../services/actions/room';
 
 export default function AddBlockDimensions({
   numberWall,
   saveSizeWall,
-  setSizeWalls,
   setNumberCurrentWall,
   numberCurrentWall,
   setModalVisibleBacklight,
@@ -30,7 +37,9 @@ export default function AddBlockDimensions({
   setIsVisibleEditModal,
   externalData,
   ...props
-}: IAddBlockDimensions) {
+}: IAddBlockDimensions | any) {
+  const dispatch = useDispatch();
+  const {sizeWalls, dataObj, elementsData} = useSelector(state => state.room);
   const wallIndex = numberWall - 1;
 
   let size = saveSizeWall?.[wallIndex]?.size;
@@ -45,14 +54,7 @@ export default function AddBlockDimensions({
   const [clickDataWall, setClickDataWall] = useState<{
     [key: string]: boolean;
   }>({});
-  const [elementsData, setElementsData] = useState<IElement[]>(
-    arrElements || [],
-  );
-  const [dataObj, setDataObj] = useState({
-    nameElement: '',
-    stateElement: '',
-    id: 0,
-  });
+
   const [visibleElements, setVisibleElements] = useState<{
     [key: number]: boolean;
   }>({});
@@ -64,166 +66,132 @@ export default function AddBlockDimensions({
     }));
   };
 
-  const addElementToData = (data: IElementData) => {
-    setElementsData(prev => {
-      const updatedElements = [...prev, {data, dataObj}];
-      return updatedElements;
-    });
+  const addElementToData = (data: IElementData, wallId: number) => {
+    dispatch(setElementsData(data, dataObj, numberCurrentWall));
   };
+
   const onSaveElement = (dataEl: IDataElementsWall) => {
-    setDataObj(prev => {
-      const update = {...prev, ...dataEl};
-      return update;
-    });
+    dispatch(setDataObj(dataEl));
   };
+
   const updateSizeWalls = (data: IElementData, wallId: number) => {
-    setSizeWalls(prevSizeWall => {
-      if (!Array.isArray(prevSizeWall)) {
-        console.error(
-          '❌ Ошибка: prevSizeWall не является массивом!',
-          prevSizeWall,
-        );
-        return [];
-      }
-
-      // Создаем глубокую копию массива стен
-      const newWalls = prevSizeWall.map(wall => {
-        const updatedDrawingData = {...wall.drawingData};
-
-        // Обновляем массив стен внутри drawingData
-        updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-          if (wallData.size.id === numberCurrentWall) {
-            return {
-              ...wallData,
-              size: {
-                ...wallData.size,
-                arrElements: {
-                  // wallId,
-                  elements: [
-                    ...(wallData.size?.arrElements?.elements ?? []),
-                    {data, dataObj},
-                  ], // Добавляем новый элемент
-                },
-              },
-            };
-          }
-          return wallData;
-        });
-
-        return {
-          ...wall,
-          drawingData: updatedDrawingData,
-        };
-      });
-
-      return newWalls;
-    });
+    if (!Array.isArray(sizeWalls)) {
+      console.error('❌ Ошибка: prevSizeWall не является массивом!', sizeWalls);
+      return [];
+    }
+    //   // Создаем глубокую копию массива стен
+    dispatch(setUpdateSizeWalls(data, dataObj, numberCurrentWall));
   };
 
   const editElement = useCallback(
     (updatedData: any, wallId: number, elementId: number) => {
-      setSizeWalls(prevSizeWall => {
-        if (!Array.isArray(prevSizeWall)) {
-          console.error(
-            '❌ Ошибка: prevSizeWall не является массивом!',
-            prevSizeWall,
-          );
-          return prevSizeWall;
-        }
+      if (!Array.isArray(sizeWalls)) {
+        console.error('❌ Ошибка: sizeWalls не является массивом!', sizeWalls);
+        return sizeWalls;
+      }
+      dispatch(setEditElement(updatedData, wallId, elementId));
+      // setSizeWalls(prevSizeWall => {
+      //   if (!Array.isArray(prevSizeWall)) {
+      //     console.error(
+      //       '❌ Ошибка: prevSizeWall не является массивом!',
+      //       prevSizeWall,
+      //     );
+      //     return prevSizeWall;
+      //   }
 
-        // Создаем глубокую копию массива стен
-        const newWalls = prevSizeWall.map(wall => {
-          const updatedDrawingData = {...wall.drawingData};
+      //   // Создаем глубокую копию массива стен
+      //   const newWalls = prevSizeWall.map(wall => {
+      //     const updatedDrawingData = {...wall.drawingData};
 
-          // Обновляем массив стен внутри drawingData
-          updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-            // Проверяем, совпадает ли ID стены
-            if (wallData.size.id === wallId) {
-              // Удаляем элемент с определенным индексом
-              const updatedElements = elementsData.map(
-                (item: IElement, index: number) =>
-                  index === elementId ? {...item, data: updatedData} : item,
-              );
+      //     // Обновляем массив стен внутри drawingData
+      //     updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
+      //       // Проверяем, совпадает ли ID стены
+      //       if (wallData.size.id === wallId) {
+      //         // Удаляем элемент с определенным индексом
+      //         const updatedElements = elementsData.map(
+      //           (item: IElement, index: number) =>
+      //             index === elementId ? {...item, data: updatedData} : item,
+      //         );
 
-              setElementsData(updatedElements);
-              return {
-                ...wallData,
-                size: {
-                  ...wallData.size,
-                  arrElements: {
-                    ...wallData.size.arrElements,
-                    elements: updatedElements, // Обновляем элементы без удаленного
-                  },
-                },
-              };
-            }
-            return wallData;
-          });
+      //         setElementsData(updatedElements);
+      //         return {
+      //           ...wallData,
+      //           size: {
+      //             ...wallData.size,
+      //             arrElements: {
+      //               ...wallData.size.arrElements,
+      //               elements: updatedElements, // Обновляем элементы без удаленного
+      //             },
+      //           },
+      //         };
+      //       }
+      //       return wallData;
+      //     });
 
-          return {
-            ...wall,
-            drawingData: updatedDrawingData,
-          };
-        });
+      //     return {
+      //       ...wall,
+      //       drawingData: updatedDrawingData,
+      //     };
+      //   });
 
-        return newWalls; // Возвращаем обновленный массив
-      });
+      //   return newWalls; // Возвращаем обновленный массив
+      // });
       toggleElementVisibility(elementId, false);
     },
     [],
   );
 
-  const deleteElement = useCallback(
-    (wallId: number | boolean | null, elementId: number) => {
-      setSizeWalls(prevSizeWall => {
-        if (!Array.isArray(prevSizeWall)) {
-          console.error(
-            '❌ Ошибка: prevSizeWall не является массивом!',
-            prevSizeWall,
-          );
-          return prevSizeWall;
-        }
+  // const deleteElement = useCallback(
+  //   (wallId: number | boolean | null, elementId: number) => {
+  //     setSizeWalls(prevSizeWall => {
+  //       if (!Array.isArray(prevSizeWall)) {
+  //         console.error(
+  //           '❌ Ошибка: prevSizeWall не является массивом!',
+  //           prevSizeWall,
+  //         );
+  //         return prevSizeWall;
+  //       }
 
-        // Создаем глубокую копию массива стен
-        const newWalls = prevSizeWall.map(wall => {
-          const updatedDrawingData = {...wall.drawingData};
+  //       // Создаем глубокую копию массива стен
+  //       const newWalls = prevSizeWall.map(wall => {
+  //         const updatedDrawingData = {...wall.drawingData};
 
-          // Обновляем массив стен внутри drawingData
-          updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-            // Проверяем, совпадает ли ID стены
-            if (wallData.size.id === wallId) {
-              // Удаляем элемент с определенным индексом
-              const updatedElements =
-                wallData?.size?.arrElements?.elements?.filter(
-                  (element, index) => index !== elementId,
-                ) || [];
-              setElementsData(updatedElements);
-              return {
-                ...wallData,
-                size: {
-                  ...wallData.size,
-                  arrElements: {
-                    ...wallData.size.arrElements,
-                    elements: updatedElements, // Обновляем элементы без удаленного
-                  },
-                },
-              };
-            }
-            return wallData;
-          });
+  //         // Обновляем массив стен внутри drawingData
+  //         updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
+  //           // Проверяем, совпадает ли ID стены
+  //           if (wallData.size.id === wallId) {
+  //             // Удаляем элемент с определенным индексом
+  //             const updatedElements =
+  //               wallData?.size?.arrElements?.elements?.filter(
+  //                 (element, index) => index !== elementId,
+  //               ) || [];
+  //             setElementsData(updatedElements);
+  //             return {
+  //               ...wallData,
+  //               size: {
+  //                 ...wallData.size,
+  //                 arrElements: {
+  //                   ...wallData.size.arrElements,
+  //                   elements: updatedElements, // Обновляем элементы без удаленного
+  //                 },
+  //               },
+  //             };
+  //           }
+  //           return wallData;
+  //         });
 
-          return {
-            ...wall,
-            drawingData: updatedDrawingData,
-          };
-        });
+  //         return {
+  //           ...wall,
+  //           drawingData: updatedDrawingData,
+  //         };
+  //       });
 
-        return newWalls; // Возвращаем обновленный массив
-      });
-      toggleElementVisibility(elementId, false);
-    },
-    [],
-  );
+  //       return newWalls; // Возвращаем обновленный массив
+  //     });
+  //     toggleElementVisibility(elementId, false);
+  //   },
+  //   [],
+  // );
 
   const onClickDataWall = (
     isVisible: boolean,
@@ -234,10 +202,13 @@ export default function AddBlockDimensions({
       [nameButton]: isVisible, // Устанавливаем видимость только для конкретного элемента
     }));
   };
+  const elementsForCurrentWall = elementsData.filter(
+    el => el.wallId === numberWall - 1,
+  );
 
   // Синхронизируем elementsData с arrElements при изменении пропса
   useEffect(() => {
-    setElementsData(arrElements || []);
+    if (arrElements) dispatch(setElementsDataBulk(arrElements || []));
   }, [arrElements]);
 
   return (
@@ -255,9 +226,7 @@ export default function AddBlockDimensions({
           addElementToData={addElementToData}
           onSaveElement={onSaveElement}
           updateSizeWalls={updateSizeWalls}
-          setElementsData={setElementsData}
-          elementsData={elementsData}
-          deleteElement={deleteElement}
+          // deleteElement={deleteElement}
           setVisible={toggleElementVisibility}
           visibleElements={visibleElements}
           editElement={editElement}
@@ -407,21 +376,23 @@ export default function AddBlockDimensions({
                           borderStyle: 'solid',
                           marginTop: 10,
                         }}>
-                        {Array.isArray(elementsData) &&
-                        elementsData.length > 0 ? (
-                          elementsData.map((element, index) => (
-                            <BlockStateElements
-                              key={index}
-                              nameElement={
-                                element?.dataObj?.nameElement || 'Без имени'
-                              }
-                              stateElement={
-                                element?.dataObj?.stateElement || 'Не задано'
-                              }
-                              position={index}
-                              onPressVisible={() => {}}
-                            />
-                          ))
+                        {Array.isArray(elementsForCurrentWall) &&
+                        elementsForCurrentWall.length > 0 ? (
+                          elementsForCurrentWall.map((element, index) => {
+                            return (
+                              <BlockStateElements
+                                key={index}
+                                nameElement={
+                                  element?.dataObj?.nameElement || 'Без имени'
+                                }
+                                stateElement={
+                                  element?.dataObj?.stateElement || 'Не задано'
+                                }
+                                position={index}
+                                onPressVisible={() => {}}
+                              />
+                            );
+                          })
                         ) : (
                           <Text>Добавьте элементы</Text>
                         )}

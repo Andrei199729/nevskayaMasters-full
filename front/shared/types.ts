@@ -161,6 +161,7 @@ interface IElementDataObj {
 }
 
 export interface IElement {
+  wallId?: number;
   data: IElementData;
   dataObj: IElementDataObj;
 }
@@ -232,6 +233,6 @@ export interface IElementData {
 export interface IProductRoom {
   dataProduct: IDrawing[];
   nameRoom: string;
-  _id: any;
-  owner: any;
+  _id?: string;
+  owner: string;
 }

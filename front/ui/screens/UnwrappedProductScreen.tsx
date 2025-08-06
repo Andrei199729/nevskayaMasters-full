@@ -1,7 +1,7 @@
 import {Alert, Pressable, StyleSheet, Text, View} from 'react-native';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts, Gaps} from '../../shared/tokens';
-import {useCallback, useEffect, useState} from 'react';
+import {Key, useCallback, useEffect, useState} from 'react';
 import HeaderScreen from './HeaderScreen';
 import {
   IDrawing,
@@ -23,8 +23,13 @@ import {
 import api from '../../utils/api';
 import * as Keychain from 'react-native-keychain';
 import auth from '../../utils/auth';
-import {useDispatch, useSelector} from 'react-redux';
 import {checkUserAuth} from '../../services/actions/user';
+import {
+  addOrUpdateRoom,
+  getRoomsInitial,
+  resetCurrentDrawing,
+} from '../../services/actions/room';
+import {useDispatch, useSelector} from '../../services/hooks';
 
 type TUnwrappedProductScreenRouteProp = RouteProp<
   {
@@ -47,14 +52,12 @@ function UnwrappedProductScreen({
   route,
   ...props
 }: IUnwrappedProductScreen) {
-  // const {dataProduct, nameRoom} = route.params ?? {};
   const dispatch = useDispatch();
-  const {userData} = useSelector((state: any) => state.user);
-  const [email, setEmail] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [productsRooms, setProductsRooms] = useState<IProductRoom[]>([]);
+  const {userData} = useSelector(state => state.user);
+  const {roomData, loading} = useSelector(state => state.room);
   const onClickAddProduct = () => {
     navigation.navigate('FormDataAddProduct');
+    dispatch(resetCurrentDrawing());
   };
 
   const onClickLinkProduct = (productRoom: IProductRoom) => {
@@ -63,81 +66,30 @@ function UnwrappedProductScreen({
     });
   };
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<any>([]);
-
   useEffect(() => {
     dispatch(checkUserAuth());
   }, [dispatch]);
 
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
-
-      const loadProducts = async () => {
-        setLoading(true);
-        try {
-          const data = await api.getInitialProducts();
-          if (isActive && data?.product && Array.isArray(data.product)) {
-            setProductsRooms(data.product);
-          } else {
-            console.warn('Некорректный формат данных от API');
-          }
-        } catch (error) {
-          console.error('Ошибка при загрузке продуктов:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      loadProducts();
-
-      return () => {
-        isActive = false; // предотвращает обновление состояния, если экран ушёл
-      };
-    }, []),
-  ); // пустой массив зависимостей — чтобы вызвать один раз при монтировании
+      dispatch(getRoomsInitial());
+    }, [dispatch]),
+  );
 
   useEffect(() => {
     const {nameRoom, dataProduct} = route.params ?? {};
     const userId = userData?.data?._id;
-    console.log(userData, 'userData');
 
     if (nameRoom && dataProduct && userId) {
-      setProductsRooms((prevProducts: any) => {
-        const existingRoomIndex = prevProducts.findIndex(
-          (room: {nameRoom: any; owner: any}) =>
-            room.nameRoom === nameRoom && room.owner === userId,
-        );
-
-        if (existingRoomIndex !== -1) {
-          const updatedRooms = [...prevProducts];
-          updatedRooms[existingRoomIndex].dataProduct = dataProduct;
-          return updatedRooms;
-        } else {
-          return [
-            ...prevProducts,
-            {
-              nameRoom,
-              dataProduct,
-              owner: userId, // 👈 добавляем владельца
-            },
-          ];
-        }
-      });
+      dispatch(addOrUpdateRoom({nameRoom, dataProduct, owner: userId}));
     }
-  }, [route.params]);
-  useEffect(() => {
-    console.log('ROUTE PARAMS:', route.params); // 🧪 добавь лог
-  }, [route.params]);
-  // if (!props.currentUser?.data?._id) {
-  //   return <Text>Загрузка пользователя...</Text>;
-  // }
+  }, [route.params, userData?.data?._id, dispatch]);
+
   if (loading) return <Text>Загрузка изделий...</Text>;
 
   return (
     <HeaderScreen>
-      <MainScreen key={productsRooms.length} mainTitle={`№ ${'заявки'}`}>
+      <MainScreen mainTitle={`№ ${'заявки'}`}>
         <UnwrappedProductObject status={ObjectStatus.Created} />
         <View style={styles.boxTitle}>
           <Title title="Название вида объекта" />
@@ -159,10 +111,13 @@ function UnwrappedProductScreen({
             <ButtonAddProduct onClickAddProduct={onClickAddProduct} />
           </View>
           <View style={styles.boxTitle}>
-            {userData?.data?._id && productsRooms.length > 0 ? (
-              productsRooms
-                .filter(data => data?.owner === userData?.data?._id)
-                .map((productRoom, index) => (
+            {userData?.data?._id && roomData?.length > 0 ? (
+              roomData
+                ?.filter(
+                  (data: {owner: string}) =>
+                    data?.owner === userData?.data?._id,
+                )
+                .map((productRoom: IProductRoom, index: number) => (
                   <Pressable
                     key={index}
                     onPress={() => onClickLinkProduct(productRoom)}>

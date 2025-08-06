@@ -15,13 +15,11 @@ import {
   //   PATCH_ABOUT_USER_REQUEST,
   //   PATCH_ABOUT_USER_FAILED,
   //   RESET_PASSWORD_SUCCESS,
-  //   SET_USER_DATA,
-  //   SET_AUTH_LOGGED_IN,
 } from '../constants/constants';
-import {TUser, TUserData} from '../types/data';
+import {TUser, TUserData, TUserWrapper} from '../types/data';
 
 type TUserState = {
-  userData: TUserData | null;
+  userData: TUserWrapper | null;
   user: TUser | null;
   password: string;
   accessToken: string | undefined;

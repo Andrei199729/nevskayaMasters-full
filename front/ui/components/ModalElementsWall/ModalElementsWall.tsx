@@ -14,7 +14,7 @@ interface IModalElementsWall {
   modalVisible: boolean | number | null;
   numberWall: number;
   setModalVisible: Dispatch<SetStateAction<boolean | number | null>>;
-  onSaveElement: (element: IDataElementsWall) => void;
+  onSaveElement: (element: IDataElementsWall, index: number) => void;
   onSaveElementSize: (
     element: IElementData,
     wallId: number,
@@ -38,7 +38,7 @@ export default function ModalElementsWall({
   const onClickElement = async (data: IDataElementsWall, index: number) => {
     setElement(!element);
     setNameElementWall(data);
-    onSaveElement(data); // Сохраняем данные только при наличии данных
+    onSaveElement(data, index); // Сохраняем данные только при наличии данных
   };
 
   return (

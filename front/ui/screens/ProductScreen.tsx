@@ -62,12 +62,6 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
 
   const [openFormDataSize, setOpenFormDataSize] = useState<boolean>(false);
 
-  console.log(productRoom.dataProduct, 'productRoom');
-  console.log(sizeWalls, 'sizeWalls');
-
-  // console.log(JSON.stringify(productRoom, null, 2), 'productRoom');
-  // console.log(productRoom._id, 'productRoom');
-
   const isLast = (index: number, paths: IPaths[]) => index === paths.length - 1;
   const indexWallContext = useContext(IndexWallContext);
 
@@ -96,7 +90,6 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
       setDataEditWall(size);
     }
   };
-  // console.log(JSON.stringify(productRoom, null, 2), 'productRoom');
   const onClickWallIncrease = (
     size: IExternalSizeWall | undefined,
     wallIndex: number,
@@ -229,7 +222,6 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
             )
               ? wall?.size?.arrElements?.elements
               : [];
-            // console.log(JSON.stringify(wall?.size, null, 2), 'wall?.size');
 
             return (
               <View style={{flexDirection: 'column', marginHorizontal: 10}}>

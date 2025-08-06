@@ -16,7 +16,7 @@ import {
   POST_LOGOUT_SUCCESS,
   POST_LOGOUT_FAILED,
 } from '../constants/constants';
-import {TLogout, TUser, TUserData} from '../types/data';
+import {TLogout, TUser, TUserData, TUserWrapper} from '../types/data';
 import {AppDispatch, AppThunk} from '../types/index';
 import {deleteKeychain, getKeychain, setKeychain} from '../../utils/keychain';
 import auth from '../../utils/auth';
@@ -25,7 +25,7 @@ import {accessToken} from '../../utils/constants';
 // Типизация экшенов
 export interface IPostRegisterSuccessAction {
   readonly type: typeof POST_REGISTER_SUCCESS;
-  readonly userData: TUserData;
+  readonly userData: TUserWrapper;
 }
 
 export interface IPostRegisterRequestAction {
@@ -51,7 +51,7 @@ export interface IPostLoginFailedAction {
 
 export interface ISetUserData {
   readonly type: typeof SET_USER_DATA;
-  readonly userData: TUserData | null;
+  readonly userData: TUserWrapper | null;
   readonly accessToken: string | undefined;
 }
 
@@ -92,40 +92,6 @@ export interface IPostLogoutFailedAction {
   readonly type: typeof POST_LOGOUT_FAILED;
   readonly error: string;
 }
-// export interface IGetTodoListAction {
-//     readonly type: typeof GET_TODO_LIST;
-//   }
-//   export interface IGetTodoListSuccessAction {
-//     readonly type: typeof GET_TODO_LIST_SUCCESS;
-//       readonly list: TTodoItem[];
-//   }
-//   export interface IGetTodoListFailedAction {
-//     readonly type: typeof GET_TODO_LIST_FAILED;
-//   }
-
-//   export interface IAddTodoAction {
-//       readonly type: typeof ADD_TODO;
-//       readonly text: string;
-//   }
-//   export interface IAddTodoSuccessAction {
-//     readonly type: typeof ADD_TODO_SUCCESS;
-//       readonly list: TTodoItem[];
-//   }
-//   export interface IAddTodoFailedAction {
-//     readonly type: typeof ADD_TODO_FAILED;
-//   }
-
-//   export interface IDeleteTodoAction {
-//       readonly type: typeof DELETE_TODO;
-//       readonly id: number;
-//   }
-//   export interface IDeleteTodoSuccessAction {
-//     readonly type: typeof DELETE_TODO_SUCCESS;
-//       readonly list: TTodoItem[];
-//   }
-//   export interface IDeleteTodoFailedAction {
-//     readonly type: typeof DELETE_TODO_FAILED;
-//   }
 
 // Объединяем в Union
 export type TUserAction =
@@ -145,19 +111,10 @@ export type TUserAction =
   | IPostLogoutSuccessAction
   | IPostLogoutRequestAction
   | IPostLogoutFailedAction;
-//     | IGetTodoListAction
-//   | IGetTodoListSuccessAction
-//   | IGetTodoListFailedAction
-//   | IDeleteTodoAction
-//   | IDeleteTodoSuccessAction
-//   | IDeleteTodoFailedAction
-//   | IAddTodoAction
-//   | IAddTodoSuccessAction
-//   | IAddTodoFailedAction;
 
-//   // Генераторы экшенов
+// Генераторы экшенов
 export const postRegisterSuccess = (
-  userData: TUserData,
+  userData: TUserWrapper,
 ): IPostRegisterSuccessAction => ({
   type: POST_REGISTER_SUCCESS,
   userData,
@@ -191,7 +148,7 @@ export const setAuthloggedIn = (
 });
 
 export const setUserData = (
-  userData: TUserData | null,
+  userData: TUserWrapper | null,
   accessToken: string | undefined,
 ): ISetUserData => ({
   type: SET_USER_DATA,
@@ -246,17 +203,6 @@ export const postLogoutFailedAction = (
   type: POST_LOGOUT_FAILED,
   error,
 });
-postLogoutRequestAction;
-//   export const deleteTodo = (id: number): IDeleteTodoAction => ({
-//     type: DELETE_TODO,
-//       id
-// });
-
-// export const setParticipantFormValue = (field, value) => ({
-//   type: PARTICIPANT_REGISTER_FORM_SET_VALUE,
-//   field,
-//   value,
-// });
 
 export function postRegisterAuth(
   emailRegister: string,
@@ -335,8 +281,6 @@ export function postLogoutAuth(token: string | undefined) {
       await auth
         .postLogout(token)
         .then(res => {
-          console.log(res, 'postLogoutAuth');
-
           deleteKeychain('accessToken');
           deleteKeychain('refreshToken');
           dispatch(postLogoutSuccessAction(res));

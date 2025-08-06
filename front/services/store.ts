@@ -1,7 +1,6 @@
 import {legacy_createStore as createStore, applyMiddleware} from 'redux';
 import {rootReducer} from './reducers/rootReducer';
 import thunk from 'redux-thunk';
-// import {composeWithDevTools} from '@redux-devtools/extension';
 import {composeWithDevTools} from 'redux-devtools-extension';
 // Явно укажем тип Middleware, чтобы избежать TS-ошибок
 const logger = (store: any) => (next: (arg0: any) => any) => (action: any) => {

@@ -31,7 +31,6 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
   const passwordInput = useInput('');
   const repeatPassword = useInput('');
   const [choiceRights, setChoiceRights] = useState('');
-  const [checked, setChecked] = useState('first');
   const [disabledState, setDisabledState] = useState<boolean>(true);
   const [inputError, setInputError] = useState<boolean>(false);
   const [localError, setLocalError] = useState<string | undefined>(

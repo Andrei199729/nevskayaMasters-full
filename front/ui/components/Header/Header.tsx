@@ -11,8 +11,6 @@ import {PathScreenAuth, PathScreenHeader} from '../../../shared/types';
 import ProfilePopup from '../ProfilePopup/ProfilePopup';
 import ButtonContext from '../../../shared/ButtonContext/ButtonContext';
 import LogoIcon from '../../../assets/images/icon/iconFunc/LogoIcon';
-import * as Keychain from 'react-native-keychain';
-import api from '../../../utils/api';
 import {useDispatch} from 'react-redux';
 import {postLogoutAuth, setUserData} from '../../../services/actions/user';
 import {getKeychain} from '../../../utils/keychain';
@@ -82,6 +80,7 @@ export default function Header() {
       );
     }
   };
+
   const onLogout = async () => {
     try {
       const refreshToken = await getKeychain('refreshToken'); // Важно получить именно accessToken

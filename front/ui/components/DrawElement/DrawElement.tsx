@@ -11,7 +11,7 @@ import {
 import LineSvg from '../../../shared/LineSvg/LineSvg';
 
 interface IDrawElement {
-  drawing: IDrawingData;
+  drawing: any;
   onClickLine: (index: number) => void;
   selectedLine?: number | null;
   isStyleLine: boolean;

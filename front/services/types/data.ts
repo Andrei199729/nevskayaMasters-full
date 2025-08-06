@@ -14,6 +14,11 @@ export type TUserData = {
   accessToken: string | undefined;
   refreshToken: string | undefined;
   user: TUser;
+  _id: string;
+};
+
+export type TUserWrapper = {
+  data: TUserData;
 };
 
 export type TLogout = {success: boolean; message: string};

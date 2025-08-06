@@ -81,13 +81,12 @@ const login = async (email: string, password: string) => {
 
 // прописать logout
 
-const postLogout = async (token: string | undefined) => {
+const postLogout = async (refreshToken: string | undefined) => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/refreshtoken`,
-      {refreshToken: token}, // 👈 обязательно ключ refreshToken
-      {headers: HEADERS},
-    );
+    const response = await axios.delete(`${BASE_URL}/logout`, {
+      headers: HEADERS,
+      data: {refreshToken},
+    });
     return response.data;
   } catch (error) {
     throw error;
