@@ -13,9 +13,8 @@ interface IElementWallAdd {
   setVisible: (index: number, isVisible: boolean) => void;
   element: IElement;
   isVisible: {[key: number]: boolean};
-  setModalVisibleWall: Dispatch<SetStateAction<number | boolean | null>>;
-  numberCurrentWall: number | boolean | null;
-  // deleteElement: (wallId: number | boolean | null, elementId: number) => void;
+  editElement: any;
+  wallIndex: number;
 }
 
 export default function ElementWallAdd({
@@ -27,9 +26,8 @@ export default function ElementWallAdd({
   setVisible,
   element,
   isVisible,
-  setModalVisibleWall,
-  numberCurrentWall,
-  // deleteElement,
+  editElement,
+  wallIndex,
   ...props
 }: IElementWallAdd) {
   return (
@@ -46,9 +44,8 @@ export default function ElementWallAdd({
         isVisible={isVisible}
         setVisible={setVisible}
         element={element}
-        setModalVisibleWall={setModalVisibleWall}
-        numberCurrentWall={numberCurrentWall}
-        // deleteElement={deleteElement}
+        editElement={editElement}
+        wallIndex={wallIndex}
       />
     </View>
   );

@@ -5,21 +5,34 @@ import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {validateNumber} from '../../../customFunc/customFunc';
 import {IExternalSizeWall, IWallSize} from '../../../shared/types';
 import {RadioButton} from 'react-native-paper';
-interface IAddSizeWall {
-  numberWall: number | boolean | null;
-  onSaveSizeWall: (wallData: IWallSize, numberWall: number) => void;
-  dataEditWall?: IExternalSizeWall;
-  setModalVisibleBacklight?: Dispatch<SetStateAction<number | boolean | null>>;
-  setOpenFormDataSize?: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function AddSizeWall({
-  numberWall,
-  onSaveSizeWall,
-  dataEditWall,
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
   setModalVisibleBacklight,
   setOpenFormDataSize,
-}: IAddSizeWall) {
+} from '../../../services/actions/modalOpen';
+import {setWallsData} from '../../../services/actions/room';
+import {
+  setIsStyleLine,
+  setUpdateStrokeDasharrays,
+} from '../../../services/actions/draw';
+interface IAddSizeWall {
+  dataEditWall?: any;
+}
+
+export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
+  const dispatch = useDispatch();
+  const {
+    wallsData,
+    currentPath,
+    lastPoint,
+    paths,
+    points,
+    sizeWalls,
+    countWallDraw,
+    numberCurrentWall,
+  } = useSelector(state => state.room);
+  const {openFormDataSize} = useSelector(state => state.modalOpen);
+
   const [heightRight, setHeightRight] = useState<string>(
     dataEditWall?.heightRight || '',
   );
@@ -43,7 +56,42 @@ export default function AddSizeWall({
     dataEditWall?.valueDegree || '',
   );
   const [viewInput, setViewInput] = useState<boolean>(true);
+  const onSaveSizeWall = (size: IExternalSizeWall, numberWall: number) => {
+    if (!size) {
+      console.warn('Нет данных для сохранения размера стены');
+      return;
+    }
 
+    // Убедимся, что все поля имеют строковые значения
+    const normalizedSize = {
+      ...size,
+      heightRight: size.heightRight || '', // Заменяем undefined на пустую строку
+      heightLeft: size.heightLeft || '',
+      widthTop: size.widthTop || '',
+      widthBottom: size.widthBottom || '',
+      wallAngleDegree: size.wallAngleDegree || '',
+      radiusWall: size.radiusWall || '',
+      valueDegree: size.valueDegree || '',
+    };
+
+    dispatch(setWallsData(wallsData, normalizedSize, numberWall));
+    dispatch(
+      setIsStyleLine({
+        numberWall,
+        isLine: true,
+      }),
+    );
+    if (openFormDataSize)
+      dispatch(
+        setIsStyleLine({
+          numberWall: null,
+          isLine: false,
+        }),
+      );
+    // обновления состояния strokeDasharray
+
+    dispatch(setUpdateStrokeDasharrays(numberWall - 1));
+  };
   const handleSubmit = () => {
     const validHeightRight = validateNumber(heightRight);
     const validHeightLeft = validateNumber(heightLeft);
@@ -58,7 +106,8 @@ export default function AddSizeWall({
       validWidthTop &&
       validWidthBottom
     ) {
-      const numericNumberWall = typeof numberWall === 'number' ? numberWall : 0;
+      const numericNumberWall =
+        typeof numberCurrentWall === 'number' ? numberCurrentWall : 0;
       const wallData = {
         id: numericNumberWall,
         heightRight,
@@ -72,8 +121,13 @@ export default function AddSizeWall({
       onSaveSizeWall(wallData, numericNumberWall + 1);
     }
     setViewInput(false);
-    setModalVisibleBacklight?.(false);
-    setOpenFormDataSize?.(false);
+    dispatch(setModalVisibleBacklight(false));
+    dispatch(
+      setOpenFormDataSize({
+        isOpen: false,
+        wallNumber: 0,
+      }),
+    );
   };
 
   useEffect(() => {
@@ -92,7 +146,7 @@ export default function AddSizeWall({
     <>
       {viewInput && (
         <View>
-          <Text>Стена №{numberWall}</Text>
+          <Text>Стена №{numberCurrentWall + 1}</Text>
           <View style={styles.wallBlock}>
             <View>
               <Text>ширина верхней стены</Text>

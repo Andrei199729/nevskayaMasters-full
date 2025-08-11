@@ -2,13 +2,13 @@ import {StyleSheet, Text, View, ViewStyle} from 'react-native';
 import {Fonts, Colors} from '../tokens';
 
 interface ISizeWallTextModal {
-  modalVisible: boolean | number | null;
+  modalVisibleTextModal: boolean | number | null;
   wallPosition?: ViewStyle;
   dataText: string | undefined;
 }
 
 export default function SizeWallTextModal({
-  modalVisible,
+  modalVisibleTextModal,
   wallPosition,
   dataText,
 }: ISizeWallTextModal) {
@@ -17,7 +17,7 @@ export default function SizeWallTextModal({
       <Text
         style={{
           ...styles.textDimensions,
-          fontSize: modalVisible ? Fonts.f24 : Fonts.f12,
+          fontSize: modalVisibleTextModal ? Fonts.f24 : Fonts.f12,
         }}>
         {dataText}
       </Text>

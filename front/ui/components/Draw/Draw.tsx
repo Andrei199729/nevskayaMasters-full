@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet, FlatList} from 'react-native';
 import {
   PanGestureHandler,
@@ -8,14 +8,11 @@ import Svg, {Path, Circle} from 'react-native-svg';
 import DrawElement from '../DrawElement/DrawElement';
 import AddSizeWall from '../AddSizeWall/AddSizeWall';
 import AddBlockDimensions from '../AddBlockDimensions/AddBlockDimensions';
-import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts} from '../../../shared/tokens';
 import {
-  ClickSelection,
   DasharrayStrokeValue,
   IDrawing,
   IExternalSizeWall,
-  IPaths,
   IPoint,
 } from '../../../shared/types';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
@@ -29,22 +26,10 @@ import {
   setLastPoint,
   setPaths,
   setPoints,
-  setWallsData,
   updateLastDrawingWalls,
 } from '../../../services/actions/room';
-interface IDraw {
-  setNumberCurrentWall: Dispatch<SetStateAction<number | boolean | null>>;
-  numberCurrentWall: number | boolean | null;
-  setModalVisibleBacklight: Dispatch<SetStateAction<number | boolean | null>>;
-  modalVisibleBacklight: number | boolean | null;
-  // sizeWalls: any;
-}
-export default function Draw({
-  setNumberCurrentWall,
-  numberCurrentWall,
-  setModalVisibleBacklight,
-  modalVisibleBacklight,
-}: IDraw) {
+
+export default function Draw() {
   const dispatch = useDispatch();
   // Хранит текущий путь, который пользователь рисует. currentPath
   // который будет хранить все AddBlockDimensions wallsData
@@ -52,6 +37,8 @@ export default function Draw({
   // Хранит все точки, используемые для вычислений, включая углы. points
   // Сохраняет последнюю точку, чтобы реализовать привязку при близком расположении. lastPoint
   // Количество стен countWallDraw
+  // Открытие формы стены размеров openFormDataSize
+  // клик на линию isStyleLine;
   const {
     wallsData,
     currentPath,
@@ -60,33 +47,14 @@ export default function Draw({
     points,
     sizeWalls,
     countWallDraw,
+    numberCurrentWall,
   } = useSelector(state => state.room);
 
-  const [modalVisible, setModalVisible] = useState<number | boolean | null>(
-    false,
-  );
-  const [openFormDataSize, setOpenFormDataSize] = useState<boolean>(false);
+  const {openFormDataSize} = useSelector(state => state.modalOpen);
+  const {dataWall} = useSelector(state => state.draw);
 
   // Хранит углы между линиями для отображения дополнительной информации.
   const [angles, setAngles] = useState<number[]>([]); // Массив углов между линиями
-
-  const [selectedLine, setSelectedLine] = useState<number | null>(null);
-
-  const [indexLineWallDraw, setIndexLineWallDraw] = useState(0); // клик на линию
-  const [isStyleLine, setIsStyleLine] = useState(false); // клик на линию
-  const [strokeDasharrays, setStrokeDasharrays] = useState<{
-    [key: number]: string;
-  }>({});
-  const [dataEditWall, setDataEditWall] = useState<IExternalSizeWall>({
-    id: 0,
-    heightRight: '',
-    heightLeft: '',
-    widthTop: '',
-    widthBottom: '',
-    wallAngleDegree: '',
-    radiusWall: '',
-    valueDegree: '',
-  });
 
   // Пороговое значение расстояния для автоматической привязки точек.
   const DISTANCE_THRESHOLD = 20; // Порог для автоматического соединения
@@ -218,102 +186,6 @@ export default function Draw({
     dispatch(clearPoints());
   };
 
-  const isLast = (index: number, paths: IPaths[]): boolean =>
-    index === paths.length - 1;
-
-  const handleSaveWallSize = (size: IExternalSizeWall, numberWall: number) => {
-    if (!size) {
-      console.warn('Нет данных для сохранения размера стены');
-      return;
-    }
-
-    // Убедимся, что все поля имеют строковые значения
-    const normalizedSize = {
-      ...size,
-      heightRight: size.heightRight || '', // Заменяем undefined на пустую строку
-      heightLeft: size.heightLeft || '',
-      widthTop: size.widthTop || '',
-      widthBottom: size.widthBottom || '',
-      wallAngleDegree: size.wallAngleDegree || '',
-      radiusWall: size.radiusWall || '',
-      valueDegree: size.valueDegree || '',
-    };
-
-    dispatch(setWallsData(wallsData, normalizedSize, numberWall));
-    setIsStyleLine(true);
-    if (openFormDataSize) setIsStyleLine(false);
-    updateStrokeDasharray(numberWall - 1);
-  };
-
-  const onClickLine = (index: number) => {
-    setSelectedLine(prev => (prev === index ? null : index));
-    setIndexLineWallDraw(index);
-  };
-
-  const [isEditing, setIsEditing] = useState(false); //состояние для редактирования
-
-  const onClickEditDataWall = (
-    size: IExternalSizeWall | undefined,
-    currentWall: number,
-  ) => {
-    if (!size) {
-      return [];
-    } else {
-      setDataEditWall(size);
-    }
-  };
-
-  const onClickWallIncrease = (
-    size: IExternalSizeWall | undefined,
-    wallIndex: number,
-    click: ClickSelection.Wall | ClickSelection.Button,
-  ) => {
-    switch (click) {
-      case ClickSelection.Wall:
-        // Логика, если клик был сделан на стену
-        setNumberCurrentWall(wallIndex);
-        onClickLine(wallIndex);
-
-        setIsEditing(false);
-
-        if (size) {
-          setModalVisible(true);
-          setModalVisibleBacklight(false);
-          setOpenFormDataSize(false);
-        } else {
-          setModalVisible(false);
-          setModalVisibleBacklight(true);
-          setOpenFormDataSize(true);
-        }
-
-        break;
-
-      case ClickSelection.Button:
-        // Логика, если клик был сделан на кнопку
-        setNumberCurrentWall(wallIndex);
-        setIsEditing(true); // Можно выполнять какие-то другие действия для кнопки
-        onClickEditDataWall(size, wallIndex);
-
-        setModalVisible(false);
-        setModalVisibleBacklight(true);
-        setOpenFormDataSize(true);
-
-        break;
-
-      default:
-        // Логика по умолчанию (если нужно обработать другие случаи)
-        break;
-    }
-  };
-  //
-  // Функция для обновления состояния strokeDasharray
-  const updateStrokeDasharray = (index: number) => {
-    setStrokeDasharrays(prev => {
-      const newDasharray = prev[index] === '0' ? '10' : '0'; // Пример: переключаем между '10' и '0'
-      return {...prev, [index]: newDasharray};
-    });
-  };
-
   useEffect(() => {
     // Обновляем количество линий для последнего рисунка
     if (sizeWalls.length > 0) {
@@ -373,7 +245,6 @@ export default function Draw({
                     fillSvg={'blue'}
                     fillPath={'none'}
                     textAnchor={'middle'}
-                    isLast={isLast}
                   />
                 </React.Fragment>
               );
@@ -436,20 +307,13 @@ export default function Draw({
             return (
               <DrawElement
                 key={index}
-                numberWall={index}
+                numberWallIndex={index}
                 drawing={drawing?.drawingData}
-                isLast={isLast}
                 setCountWallDraw={() =>
                   dispatch(
                     setCountWallDraw(drawing?.drawingData?.shapes.length),
                   )
                 }
-                onClickLine={onClickLine}
-                selectedLine={selectedLine}
-                isStyleLine={isStyleLine}
-                openFormDataSize={openFormDataSize}
-                setStrokeDasharrays={setStrokeDasharrays}
-                strokeDasharrays={strokeDasharrays}
               />
             );
           })
@@ -470,44 +334,17 @@ export default function Draw({
                 )}
                 <AddBlockDimensions
                   key={index}
+                  index={index}
                   numberWall={index + 1}
-                  setNumberCurrentWall={setNumberCurrentWall}
-                  numberCurrentWall={numberCurrentWall}
-                  setModalVisibleBacklight={setModalVisibleBacklight}
-                  modalVisibleBacklight={modalVisibleBacklight && currentWall}
+                  currentWall={currentWall}
                   saveSizeWall={wallsData || {}}
-                  setModalVisible={setModalVisible}
-                  modalVisible={modalVisible && currentWall}
-                  onClickEditDataWall={onClickEditDataWall}
-                  onClickWallIncrease={onClickWallIncrease}
-                  setIsVisibleEditModal={() => {}}
                   externalData={undefined}
                 />
-                {wallsData[index]?.size && (
-                  <ButtonCustom
-                    textBtn="Редактировать стену"
-                    onPress={() =>
-                      onClickWallIncrease(
-                        wallsData[index]?.size,
-                        index,
-                        ClickSelection.Button,
-                      )
-                    }
-                  />
-                )}
               </View>
             );
           }}
         />
-        {openFormDataSize && (
-          <AddSizeWall
-            numberWall={numberCurrentWall}
-            onSaveSizeWall={handleSaveWallSize}
-            dataEditWall={dataEditWall}
-            setModalVisibleBacklight={setModalVisibleBacklight}
-            setOpenFormDataSize={setOpenFormDataSize}
-          />
-        )}
+        {openFormDataSize.isOpen && <AddSizeWall dataEditWall={dataWall} />}
       </View>
     </View>
   );

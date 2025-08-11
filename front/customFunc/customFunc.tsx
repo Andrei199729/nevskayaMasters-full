@@ -1,3 +1,5 @@
+import {IPaths} from '../shared/types';
+
 export const validatePassword = (password: string) => {
   const passwordRegex = /^[a-zA-Z0-9]{6,24}$/;
   return passwordRegex.test(password);
@@ -12,3 +14,6 @@ export const validateNumber = (value: string) => {
   const number = parseInt(value);
   return !isNaN(number) && number > 0;
 };
+
+export const isLast = (index: number, paths: IPaths[]): boolean =>
+  index === paths.length - 1;

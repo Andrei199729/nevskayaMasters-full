@@ -4,9 +4,15 @@ import {TUserAction} from '../actions/user';
 import {rootReducer} from '../reducers/rootReducer';
 import {ThunkAction, ThunkDispatch} from 'redux-thunk';
 import {TRoomAction} from '../actions/room';
+import {TModalOpenAction} from '../actions/modalOpen';
+import {TDrawAction} from '../actions/draw';
 // import {TWsConnectionProfileAction} from '../actions/wsActionProfile';
 
-type TApplicationActions = TUserAction | TRoomAction;
+type TApplicationActions =
+  | TUserAction
+  | TRoomAction
+  | TModalOpenAction
+  | TDrawAction;
 //   | TWsConnectionAction
 //   | TWsConnectionProfileAction;
 

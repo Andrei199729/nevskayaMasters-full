@@ -16,8 +16,6 @@ import {IDrawing, PathScreen, RootStackParamList} from '../../shared/types';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
-import IndexWallContext from '../../context/IndexWallContext/IndexWallContext';
-import api from '../../utils/api';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {addRoom, resetCurrentDrawing} from '../../services/actions/room';
 
@@ -34,14 +32,6 @@ export default function FormDataAddProductScreen() {
   // });
 
   const [isActiveBtn, setIsActiveBtn] = useState<boolean>(true);
-  const [modalVisibleBacklight, setModalVisibleBacklight] = useState<
-    boolean | number | null
-  >(false);
-  const indexWallContext = useContext(IndexWallContext);
-  if (!indexWallContext) {
-    return null;
-  }
-  const {activeWallIndex, setActiveWallIndex} = indexWallContext;
 
   const onSaveDataWall = () => {
     if (!sizeWalls.length) {
@@ -88,12 +78,7 @@ export default function FormDataAddProductScreen() {
               countWallText={(item: string) => setCountWall(item)}
             /> */}
             <View>
-              <Draw
-                setNumberCurrentWall={setActiveWallIndex}
-                numberCurrentWall={activeWallIndex}
-                setModalVisibleBacklight={setModalVisibleBacklight}
-                modalVisibleBacklight={modalVisibleBacklight}
-              />
+              <Draw />
             </View>
           </View>
 

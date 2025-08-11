@@ -1,37 +1,49 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
 import {Dispatch, SetStateAction, useEffect} from 'react';
-import {IElementData} from '../../../shared/types';
+import {IElement, IElementData} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import useInput from '../../../hooks/useInput';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setElementModalVisible,
+  setElementsWallModalVisible,
+  setIsVisibleEditModal,
+} from '../../../services/actions/modalOpen';
+
 interface IModalFormElement {
   nameElementWall: string;
   numberWall: number;
-  modalVisible: number | boolean | null;
-  setModalVisibleWall: Dispatch<SetStateAction<number | boolean | null>>;
-  setModalVisible: Dispatch<SetStateAction<number | boolean | null>>;
+
   onSaveElementSize: (
     element: IElementData,
     wallId: number,
     elementId?: number,
   ) => void;
   dataEditElement?: IElementData;
-  // editElement?: (element: IElement, wallId: number, elementId: number) => void;
-  numberCurrentWall?: number | boolean | null;
+  editElement?: any;
+  wallIndex: number;
+  clickButtonEdit?: any;
 }
 
 export default function ModalFormElement({
-  modalVisible,
-  setModalVisible,
   numberWall,
   nameElementWall,
-  setModalVisibleWall,
   onSaveElementSize,
   dataEditElement,
-  numberCurrentWall,
+  editElement,
+  wallIndex,
+  clickButtonEdit,
   ...props
 }: IModalFormElement) {
+  const dispatch = useDispatch();
+  const {isVisibleEditModal, elementModal} = useSelector(
+    state => state.modalOpen,
+  );
+
+  const {numberCurrentWall} = useSelector(state => state.room);
+
   const locationElementTop = useInput(
     dataEditElement?.locationElementTop || '',
   );
@@ -66,10 +78,24 @@ export default function ModalFormElement({
     };
 
     onSaveElementSize(updatedDataObjectSizeElement, numberElement);
-    // editElement(updatedDataObjectSizeElement, numberCurrentWall, position);
-    setModalVisible(!modalVisible);
-    setModalVisibleWall(false);
+    // editElement(updatedDataObjectSizeElement, numberCurrentWall, numberWall);
+    dispatch(
+      setElementsWallModalVisible({
+        isVisible: false,
+        wallNumber: null,
+      }),
+    );
+    dispatch(
+      setElementModalVisible({
+        isVisible: false,
+        wallNumber: null,
+        wallNumberElement: null,
+      }),
+    );
   };
+  const stateFormElemnt = clickButtonEdit
+    ? isVisibleEditModal.isVisible
+    : elementModal.isVisible;
 
   useEffect(() => {
     if (dataEditElement) {
@@ -90,15 +116,25 @@ export default function ModalFormElement({
       radiusElement.onChangeText(dataEditElement.radiusElement || '');
     }
   }, [dataEditElement]);
+  console.log(
+    isVisibleEditModal,
+    'isVisibleEditModalisVisibleEditModalisVisibleEditModal',
+  );
 
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={typeof modalVisible === 'boolean' && modalVisible}
-      onRequestClose={() => {
-        setModalVisible(!modalVisible);
-      }}>
+      visible={stateFormElemnt}
+      onRequestClose={() =>
+        dispatch(
+          setElementModalVisible({
+            isVisible: false,
+            wallNumber: null,
+            wallNumberElement: null,
+          }),
+        )
+      }>
       <View
         style={{
           backgroundColor: Colors.white,

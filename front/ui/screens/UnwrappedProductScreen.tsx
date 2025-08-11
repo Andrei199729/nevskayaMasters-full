@@ -30,6 +30,7 @@ import {
   resetCurrentDrawing,
 } from '../../services/actions/room';
 import {useDispatch, useSelector} from '../../services/hooks';
+import {setResetLinedasharrays} from '../../services/actions/draw';
 
 type TUnwrappedProductScreenRouteProp = RouteProp<
   {
@@ -58,6 +59,7 @@ function UnwrappedProductScreen({
   const onClickAddProduct = () => {
     navigation.navigate('FormDataAddProduct');
     dispatch(resetCurrentDrawing());
+    dispatch(setResetLinedasharrays());
   };
 
   const onClickLinkProduct = (productRoom: IProductRoom) => {

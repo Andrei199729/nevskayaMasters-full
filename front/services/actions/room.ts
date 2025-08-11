@@ -7,7 +7,6 @@ import {
   IPoint,
   IProductRoom,
   IWall,
-  IWallSize,
 } from '../../shared/types';
 import api from '../../utils/api';
 import {getKeychain} from '../../utils/keychain';
@@ -39,6 +38,9 @@ import {
   RESET_CURRENT_DRAWING,
   SET_COUNT_WALL_DRAW,
   EDIT_ELEMENT,
+  DELETE_ELEMENT_ROOM,
+  SET_MODAL_VISIBLE_BACK_LIGHT,
+  SET_ACTIVE_WALL_INDEX,
 } from '../constants/constants';
 import {AppDispatch} from '../types';
 import {ISetAuthLoggedInAction, setAuthloggedIn} from './user';
@@ -102,7 +104,8 @@ export interface IUpdateSizeWallsAction {
   readonly payload: {
     data: IElementData;
     dataObj: IDataElementsWall;
-    numberCurrentWall: number;
+    numberCurrentWall: number | null;
+    wallId: number;
   };
 }
 
@@ -156,7 +159,7 @@ export interface ISetElementsDataAction {
   readonly payload: {
     data: IElementData;
     dataObj: IDataElementsWall;
-    wallId: number;
+    wallId: number | null;
   };
 }
 
@@ -166,11 +169,6 @@ export interface ISetUpdateElementsDataAction {
     position: number;
     updateDate: IElementData;
   };
-}
-
-export interface ISetElementsDataBulkAction {
-  readonly type: typeof ELEMENTS_DATA_BULK;
-  readonly payload: any;
 }
 
 export interface IResetCurrentDrawingAction {
@@ -185,10 +183,24 @@ export interface IEditElementAction {
   readonly type: typeof EDIT_ELEMENT;
   readonly payload: {
     updatedData: any;
+    dataObj: any;
     wallId: number;
     elementId: number;
   };
 }
+
+export interface IDeleteElement {
+  readonly type: typeof DELETE_ELEMENT_ROOM;
+  readonly payload: {
+    wallId: number | boolean | null;
+    elementId: number;
+  };
+}
+export interface ISetActiveWallIndex {
+  readonly type: typeof SET_ACTIVE_WALL_INDEX;
+  readonly payload: number;
+}
+
 // Объединяем в Union
 
 export type TRoomAction =
@@ -216,10 +228,11 @@ export type TRoomAction =
   | ISetDataObjAction
   | ISetElementsDataAction
   | ISetUpdateElementsDataAction
-  | ISetElementsDataBulkAction
   | IResetCurrentDrawingAction
   | ISetCountWallDrawAction
-  | IEditElementAction;
+  | IEditElementAction
+  | IDeleteElement
+  | ISetActiveWallIndex;
 // генераторы экшенов
 export const getRoomRequestAction = (): IGetRoomRequestAction => ({
   type: GET_ROOM_REQUEST,
@@ -287,10 +300,11 @@ export const updateLastDrawingWalls = (
 export const setUpdateSizeWalls = (
   data: IElementData,
   dataObj: IDataElementsWall,
-  numberCurrentWall: number,
+  numberCurrentWall: number | null,
+  wallId: number,
 ): IUpdateSizeWallsAction => ({
   type: UPDATE_SIZE_WALLS,
-  payload: {data, dataObj, numberCurrentWall},
+  payload: {data, dataObj, numberCurrentWall, wallId},
 });
 
 export const setPaths = (path: string, length: number): IPathsAction => ({
@@ -358,7 +372,7 @@ export const setDataObj = (dataEl: IDataElementsWall): ISetDataObjAction => ({
 export const setElementsData = (
   data: IElementData,
   dataObj: IDataElementsWall,
-  wallId: number,
+  wallId: number | null,
 ): ISetElementsDataAction => ({
   type: ELEMENTS_DATA,
   payload: {data, dataObj, wallId},
@@ -369,13 +383,6 @@ export const setUpdateElementsData = (
 ): ISetUpdateElementsDataAction => ({
   type: UPDATE_ELEMENT_ROOM,
   payload: {position, updateDate},
-});
-
-export const setElementsDataBulk = (
-  elements: {data: IElementData; dataObj: IDataElementsWall}[],
-): ISetElementsDataBulkAction => ({
-  type: ELEMENTS_DATA_BULK,
-  payload: elements,
 });
 
 export const resetCurrentDrawing = (): IResetCurrentDrawingAction => ({
@@ -391,11 +398,27 @@ export const setCountWallDraw = (
 
 export const setEditElement = (
   updatedData: any,
+  dataObj: any,
   wallId: number,
   elementId: number,
 ): IEditElementAction => ({
   type: EDIT_ELEMENT,
-  payload: {updatedData, wallId, elementId},
+  payload: {updatedData, dataObj, wallId, elementId},
+});
+
+export const deleteElement = (
+  wallId: number | boolean | null,
+  elementId: number,
+): IDeleteElement => ({
+  type: DELETE_ELEMENT_ROOM,
+  payload: {wallId, elementId},
+});
+
+export const setNumberCurrentWall = (
+  numberCurrentWall: number,
+): ISetActiveWallIndex => ({
+  type: SET_ACTIVE_WALL_INDEX,
+  payload: numberCurrentWall,
 });
 
 export function getRoomsInitial() {

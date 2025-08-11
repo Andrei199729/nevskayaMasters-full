@@ -1,5 +1,6 @@
 import {Path, TextAnchor, Text as TextSvg} from 'react-native-svg';
 import {IPaths} from '../types';
+import {isLast} from '../../customFunc/customFunc';
 
 interface ILineSvg {
   d: string;
@@ -14,7 +15,6 @@ interface ILineSvg {
   fillSvg: string;
   fillPath: string;
   textAnchor: TextAnchor;
-  isLast: (index: number, paths: IPaths[]) => boolean;
 }
 
 export default function LineSvg({
@@ -30,7 +30,6 @@ export default function LineSvg({
   fillSvg,
   fillPath,
   textAnchor,
-  isLast,
 }: ILineSvg) {
   return (
     <>

@@ -1,10 +1,16 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
 import {IElement, IElementData} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
-import {Dispatch, SetStateAction, useState} from 'react';
+import {Dispatch, SetStateAction, useCallback, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  deleteElement,
+  setUpdateElementsData,
+} from '../../../services/actions/room';
+import {isValidArray} from '../../../utils/validators';
+import {setIsVisibleEditModal} from '../../../services/actions/modalOpen';
 
 interface IModalSizesElement {
   setVisible: (position: number, bool: boolean) => void;
@@ -12,9 +18,8 @@ interface IModalSizesElement {
   nameElement: string;
   position: number;
   element: IElement;
-  setModalVisibleWall: Dispatch<SetStateAction<number | boolean | null>>;
-  // deleteElement: (wallId: number | boolean | null, elementId: number) => void;
-  numberCurrentWall: number | boolean | null;
+  editElement: any;
+  wallIndex: number;
 }
 
 export default function ModalSizesElement({
@@ -23,16 +28,15 @@ export default function ModalSizesElement({
   nameElement,
   position,
   element,
-  setModalVisibleWall,
-  numberCurrentWall,
-  // deleteElement,
+  editElement,
+  wallIndex,
   ...props
-}: IModalSizesElement) {
+}: IModalSizesElement & any) {
   const dispatch = useDispatch();
-  const {elementsData} = useSelector(state => state.room);
-  const [isVisibleEditModal, setIsVisibleEditModal] = useState<
-    number | boolean | null
-  >(false);
+  const {elementsData, sizeWalls, numberCurrentWall} = useSelector(
+    state => state.room,
+  );
+  const [clickButtonEdit, setClickButtonEdit] = useState(false);
   const onClickModalClose = () => {
     setVisible(position, false);
   };
@@ -43,14 +47,37 @@ export default function ModalSizesElement({
     const elementToEdit = elementsData[position]?.data;
 
     if (elementToEdit) {
-      setIsVisibleEditModal(true);
+      setClickButtonEdit(true);
+      dispatch(
+        setIsVisibleEditModal({
+          isVisible: true,
+          wallNumber: wallIndex,
+          wallNumberElement: position,
+        }),
+      );
     }
   };
 
   const onSaveEditedElement = (updatedData: IElementData) => {
-    dispatch(updateElementData(position, updatedData)); // Обновляем состояние
-    setIsVisibleEditModal(false); // Закрываем модальное окно редактирования
+    dispatch(setUpdateElementsData(position, updatedData)); // Обновляем состояние
+    dispatch(
+      setIsVisibleEditModal({
+        isVisible: false,
+        wallNumber: null,
+        wallNumberElement: null,
+      }),
+    ); // Закрываем модальное окно редактирования
+    // setClickButtonEdit(false);
   };
+
+  const onDeleteElement = useCallback(
+    (wallId: number | boolean | null, elementId: number) => {
+      if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
+      dispatch(deleteElement(wallId, elementId));
+      setVisible(elementId, false);
+    },
+    [],
+  );
 
   return (
     <Modal
@@ -61,14 +88,13 @@ export default function ModalSizesElement({
         () => setVisible(position, false);
       }}>
       <ModalFormElement
-        modalVisible={isVisibleEditModal}
-        setModalVisible={setIsVisibleEditModal}
         numberWall={position + 1}
         nameElementWall={nameElement}
         dataEditElement={element.data}
-        setModalVisibleWall={setModalVisibleWall}
-        numberCurrentWall={numberCurrentWall}
         onSaveElementSize={onSaveEditedElement}
+        editElement={editElement}
+        wallIndex={wallIndex}
+        clickButtonEdit={clickButtonEdit}
       />
       <View style={{position: 'absolute', top: -50, left: 100}}>
         <View style={styles.centeredView}>
@@ -134,7 +160,7 @@ export default function ModalSizesElement({
               <ButtonCustom textBtn="Редактировать" onPress={onClickEdit} />
               <ButtonCustom
                 textBtn="Удалить"
-                // onPress={() => deleteElement(numberCurrentWall, position)}
+                onPress={() => onDeleteElement(numberCurrentWall, position)}
               />
               <ButtonCustom textBtn="Закрыть" onPress={onClickModalClose} />
             </View>
@@ -167,6 +193,3 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
 });
-function updateElementData(position: number, updatedData: IElementData): any {
-  throw new Error('Function not implemented.');
-}

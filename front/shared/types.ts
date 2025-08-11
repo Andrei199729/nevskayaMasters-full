@@ -167,7 +167,7 @@ export interface IElement {
 }
 
 export interface IExternalSizeWall {
-  id: number;
+  id?: number;
   widthTop?: string;
   widthBottom?: string;
   heightRight?: string;
@@ -187,22 +187,9 @@ export interface ISaveSizeWall {
 export interface IAddBlockDimensions {
   numberWall: number;
   saveSizeWall?: ISaveSizeWall;
-  setSizeWalls: Dispatch<SetStateAction<IDrawing[]>>;
-  setNumberCurrentWall: Dispatch<SetStateAction<number | boolean | null>>;
-  numberCurrentWall: number | boolean | null;
-  setModalVisibleBacklight: Dispatch<SetStateAction<number | boolean | null>>;
-  modalVisibleBacklight: number | boolean | null;
-  onClickWallIncrease: (
-    data: IExternalSizeWall | undefined,
-    wallIndex: number,
-    click: ClickSelection.Wall | ClickSelection.Button,
-  ) => void;
-  setModalVisible: Dispatch<SetStateAction<number | boolean | null>>;
-  modalVisible: number | boolean | null;
-  arrElements?: IElement[];
-  setIsVisibleEditModal: Dispatch<SetStateAction<boolean>>;
   externalData: IExternalSizeWall | undefined;
-  onClickEditDataWall: (size: IExternalSizeWall, currentWall: number) => void;
+  index: number;
+  currentWall?: boolean;
 }
 
 export interface IDataElementsWall {

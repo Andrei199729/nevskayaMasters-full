@@ -9,34 +9,53 @@ import {Dispatch, SetStateAction, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ElementWall from '../ElementWall/ElementWall';
 import {arrDataElementsWall} from '../../../shared/texts';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setElementModalVisible,
+  setElementsWallModalVisible,
+  setModalVisible,
+} from '../../../services/actions/modalOpen';
 
 interface IModalElementsWall {
-  modalVisible: boolean | number | null;
   numberWall: number;
-  setModalVisible: Dispatch<SetStateAction<boolean | number | null>>;
   onSaveElement: (element: IDataElementsWall, index: number) => void;
+  editElement: any;
   onSaveElementSize: (
     element: IElementData,
     wallId: number,
     elementId?: number,
   ) => void;
+  wallIndex: number;
 }
 
 export default function ModalElementsWall({
-  modalVisible,
-  setModalVisible,
   numberWall,
   onSaveElement,
   onSaveElementSize,
+  wallIndex,
+  editElement,
   ...props
 }: IModalElementsWall) {
-  const [element, setElement] = useState<number | boolean | null>(false);
+  const dispatch = useDispatch();
+  const {elementsWallModalVisible, modalVisible, elementModal} = useSelector(
+    state => state.modalOpen,
+  );
   const [nameElementWall, setNameElementWall] = useState<IDataElementsWall>(
     {} as IDataElementsWall,
   );
 
+  const isCurrentElementsModalVisible =
+    elementsWallModalVisible.isVisible &&
+    elementsWallModalVisible.wallNumber === wallIndex;
+
   const onClickElement = async (data: IDataElementsWall, index: number) => {
-    setElement(!element);
+    dispatch(
+      setElementModalVisible({
+        isVisible: true,
+        wallNumber: wallIndex,
+        wallNumberElement: index,
+      }),
+    );
     setNameElementWall(data);
     onSaveElement(data, index); // Сохраняем данные только при наличии данных
   };
@@ -45,22 +64,29 @@ export default function ModalElementsWall({
     <Modal
       animationType="slide"
       transparent={true}
-      visible={typeof modalVisible === 'boolean' && modalVisible}
+      visible={isCurrentElementsModalVisible}
       onRequestClose={() => {
-        setElement(false);
+        dispatch(
+          setElementModalVisible({
+            isVisible: false,
+            wallNumber: null,
+            wallNumberElement: null,
+          }),
+        );
       }}>
       <ModalFormElement
-        modalVisible={element}
-        setModalVisible={setModalVisible}
-        setModalVisibleWall={setElement}
         numberWall={numberWall}
         nameElementWall={nameElementWall.nameElement}
         onSaveElementSize={onSaveElementSize}
+        wallIndex={wallIndex}
+        editElement={editElement}
       />
       <View>
         <Pressable
           onPress={() => {
-            setElement(element);
+            dispatch(
+              setElementsWallModalVisible({isVisible: false, wallNumber: null}),
+            );
           }}>
           <View style={styles.elementsWallContainer}>
             {arrDataElementsWall?.map((data, index) => {

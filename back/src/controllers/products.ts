@@ -293,15 +293,12 @@ export function deleteProductElement(
       if (isNaN(idx) || idx < 0 || idx >= elements.length) {
         next(new ErrorNotFound("Элемент стены не найден"));
       }
-      console.log(elements, "elements");
 
       elements?.splice(idx, 1); // удаляем элемент по индексу
 
       return product.save();
     })
     .then((updatedProduct) => {
-      console.log(updatedProduct);
-
       res.status(200).send({ data: updatedProduct, message: "Элемент удалён" });
     })
     .catch((err) => {

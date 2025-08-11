@@ -9,31 +9,28 @@ import {
   IShape,
 } from '../../../shared/types';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setCurrentLineDasharrays,
+  setSelectedLine,
+} from '../../../services/actions/draw';
 
 interface IDrawElement {
   drawing: any;
-  onClickLine: (index: number) => void;
-  selectedLine?: number | null;
-  isStyleLine: boolean;
-  openFormDataSize: boolean;
-  setStrokeDasharrays: Dispatch<SetStateAction<{[key: number]: string}>>;
-  strokeDasharrays?: {[key: number]: string};
-  numberWall: number;
-  isLast: (index: number, paths: IPaths[]) => boolean;
+  numberWallIndex: number;
   setCountWallDraw: (length: number) => void;
 }
 
 export default function DrawElement({
   drawing,
-  onClickLine,
-  selectedLine,
-  isStyleLine,
-  openFormDataSize,
-  setStrokeDasharrays,
-  strokeDasharrays,
-  numberWall,
-  isLast,
+  // strokeDasharrays,
+  numberWallIndex,
 }: IDrawElement) {
+  const dispatch = useDispatch();
+  const {openFormDataSize} = useSelector(state => state.modalOpen);
+  const {isStyleLine, selectedLine, strokeDasharrays} = useSelector(
+    state => state.draw,
+  );
   const [lineStrokeDasharrays, setLineStrokeDasharrays] = useState(
     DasharrayStrokeValue.Dotted,
   );
@@ -46,13 +43,16 @@ export default function DrawElement({
   // При первом рендере все линии будут пунктирными
   // Обновляем все линии, если данные заполнены
   useEffect(() => {
-    if (openFormDataSize && numberWall !== undefined) {
-      setStrokeDasharrays(prev => ({
-        ...prev,
-        [numberWall - 1]: DasharrayStrokeValue.Solid, // Делаем текущую линию пунктирной
-      }));
+    if (openFormDataSize && numberWallIndex !== undefined) {
+      dispatch(
+        setCurrentLineDasharrays({
+          index: numberWallIndex,
+          strockLine: DasharrayStrokeValue.Solid,
+        }),
+      );
     }
-  }, [openFormDataSize, numberWall]);
+    console.log(strokeDasharrays, 'strokeDasharrays');
+  }, [openFormDataSize, numberWallIndex]);
 
   return (
     <Pressable style={styles.container}>
@@ -74,7 +74,7 @@ export default function DrawElement({
 
           return (
             <React.Fragment key={idx}>
-              <G key={idx} onPressIn={() => onClickLine(idx)}>
+              <G key={idx} onPressIn={() => dispatch(setSelectedLine(idx))}>
                 <LineSvg
                   d={line.path}
                   stroke={stateColorLineDraw(selectedLine, idx)}
@@ -83,7 +83,7 @@ export default function DrawElement({
                     strokeDasharrays &&
                     typeof strokeDasharrays[idx] === 'string'
                       ? strokeDasharrays[idx]
-                      : !isStyleLine && typeof lineStrokeDasharrays === 'string'
+                      : isStyleLine && typeof lineStrokeDasharrays === 'string'
                       ? lineStrokeDasharrays
                       : ''
                   }
@@ -95,7 +95,6 @@ export default function DrawElement({
                   fillSvg={'blue'}
                   fillPath={'none'}
                   textAnchor={'middle'}
-                  isLast={isLast}
                 />
               </G>
             </React.Fragment>
