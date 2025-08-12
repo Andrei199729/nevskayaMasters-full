@@ -31,6 +31,7 @@ import {
 } from '../../services/actions/room';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {setResetLinedasharrays} from '../../services/actions/draw';
+import {setOpenFormDataSize} from '../../services/actions/modalOpen';
 
 type TUnwrappedProductScreenRouteProp = RouteProp<
   {
@@ -62,9 +63,16 @@ function UnwrappedProductScreen({
     dispatch(setResetLinedasharrays());
   };
 
-  const onClickLinkProduct = (productRoom: IProductRoom) => {
+  const onClickLinkProduct = (roomId: any) => {
+    dispatch(
+      setOpenFormDataSize({
+        isOpen: false,
+        wallNumber: null,
+      }),
+    );
+
     navigation.navigate('Product', {
-      productRoom: productRoom,
+      roomId: roomId,
     });
   };
 
@@ -74,6 +82,12 @@ function UnwrappedProductScreen({
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(
+        setOpenFormDataSize({
+          isOpen: false,
+          wallNumber: null,
+        }),
+      );
       dispatch(getRoomsInitial());
     }, [dispatch]),
   );
@@ -119,15 +133,17 @@ function UnwrappedProductScreen({
                   (data: {owner: string}) =>
                     data?.owner === userData?.data?._id,
                 )
-                .map((productRoom: IProductRoom, index: number) => (
-                  <Pressable
-                    key={index}
-                    onPress={() => onClickLinkProduct(productRoom)}>
-                    <Text style={styles.textProduct}>
-                      {index + 1} {productRoom.nameRoom}
-                    </Text>
-                  </Pressable>
-                ))
+                .map((productRoom: IProductRoom, index: number) => {
+                  return (
+                    <Pressable
+                      key={index}
+                      onPress={() => onClickLinkProduct(index)}>
+                      <Text style={styles.textProduct}>
+                        {index + 1} {productRoom.nameRoom}
+                      </Text>
+                    </Pressable>
+                  );
+                })
             ) : (
               <Text style={styles.text}>Нет доступных изделий</Text>
             )}

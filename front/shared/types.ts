@@ -99,7 +99,7 @@ export type RootStackParamList = {
     dataProduct: IDrawing[];
     nameRoom?: string;
   };
-  Product: {productRoom: IProductRoom};
+  Product: {roomId: number};
 };
 
 export interface IWallSize {
@@ -187,7 +187,7 @@ export interface ISaveSizeWall {
 export interface IAddBlockDimensions {
   numberWall: number;
   saveSizeWall?: ISaveSizeWall;
-  externalData: IExternalSizeWall | undefined;
+  externalData: IExternalSizeWall | undefined | any;
   index: number;
   currentWall?: boolean;
 }

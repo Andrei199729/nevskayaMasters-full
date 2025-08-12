@@ -37,7 +37,7 @@ import {
 } from '../constants/constants';
 
 interface IRoomState {
-  roomData: IProductRoom[];
+  roomData: any;
   isAuthloggedIn: boolean;
   success: boolean;
   loading: boolean;
@@ -54,7 +54,8 @@ interface IRoomState {
   countWallDraw: number;
   numberCurrentWall: number;
 }
-const initialState: any = {
+
+const initialState: IRoomState = {
   roomData: [],
   isAuthloggedIn: false,
   success: false,
@@ -62,10 +63,10 @@ const initialState: any = {
   error: '',
   paths: [],
   points: [],
-  drawingData: {},
+  drawingData: null,
   wallsData: [],
   currentPath: '',
-  lastPoint: null as {x: number; y: number} | null,
+  lastPoint: null,
   sizeWalls: [],
   dataObj: {
     nameElement: '',
@@ -87,12 +88,16 @@ export const roomReducer = (
         ...state,
         isAuthloggedIn: action.authloggedIn,
       };
+
     case SET_ROOM_DATA:
       return {
         ...state,
-        roomData: action.payload,
+        roomData: Array.isArray(action.payload)
+          ? action.payload
+          : [action.payload], // создаём новый массив
         loading: false,
       };
+
     case GET_ROOM_REQUEST:
       return {
         ...state,
@@ -106,214 +111,221 @@ export const roomReducer = (
         loading: false,
       };
 
-    case ADD_OR_UPDATE_ROOM:
+    case ADD_OR_UPDATE_ROOM: {
       const newRoom = action.payload;
 
-      // Ищем индекс комнаты, которую хотим обновить
       const existingIndex = state.roomData.findIndex(
-        (room: {nameRoom: string; owner: string}) =>
+        (room: any) =>
           room.nameRoom === newRoom.nameRoom && room.owner === newRoom.owner,
       );
 
       if (existingIndex !== -1) {
-        // Создаем копию массива комнат
         const updatedRooms = [...state.roomData];
-
-        // Обновляем комнату по индексу, копируя данные, чтобы не мутировать state напрямую
         updatedRooms[existingIndex] = {
           ...updatedRooms[existingIndex],
-          dataProduct: newRoom.dataProduct, // или другие поля, которые обновляешь
+          dataProduct: newRoom.dataProduct,
+          // Добавь остальные нужные поля из newRoom здесь
         };
-
-        // Возвращаем новый state с обновленным массивом комнат
         return {
           ...state,
           roomData: updatedRooms,
           loading: false,
         };
-      } else {
-        // Если комнаты нет, добавляем новую в массив
-        return {
-          ...state,
-          roomData: [...state.roomData, newRoom],
-          loading: false,
-        };
       }
+
+      return {
+        ...state,
+        roomData: [...state.roomData, newRoom],
+        loading: false,
+      };
+    }
 
     case SET_CURRENT_PATH:
       return {...state, currentPath: action.payload};
-    case ADD_TO_CURRENT_PATH:
+
+    case ADD_TO_CURRENT_PATH: {
       const {x, y} = action.payload;
       return {
         ...state,
         currentPath: `${state.currentPath} L${Math.round(x)},${Math.round(y)}`,
       };
-    case SET_LAST_POINT:
-      return {...state, lastPoint: action.payload};
+    }
 
+    // case SET_LAST_POINT:
+    //   return {...state, lastPoint: action.payload};
+    case SET_LAST_POINT:
+      if (Array.isArray(action.payload)) {
+        console.warn('lastPoint должен быть объектом, а не массивом');
+        return state;
+      }
+      return {...state, lastPoint: action.payload};
     case PATHS:
       return {
         ...state,
-        paths: [...state.paths, action.payload],
+        paths: [...state.paths, {...action.payload}],
       };
+
     case POINTS:
-      return {
-        ...state,
-        points: [...state.points, action.payload],
-      };
+      if (Array.isArray(action.payload)) {
+        return {
+          ...state,
+          points: [...state.points, ...action.payload],
+        };
+      } else {
+        return {
+          ...state,
+          points: [...state.points, action.payload],
+        };
+      }
+
     case CLEAR_PATHS:
       return {
         ...state,
         paths: [],
       };
+
     case CLEAR_POINTS:
       return {
         ...state,
         points: [],
       };
+
     case RESET_CURRENT_DRAWING:
       return {
         ...state,
         paths: [],
         points: [],
         wallsData: [],
-        sizeWalls: [], // очистка всех сохранённых стен
-        countWallDraw: 0, // если есть счётчик стен
+        sizeWalls: [],
+        countWallDraw: 0,
         elementsData: [],
-        // другие поля если нужны
       };
-    case WALLS_DATA:
+
+    case WALLS_DATA: {
       const {walls, normalizedSize, numberWallIndex} = action.payload;
       const wallsSafe = Array.isArray(walls) ? walls : [];
-      const updatedWalls = wallsSafe.map(wall =>
-        wall.numberWall === numberWallIndex - 1
-          ? {...wall, size: normalizedSize}
-          : wall,
-      );
-      const wallsArray = wallsSafe.some(
+      const safeNormalizedSize = {
+        ...normalizedSize,
+        id: normalizedSize.id ?? 0,
+      };
+      const hasWall = wallsSafe.some(
         wall => wall.numberWall === numberWallIndex - 1,
-      )
-        ? updatedWalls
+      );
+
+      const updatedWalls = hasWall
+        ? wallsSafe.map(wall =>
+            wall.numberWall === numberWallIndex - 1
+              ? {...wall, size: safeNormalizedSize}
+              : {...wall},
+          )
         : [
             ...wallsSafe,
-            {size: normalizedSize, numberWall: numberWallIndex - 1},
+            {size: safeNormalizedSize, numberWall: numberWallIndex - 1},
           ];
 
       return {
         ...state,
-        wallsData: wallsArray,
+        wallsData: updatedWalls,
       };
-    case NOTIFICATION_SAVE_ROOM:
-      // Определяем номер стены
+    }
+
+    case NOTIFICATION_SAVE_ROOM: {
       const {points, wallsData} = action.payload;
+
       const numberWall = state.sizeWalls.length;
       const countWallDraw = state.paths.length;
-      // Строим структуру для сохранения
 
       const drawingData = {
         numberWall,
         countWallDraw,
-        shapes: state.paths.map((path: IPaths, index: number) => ({
+        shapes: state.paths.map((path, index) => ({
           id: index + 1,
-          path: path.path, // Путь
-          length: path.length, // Длина линии
-          points: [...points], // Все точки на рисунке
+          path: path.path,
+          length: path.length,
+          points: [...points],
         })),
-        walls: JSON.parse(JSON.stringify(wallsData)),
+        walls: wallsData.map((wall: any) => ({...wall})), // копия массива стен
       };
 
-      // Обновляем состояние и передаём в `onSaveSizeWall`
       return {
         ...state,
-        sizeWalls: [...(state.sizeWalls ?? []), {drawingData}],
+        sizeWalls: [...state.sizeWalls, {drawingData}],
         paths: [],
         points: [],
         currentPath: '',
         lastPoint: null,
       };
-    case UPDATE_LAST_DRAWING_WALLS:
-      const updatedLastWalls = state.sizeWalls.map(
-        (drawing: IDrawing, index: number) => {
-          if (index === state.sizeWalls.length - 1) {
-            return {
-              ...drawing,
-              drawingData: {
-                ...(drawing.drawingData ?? {}),
-                walls: [...action.payload], // Синхронизируем wallsData с drawingData
-              },
-            };
-          }
-          return drawing;
-        },
-      );
+    }
 
-      return {...state, sizeWalls: updatedLastWalls};
+    case UPDATE_LAST_DRAWING_WALLS: {
+      const updatedSizeWalls = state.sizeWalls.map((drawing, index) => {
+        if (index === state.sizeWalls.length - 1) {
+          return {
+            ...drawing,
+            drawingData: {
+              ...(drawing.drawingData ?? {}),
+              walls: action.payload.map(wall => ({...wall})),
+            },
+          };
+        }
+        return drawing;
+      });
+
+      return {...state, sizeWalls: updatedSizeWalls};
+    }
+
     case UPDATE_SIZE_WALLS: {
       const {numberCurrentWall, data, dataObj, wallId} = action.payload;
 
-      const newSizeWalls = state.sizeWalls.map(
-        (roomWallsObj: any, index: number) => {
-          if (index !== wallId) return roomWallsObj;
+      const updatedSizeWalls = state.sizeWalls.map((room, index) => {
+        if (index !== wallId) return room;
 
-          // Клонируем drawingData полностью
-          const newDrawingData = {
-            ...roomWallsObj.drawingData,
-            walls: roomWallsObj.drawingData.walls.map((wall: any) => {
-              if (wall.size.id === numberCurrentWall) {
-                // Клонируем массив элементов, если он есть
-                const prevElements = wall.size?.arrElements?.elements
-                  ? wall.size.arrElements.elements.map((el: any) => ({...el}))
-                  : [];
+        return {
+          ...room,
+          drawingData: {
+            ...room.drawingData,
+            walls: room.drawingData.walls.map(wall => {
+              // Получаем безопасный массив элементов (если arrElements или elements нет, берем пустой массив)
+              const elements = wall.size?.arrElements?.elements ?? [];
 
+              if (wall.size.id !== numberCurrentWall) {
                 return {
                   ...wall,
                   size: {
                     ...wall.size,
                     arrElements: {
-                      elements: [
-                        ...prevElements,
-                        {data: {...data}, dataObj: {...dataObj}},
-                      ],
+                      elements: elements.map(el => ({...el})),
                     },
                   },
                 };
               }
-              // Клонируем стены без изменений, чтобы не было ссылок
+
               return {
                 ...wall,
                 size: {
                   ...wall.size,
                   arrElements: {
-                    elements: wall.size?.arrElements?.elements
-                      ? wall.size.arrElements.elements.map((el: any) => ({
-                          ...el,
-                        }))
-                      : [],
+                    elements: [
+                      ...elements.map(el => ({...el})),
+                      {data: {...data}, dataObj: {...dataObj}},
+                    ],
                   },
                 },
               };
             }),
-          };
+          },
+        };
+      });
 
-          return {
-            ...roomWallsObj,
-            drawingData: newDrawingData,
-          };
-        },
-      );
-
-      return {
-        ...state,
-        sizeWalls: newSizeWalls,
-      };
+      return {...state, sizeWalls: updatedSizeWalls};
     }
 
-    case DATA_OBJ: {
+    case DATA_OBJ:
       return {
         ...state,
         dataObj: {...state.dataObj, ...action.payload},
       };
-    }
+
     case ELEMENTS_DATA: {
       const {data, dataObj, wallId} = action.payload;
       return {
@@ -321,34 +333,38 @@ export const roomReducer = (
         elementsData: [...state.elementsData, {wallId, data, dataObj}],
       };
     }
-    case UPDATE_ELEMENT_ROOM:
-      const updatedElements = state.elementsData.map(
-        (item: IElement, index: number) =>
-          index === action.payload.position
-            ? {...item, data: action.payload.updateDate}
-            : item,
+
+    case UPDATE_ELEMENT_ROOM: {
+      const updatedElements = state.elementsData.map((item, index) =>
+        index === action.payload.position
+          ? {...item, data: action.payload.updateDate}
+          : item,
       );
       return {
         ...state,
         elementsData: updatedElements,
       };
+    }
 
     case SET_COUNT_WALL_DRAW:
       return {
         ...state,
         countWallDraw: action.payload,
       };
+
     case EDIT_ELEMENT: {
       const {updatedData, dataObj, wallId, elementId} = action.payload;
 
-      const newWalls = state.sizeWalls.map((wall: any) => ({
+      const newSizeWalls = state.sizeWalls.map(wall => ({
         ...wall,
         drawingData: {
           ...wall.drawingData,
-          walls: wall.drawingData.walls.map((wallData: any) => {
+          walls: wall.drawingData.walls.map(wallData => {
             if (wallData.size.id === wallId) {
-              const prevElements = wallData.size?.arrElements?.elements
-                ? wallData.size.arrElements.elements.map((el: any) => ({...el}))
+              const updatedElements = wallData.size?.arrElements?.elements
+                ? wallData.size.arrElements.elements.map((el, i) =>
+                    i === elementId ? {data: updatedData, dataObj} : {...el},
+                  )
                 : [];
 
               return {
@@ -356,11 +372,7 @@ export const roomReducer = (
                 size: {
                   ...wallData.size,
                   arrElements: {
-                    elements: prevElements.map((el: any, i: any) =>
-                      i === elementId
-                        ? {data: updatedData, dataObj: dataObj}
-                        : el,
-                    ),
+                    elements: updatedElements,
                   },
                 },
               };
@@ -370,108 +382,22 @@ export const roomReducer = (
         },
       }));
 
-      return {...state, sizeWalls: newWalls};
+      return {...state, sizeWalls: newSizeWalls};
     }
-    // case EDIT_ELEMENT:
-    //   // Создаем глубокую копию массива стен
-    //   const newWalls = state.sizeWalls.map((wall: any, index: number) => {
-    //     const updatedDrawingData = {
-    //       ...wall.drawingData,
-    //       walls:
-    //         // Обновляем массив стен внутри drawingData
-    //         wall.drawingData.walls.map((wallData: any) => {
-    //           // Проверяем, совпадает ли ID стены
-    //           if (wallData.size.id === action.payload.wallId) {
-    //             // Удаляем элемент с определенным индексом
-    //             const updatedElements =
-    //               wallData?.size?.arrElements?.elements?.map(
-    //                 (item: IElement, index: number) =>
-    //                   index === action.payload.elementId
-    //                     ? {...item, data: action.payload.updatedData}
-    //                     : item,
-    //               );
-    //             // setElementsData(updatedElements);
-    //             return {
-    //               ...wallData,
-    //               size: {
-    //                 ...wallData.size,
-    //                 arrElements: {
-    //                   ...wallData.size.arrElements,
-    //                   elements: updatedElements, // Обновляем элементы без удаленного
-    //                 },
-    //               },
-    //             };
-    //           }
-    //           return wallData;
-    //         }),
-    //     };
-    //     return {
-    //       ...wall,
-    //       drawingData: updatedDrawingData,
-    //     };
-    //   });
 
-    //   // Возвращаем обновленный массив
-    //   return {
-    //     ...state,
-    //     sizeWalls: newWalls,
-    //   };
-    // case DELETE_ELEMENT_ROOM:
-    //   // Создаем глубокую копию массива стен
-    //   const updatedElementsRoom =
-    //     state.elementsData.filter(
-    //       (_: any, index: number) => index !== action.payload.elementId,
-    //     ) || [];
-    //   const newWallsWithElements = state.sizeWalls.map((wall: any) => {
-    //     const updatedDrawingData = {
-    //       ...wall.drawingData,
-
-    //       // Обновляем массив стен внутри drawingData
-    //       walls: wall.drawingData.walls.map((wallData: any) => {
-    //         // Проверяем, совпадает ли ID стены
-    //         if (wallData.size.id === action.payload.wallId) {
-    //           // Удаляем элемент с определенным индексом
-
-    //           console.log(updatedElements, 'updatedElements');
-    //           // setElementsData(updatedElements);
-    //           return {
-    //             ...wallData,
-    //             size: {
-    //               ...wallData.size,
-    //               arrElements: {
-    //                 ...wallData.size.arrElements,
-    //                 elements: updatedElementsRoom, // Обновляем элементы без удаленного
-    //               },
-    //             },
-    //           };
-    //         }
-    //         return wallData;
-    //       }),
-    //     };
-
-    //     return {
-    //       ...wall,
-    //       drawingData: updatedDrawingData,
-    //     };
-    //   });
-
-    //   // return newWallsWithElements; // Возвращаем обновленный массив
-    //   return {
-    //     ...state,
-    //     sizeWalls: newWallsWithElements,
-    //     elementsData: updatedElementsRoom,
-    //   };
     case DELETE_ELEMENT_ROOM: {
       const {wallId, elementId} = action.payload;
 
-      const newWalls = state.sizeWalls.map((wall: any) => ({
+      const newSizeWalls = state.sizeWalls.map(wall => ({
         ...wall,
         drawingData: {
           ...wall.drawingData,
-          walls: wall.drawingData.walls.map((wallData: any) => {
+          walls: wall.drawingData.walls.map(wallData => {
             if (wallData.size.id === wallId) {
-              const prevElements = wallData.size?.arrElements?.elements
-                ? wallData.size.arrElements.elements.map((el: any) => ({...el}))
+              const filteredElements = wallData.size?.arrElements?.elements
+                ? wallData.size.arrElements.elements.filter(
+                    (_, i) => i !== elementId,
+                  )
                 : [];
 
               return {
@@ -479,9 +405,7 @@ export const roomReducer = (
                 size: {
                   ...wallData.size,
                   arrElements: {
-                    elements: prevElements.filter(
-                      (_: any, i: any) => i !== elementId,
-                    ),
+                    elements: filteredElements,
                   },
                 },
               };
@@ -491,13 +415,15 @@ export const roomReducer = (
         },
       }));
 
-      return {...state, sizeWalls: newWalls};
+      return {...state, sizeWalls: newSizeWalls};
     }
+
     case SET_ACTIVE_WALL_INDEX:
       return {
         ...state,
         numberCurrentWall: action.payload,
       };
+
     default:
       return state;
   }

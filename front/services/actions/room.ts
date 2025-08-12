@@ -129,7 +129,7 @@ export interface IWallsDataAction {
   readonly type: typeof WALLS_DATA;
   readonly payload: {
     walls: IWall[]; // текущий массив стен из состояния (через useSelector)
-    normalizedSize: IExternalSizeWall;
+    normalizedSize: any;
     numberWallIndex: number;
   };
 }
@@ -159,7 +159,7 @@ export interface ISetElementsDataAction {
   readonly payload: {
     data: IElementData;
     dataObj: IDataElementsWall;
-    wallId: number | null;
+    wallId: number;
   };
 }
 
@@ -335,7 +335,7 @@ export const clearPoints = (): IClearPointsAction => ({
 
 export const setWallsData = (
   walls: IWall[],
-  normalizedSize: IExternalSizeWall,
+  normalizedSize: any,
   numberWallIndex: number,
 ): IWallsDataAction => ({
   type: WALLS_DATA,
@@ -372,7 +372,7 @@ export const setDataObj = (dataEl: IDataElementsWall): ISetDataObjAction => ({
 export const setElementsData = (
   data: IElementData,
   dataObj: IDataElementsWall,
-  wallId: number | null,
+  wallId: number,
 ): ISetElementsDataAction => ({
   type: ELEMENTS_DATA,
   payload: {data, dataObj, wallId},

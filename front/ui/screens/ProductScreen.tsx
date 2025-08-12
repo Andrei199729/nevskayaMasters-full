@@ -22,38 +22,37 @@ import api from '../../utils/api';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {setCountWallDraw} from '../../services/actions/room';
 
-type TProductScreenRouteProp = RouteProp<
-  {ProductScreen: {productRoom: {dataProduct: IDrawing[]; nameRoom: string}}},
-  'ProductScreen'
->;
-
 interface IProductScreen {
   applicationNumber?: string;
   route: any;
 }
 
 export default function ProductScreen({route, ...props}: IProductScreen) {
-  const {productRoom} = route.params || {};
+  const {roomId} = route.params;
   const dispatch = useDispatch();
   const {numberCurrentWall, wallsData} = useSelector(state => state.room);
+
+  const roomData = useSelector(state =>
+    state.room.roomData.find((r: any, index: any) => index === roomId),
+  );
+
   const {openFormDataSize} = useSelector(state => state.modalOpen);
   const {dataWall} = useSelector(state => state.draw);
-
   const navigation =
     useNavigation<
       NavigationProp<RootStackParamList, PathScreen.UnwrappedProduct>
     >();
 
-  if (!productRoom || !productRoom.dataProduct) {
+  if (!roomData || !roomData.dataProduct) {
     // Обработать ошибку или вернуть заглушку
     return <Text>Нет данных для отображения</Text>;
   }
 
   return (
     <HeaderScreen>
-      <MainScreen mainTitle={`Комната: ${productRoom.nameRoom}`}>
-        {productRoom?.dataProduct
-          .filter((room: {drawingData: any}) => room && room.drawingData)
+      <MainScreen mainTitle={`Комната: ${roomData.nameRoom}`}>
+        {roomData?.dataProduct
+          .filter((room: any) => room && room.drawingData)
           .map((room: IDrawing, index: number) => {
             return (
               <DrawElement
@@ -69,7 +68,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={productRoom?.dataProduct
+          data={roomData?.dataProduct
             .filter((room: {drawingData: any}) => room && room.drawingData)
             .flatMap((room: IDrawing) =>
               room.drawingData.walls.map((wall: IWall, wallIndex: number) => ({
@@ -94,13 +93,13 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
                   saveSizeWall={wallsData || {}}
                   externalData={wall.size || {}}
                   index={index}
-                  currentWall={currentWall}
+                  currentWall={isActiveWall}
                 />
               </View>
             );
           }}
         />
-        {openFormDataSize && <AddSizeWall dataEditWall={dataWall} />}
+        {openFormDataSize.isOpen && <AddSizeWall dataEditWall={dataWall} />}
       </MainScreen>
     </HeaderScreen>
   );

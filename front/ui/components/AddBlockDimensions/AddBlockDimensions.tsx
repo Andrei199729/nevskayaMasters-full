@@ -45,12 +45,15 @@ export default function AddBlockDimensions({
     state => state.room,
   );
 
-  const {modalVisibleBacklight, modalVisible} = useSelector(
+  const {modalVisibleBacklight, modalVisible, openFormDataSize} = useSelector(
     state => state.modalOpen,
   );
+  console.log(numberWall, 'numberWall');
+
   const wallIndex = numberWall - 1;
 
   let size = saveSizeWall?.[wallIndex]?.size;
+  console.log(elementsData, 'elementsData');
 
   let widthTop = size?.widthTop || externalData?.widthTop;
   let widthBottom = size?.widthBottom || externalData?.widthBottom;
@@ -146,9 +149,6 @@ export default function AddBlockDimensions({
       [nameButton]: isVisible, // Устанавливаем видимость только для конкретного элемента
     }));
   };
-  const elementsForCurrentWall = elementsData.filter(
-    el => el.wallId === wallIndex,
-  );
 
   const onClickEditDataWall = (
     size: IExternalSizeWall | undefined,
@@ -212,6 +212,8 @@ export default function AddBlockDimensions({
             wallNumber,
           }),
         );
+        console.log(openFormDataSize, 'openFormDataSize');
+
         break;
       default:
         // Логика по умолчанию (если нужно обработать другие случаи)
@@ -238,10 +240,14 @@ export default function AddBlockDimensions({
 
         <Pressable
           onPress={() =>
-            onClickWallIncrease(size, wallIndex, ClickSelection.Wall)
+            onClickWallIncrease(
+              externalData || size,
+              wallIndex,
+              ClickSelection.Wall,
+            )
           }>
           <View>
-            <Text style={styles.textDimensions}>Стена №{numberWall}</Text>
+            <Text style={styles.textDimensions}>Стена №{numberWall + 1}</Text>
             <View
               style={[
                 styles.wallBlock,
@@ -382,23 +388,26 @@ export default function AddBlockDimensions({
                           borderStyle: 'solid',
                           marginTop: 10,
                         }}>
-                        {Array.isArray(elementsForCurrentWall) &&
-                        elementsForCurrentWall.length > 0 ? (
-                          elementsForCurrentWall.map((element, index) => {
-                            return (
-                              <BlockStateElements
-                                key={index}
-                                nameElement={
-                                  element?.dataObj?.nameElement || 'Без имени'
-                                }
-                                stateElement={
-                                  element?.dataObj?.stateElement || 'Не задано'
-                                }
-                                position={index}
-                                onPressVisible={() => {}}
-                              />
-                            );
-                          })
+                        {Array.isArray(externalData?.arrElements?.elements) &&
+                        externalData?.arrElements?.elements.length > 0 ? (
+                          externalData?.arrElements?.elements.map(
+                            (element: any, index: any) => {
+                              return (
+                                <BlockStateElements
+                                  key={index}
+                                  nameElement={
+                                    element?.dataObj?.nameElement || 'Без имени'
+                                  }
+                                  stateElement={
+                                    element?.dataObj?.stateElement ||
+                                    'Не задано'
+                                  }
+                                  position={index}
+                                  onPressVisible={() => {}}
+                                />
+                              );
+                            },
+                          )
                         ) : (
                           <Text>Добавьте элементы</Text>
                         )}
@@ -436,14 +445,18 @@ export default function AddBlockDimensions({
             </View>
           </View>
         </Pressable>
-        {size && (
+        {
           <ButtonCustom
             textBtn="Редактировать стену"
             onPress={() =>
-              onClickWallIncrease(size, wallIndex, ClickSelection.Button)
+              onClickWallIncrease(
+                size || externalData,
+                wallIndex,
+                ClickSelection.Button,
+              )
             }
           />
-        )}
+        }
       </SafeAreaView>
     </SafeAreaProvider>
   );
