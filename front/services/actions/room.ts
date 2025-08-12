@@ -7,6 +7,7 @@ import {
   IPoint,
   IProductRoom,
   IWall,
+  TClickButtonBlockDimensions,
 } from '../../shared/types';
 import api from '../../utils/api';
 import {getKeychain} from '../../utils/keychain';
@@ -41,6 +42,9 @@ import {
   DELETE_ELEMENT_ROOM,
   SET_MODAL_VISIBLE_BACK_LIGHT,
   SET_ACTIVE_WALL_INDEX,
+  SET_VISIBLE_ELEMENTS,
+  SET_CLICK_DATA_WALL,
+  SET_CURRENT_ROOM_ID,
 } from '../constants/constants';
 import {AppDispatch} from '../types';
 import {ISetAuthLoggedInAction, setAuthloggedIn} from './user';
@@ -106,6 +110,7 @@ export interface IUpdateSizeWallsAction {
     dataObj: IDataElementsWall;
     numberCurrentWall: number | null;
     wallId: number;
+    roomId: number;
   };
 }
 
@@ -160,6 +165,7 @@ export interface ISetElementsDataAction {
     data: IElementData;
     dataObj: IDataElementsWall;
     wallId: number;
+    roomIndex: any;
   };
 }
 
@@ -201,6 +207,27 @@ export interface ISetActiveWallIndex {
   readonly payload: number;
 }
 
+export interface ISetVisibleElements {
+  readonly type: typeof SET_VISIBLE_ELEMENTS;
+  readonly payload: {
+    index: number;
+    isVisible: boolean;
+  };
+}
+
+export interface ISetClickDataWall {
+  readonly type: typeof SET_CLICK_DATA_WALL;
+  readonly payload: {
+    isVisible: boolean;
+    nameButton: TClickButtonBlockDimensions;
+  };
+}
+
+export interface ISetCurrentRoomId {
+  readonly type: typeof SET_CURRENT_ROOM_ID;
+  readonly payload: any;
+}
+
 // Объединяем в Union
 
 export type TRoomAction =
@@ -232,7 +259,10 @@ export type TRoomAction =
   | ISetCountWallDrawAction
   | IEditElementAction
   | IDeleteElement
-  | ISetActiveWallIndex;
+  | ISetActiveWallIndex
+  | ISetVisibleElements
+  | ISetClickDataWall
+  | ISetCurrentRoomId;
 // генераторы экшенов
 export const getRoomRequestAction = (): IGetRoomRequestAction => ({
   type: GET_ROOM_REQUEST,
@@ -302,9 +332,10 @@ export const setUpdateSizeWalls = (
   dataObj: IDataElementsWall,
   numberCurrentWall: number | null,
   wallId: number,
+  roomId: number,
 ): IUpdateSizeWallsAction => ({
   type: UPDATE_SIZE_WALLS,
-  payload: {data, dataObj, numberCurrentWall, wallId},
+  payload: {data, dataObj, numberCurrentWall, wallId, roomId},
 });
 
 export const setPaths = (path: string, length: number): IPathsAction => ({
@@ -373,9 +404,10 @@ export const setElementsData = (
   data: IElementData,
   dataObj: IDataElementsWall,
   wallId: number,
+  roomIndex: any,
 ): ISetElementsDataAction => ({
   type: ELEMENTS_DATA,
-  payload: {data, dataObj, wallId},
+  payload: {data, dataObj, wallId, roomIndex},
 });
 export const setUpdateElementsData = (
   position: number,
@@ -419,6 +451,27 @@ export const setNumberCurrentWall = (
 ): ISetActiveWallIndex => ({
   type: SET_ACTIVE_WALL_INDEX,
   payload: numberCurrentWall,
+});
+
+export const setVisibleElements = (payload: {
+  index: number;
+  isVisible: boolean;
+}): ISetVisibleElements => ({
+  type: SET_VISIBLE_ELEMENTS,
+  payload,
+});
+
+export const setClickDataWall = (payload: {
+  isVisible: boolean;
+  nameButton: TClickButtonBlockDimensions;
+}): ISetClickDataWall => ({
+  type: SET_CLICK_DATA_WALL,
+  payload,
+});
+
+export const setCurrentRoomId = (payload: any): ISetCurrentRoomId => ({
+  type: SET_CURRENT_ROOM_ID,
+  payload,
 });
 
 export function getRoomsInitial() {

@@ -28,6 +28,7 @@ import {
   addOrUpdateRoom,
   getRoomsInitial,
   resetCurrentDrawing,
+  setCurrentRoomId,
 } from '../../services/actions/room';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {setResetLinedasharrays} from '../../services/actions/draw';
@@ -56,12 +57,13 @@ function UnwrappedProductScreen({
 }: IUnwrappedProductScreen) {
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state.user);
-  const {roomData, loading} = useSelector(state => state.room);
+  const {roomData, loading, currentRoomId} = useSelector(state => state.room);
   const onClickAddProduct = () => {
     navigation.navigate('FormDataAddProduct');
     dispatch(resetCurrentDrawing());
     dispatch(setResetLinedasharrays());
   };
+  console.log(currentRoomId, 'state.currentRoomId');
 
   const onClickLinkProduct = (roomId: any) => {
     dispatch(
@@ -70,10 +72,8 @@ function UnwrappedProductScreen({
         wallNumber: null,
       }),
     );
-
-    navigation.navigate('Product', {
-      roomId: roomId,
-    });
+    dispatch(setCurrentRoomId(roomId));
+    navigation.navigate('Product');
   };
 
   useEffect(() => {

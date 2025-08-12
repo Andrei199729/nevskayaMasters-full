@@ -21,11 +21,7 @@ interface IDrawElement {
   setCountWallDraw: (length: number) => void;
 }
 
-export default function DrawElement({
-  drawing,
-  // strokeDasharrays,
-  numberWallIndex,
-}: IDrawElement) {
+export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
   const dispatch = useDispatch();
   const {openFormDataSize} = useSelector(state => state.modalOpen);
   const {isStyleLine, selectedLine, strokeDasharrays} = useSelector(
@@ -51,7 +47,6 @@ export default function DrawElement({
         }),
       );
     }
-    console.log(strokeDasharrays, 'strokeDasharrays');
   }, [openFormDataSize, numberWallIndex]);
 
   return (

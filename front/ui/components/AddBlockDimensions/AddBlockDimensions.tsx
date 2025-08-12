@@ -1,12 +1,11 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {Colors, Fonts} from '../../../shared/tokens';
 import {
   ClickButtonBlockDimensions,
   ClickSelection,
   IAddBlockDimensions,
   IDataElementsWall,
-  IElement,
   IElementData,
   IExternalSizeWall,
   TClickButtonBlockDimensions,
@@ -17,11 +16,13 @@ import BlockStateElements from '../BlockStateElements/BlockStateElements';
 import SizeWallText from '../../../shared/SizeWallText/SizeWallText';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
+  setClickDataWall,
   setDataObj,
   setEditElement,
   setElementsData,
   setNumberCurrentWall,
   setUpdateSizeWalls,
+  setVisibleElements,
 } from '../../../services/actions/room';
 import {isValidArray} from '../../../utils/validators';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
@@ -38,22 +39,28 @@ export default function AddBlockDimensions({
   externalData,
   currentWall,
   index,
+  mode,
   ...props
-}: IAddBlockDimensions) {
+}: IAddBlockDimensions & any) {
   const dispatch = useDispatch();
-  const {sizeWalls, dataObj, elementsData, numberCurrentWall} = useSelector(
-    state => state.room,
-  );
+  const {
+    sizeWalls,
+    dataObj,
+    numberCurrentWall,
+    clickDataWall,
+    elementsData,
+    roomData,
+    currentRoomId,
+    wallsData,
+  } = useSelector(state => state.room);
 
-  const {modalVisibleBacklight, modalVisible, openFormDataSize} = useSelector(
+  const {modalVisibleBacklight, openFormDataSize} = useSelector(
     state => state.modalOpen,
   );
-  console.log(numberWall, 'numberWall');
 
   const wallIndex = numberWall - 1;
 
   let size = saveSizeWall?.[wallIndex]?.size;
-  console.log(elementsData, 'elementsData');
 
   let widthTop = size?.widthTop || externalData?.widthTop;
   let widthBottom = size?.widthBottom || externalData?.widthBottom;
@@ -61,24 +68,20 @@ export default function AddBlockDimensions({
   let heightLeft = size?.heightLeft || externalData?.heightLeft;
   let radiusWall = size?.radiusWall || externalData?.radiusWall;
   let wallAngleDegree = size?.wallAngleDegree || externalData?.wallAngleDegree;
+  console.log(
+    externalData?.arrElements?.elements,
+    'externalData?.arrElements?.elements',
+  );
 
-  const [clickDataWall, setClickDataWall] = useState<{
-    [key: string]: boolean;
-  }>({});
+  // const [clickDataWall, setClickDataWall] = useState<{
+  //   [key: string]: boolean;
+  // }>({});
 
-  const [visibleElements, setVisibleElements] = useState<{
-    [key: number]: boolean;
-  }>({});
-
-  const toggleElementVisibility = (index: number, isVisible: boolean) => {
-    setVisibleElements(prev => ({
-      ...prev,
-      [index]: isVisible, // Устанавливаем видимость только для конкретного элемента
-    }));
-  };
-
+  const roomIndex = roomData.findIndex(
+    (room: {id: any}, index: number) => index === currentRoomId,
+  );
   const addElementToData = (data: IElementData, wallId: number) => {
-    dispatch(setElementsData(data, dataObj, numberCurrentWall));
+    dispatch(setElementsData(data, dataObj, wallId, currentRoomId));
   };
 
   const onSaveElement = (dataEl: IDataElementsWall) => {
@@ -88,54 +91,16 @@ export default function AddBlockDimensions({
   const updateSizeWalls = (data: IElementData, wallId: number) => {
     if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
     //  Создаем глубокую копию массива стен
-    dispatch(setUpdateSizeWalls(data, dataObj, numberCurrentWall, wallId));
+    dispatch(
+      setUpdateSizeWalls(data, dataObj, numberCurrentWall, wallId, roomIndex),
+    );
   };
 
   const editElement = useCallback(
     (updatedData: any, wallId: number, elementId: number) => {
       if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
       dispatch(setEditElement(updatedData, dataObj, wallId, elementId));
-      toggleElementVisibility(elementId, false);
-
-      // setSizeWalls(prevSizeWall => {
-
-      //   // Создаем глубокую копию массива стен
-      //   const newWalls = prevSizeWall.map(wall => {
-      //     const updatedDrawingData = {...wall.drawingData};
-
-      //     // Обновляем массив стен внутри drawingData
-      //     updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-      //       // Проверяем, совпадает ли ID стены
-      //       if (wallData.size.id === wallId) {
-      //         // Удаляем элемент с определенным индексом
-      //         const updatedElements = elementsData.map(
-      //           (item: IElement, index: number) =>
-      //             index === elementId ? {...item, data: updatedData} : item,
-      //         );
-
-      //         setElementsData(updatedElements);
-      //         return {
-      //           ...wallData,
-      //           size: {
-      //             ...wallData.size,
-      //             arrElements: {
-      //               ...wallData.size.arrElements,
-      //               elements: updatedElements, // Обновляем элементы без удаленного
-      //             },
-      //           },
-      //         };
-      //       }
-      //       return wallData;
-      //     });
-
-      //     return {
-      //       ...wall,
-      //       drawingData: updatedDrawingData,
-      //     };
-      //   });
-
-      //   return newWalls; // Возвращаем обновленный массив
-      // });
+      dispatch(setVisibleElements({index: elementId, isVisible: false}));
     },
     [],
   );
@@ -144,10 +109,7 @@ export default function AddBlockDimensions({
     isVisible: boolean,
     nameButton: TClickButtonBlockDimensions,
   ) => {
-    setClickDataWall(prev => ({
-      ...prev,
-      [nameButton]: isVisible, // Устанавливаем видимость только для конкретного элемента
-    }));
+    dispatch(setClickDataWall({isVisible, nameButton}));
   };
 
   const onClickEditDataWall = (
@@ -212,7 +174,6 @@ export default function AddBlockDimensions({
             wallNumber,
           }),
         );
-        console.log(openFormDataSize, 'openFormDataSize');
 
         break;
       default:
@@ -220,6 +181,13 @@ export default function AddBlockDimensions({
         break;
     }
   };
+  const elementsForCurrentWall = elementsData.filter(
+    el => el.wallId === numberWall - 1,
+  );
+  const elementsToRender =
+    mode === 'edit'
+      ? elementsForCurrentWall
+      : externalData?.arrElements?.elements ?? [];
 
   return (
     <SafeAreaProvider>
@@ -232,10 +200,9 @@ export default function AddBlockDimensions({
           addElementToData={addElementToData}
           onSaveElement={onSaveElement}
           updateSizeWalls={updateSizeWalls}
-          setVisible={toggleElementVisibility}
-          visibleElements={visibleElements}
           editElement={editElement}
           currentWall={currentWall}
+          mode={mode}
         />
 
         <Pressable
@@ -388,26 +355,27 @@ export default function AddBlockDimensions({
                           borderStyle: 'solid',
                           marginTop: 10,
                         }}>
-                        {Array.isArray(externalData?.arrElements?.elements) &&
-                        externalData?.arrElements?.elements.length > 0 ? (
-                          externalData?.arrElements?.elements.map(
-                            (element: any, index: any) => {
-                              return (
-                                <BlockStateElements
-                                  key={index}
-                                  nameElement={
-                                    element?.dataObj?.nameElement || 'Без имени'
-                                  }
-                                  stateElement={
-                                    element?.dataObj?.stateElement ||
-                                    'Не задано'
-                                  }
-                                  position={index}
-                                  onPressVisible={() => {}}
-                                />
-                              );
-                            },
-                          )
+                        {elementsToRender.length > 0 ? (
+                          elementsToRender.map((element: any, index: any) => {
+                            console.log(
+                              element,
+                              'element----------------------',
+                            );
+
+                            return (
+                              <BlockStateElements
+                                key={index}
+                                nameElement={
+                                  element?.dataObj?.nameElement || 'Без имени'
+                                }
+                                stateElement={
+                                  element?.dataObj?.stateElement || 'Не задано'
+                                }
+                                position={index}
+                                onPressVisible={() => {}}
+                              />
+                            );
+                          })
                         ) : (
                           <Text>Добавьте элементы</Text>
                         )}

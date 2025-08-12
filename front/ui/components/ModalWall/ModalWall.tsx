@@ -23,6 +23,7 @@ import {
   setElementsWallModalVisible,
   setModalVisible,
 } from '../../../services/actions/modalOpen';
+import {setVisibleElements} from '../../../services/actions/room';
 interface IModalWall {
   numberWall: number;
   saveSizeWall?: ISaveSizeWall | undefined;
@@ -30,12 +31,10 @@ interface IModalWall {
   addElementToData: (data: IElementData, wallId: number) => void;
   onSaveElement: (dataEl: IDataElementsWall, index: number) => void;
   updateSizeWalls: (data: IElementData, wallId: number) => void;
-  setVisible: (index: number, isVisible: boolean) => void;
-  visibleElements: {[key: number]: boolean};
   editElement: (updatedData: any, wallId: number, elementId: number) => void;
   externalData?: IExternalSizeWall | undefined;
+  mode: 'edit' | 'view';
 }
-
 export default function ModalWall({
   numberWall,
   saveSizeWall,
@@ -43,11 +42,10 @@ export default function ModalWall({
   addElementToData,
   onSaveElement,
   updateSizeWalls,
-  setVisible,
-  visibleElements,
   editElement,
   externalData,
   currentWall,
+  mode,
   ...props
 }: IModalWall & any) {
   const dispatch = useDispatch();
@@ -83,7 +81,10 @@ export default function ModalWall({
     el => el.wallId === numberWall - 1,
   );
   // Обновляем, если `elementsData` изменилось
-
+  const elementsToRender =
+    mode === 'edit'
+      ? elementsForCurrentWall
+      : externalData?.arrElements?.elements ?? [];
   return (
     <>
       <Modal
@@ -108,7 +109,7 @@ export default function ModalWall({
                   left: '10%',
                   zIndex: 4,
                 }}>
-                {elementsForCurrentWall?.map(
+                {/* {elementsForCurrentWall?.map(
                   (element: IElement, index: number) => {
                     return (
                       <ElementWallAdd
@@ -118,14 +119,30 @@ export default function ModalWall({
                         nameElement={element?.dataObj?.nameElement || ''}
                         stateElement={element?.dataObj?.stateElement || ''}
                         onPressVisible={() => setVisible(index, true)}
-                        isVisible={visibleElements}
                         setVisible={setVisible}
                         editElement={editElement}
                         wallIndex={wallIndex}
                       />
                     );
                   },
-                )}
+                )} */}
+                {elementsToRender.length > 0 &&
+                  elementsToRender.map((element: IElement, index: number) => {
+                    return (
+                      <ElementWallAdd
+                        key={index}
+                        element={element}
+                        position={index}
+                        nameElement={element?.dataObj?.nameElement || ''}
+                        stateElement={element?.dataObj?.stateElement || ''}
+                        onPressVisible={() =>
+                          dispatch(setVisibleElements({index, isVisible: true}))
+                        }
+                        editElement={editElement}
+                        wallIndex={wallIndex}
+                      />
+                    );
+                  })}
               </View>
               <Pressable onPress={onClickElementModal}>
                 <View style={{backgroundColor: Colors.white}}>

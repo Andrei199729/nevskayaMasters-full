@@ -28,12 +28,11 @@ interface IProductScreen {
 }
 
 export default function ProductScreen({route, ...props}: IProductScreen) {
-  const {roomId} = route.params;
   const dispatch = useDispatch();
-  const {numberCurrentWall, wallsData} = useSelector(state => state.room);
+  const {wallsData, currentRoomId} = useSelector(state => state.room);
 
   const roomData = useSelector(state =>
-    state.room.roomData.find((r: any, index: any) => index === roomId),
+    state.room.roomData.find((r: any, index: any) => index === currentRoomId),
   );
 
   const {openFormDataSize} = useSelector(state => state.modalOpen);
@@ -79,12 +78,6 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
           keyExtractor={(_, index) => index.toString()}
           renderItem={({item: wall, index}) => {
             const isActiveWall = wall.wallIndex === index;
-            // const safeArrElements = Array.isArray(
-            //   wall?.size?.arrElements?.elements,
-            // )
-            //   ? wall?.size?.arrElements?.elements
-            //   : [];
-            const currentWall = index === numberCurrentWall;
 
             return (
               <View style={{flexDirection: 'column', marginHorizontal: 10}}>
@@ -94,6 +87,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
                   externalData={wall.size || {}}
                   index={index}
                   currentWall={isActiveWall}
+                  mode="view"
                 />
               </View>
             );

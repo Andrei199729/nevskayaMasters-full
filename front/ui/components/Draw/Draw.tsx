@@ -339,6 +339,7 @@ export default function Draw() {
                   currentWall={currentWall}
                   saveSizeWall={wallsData || {}}
                   externalData={undefined}
+                  mode="edit"
                 />
               </View>
             );

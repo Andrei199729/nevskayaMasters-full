@@ -10,9 +10,7 @@ interface IElementWallAdd {
   position: number;
   onPressVisible: () => void;
   addedElement?: boolean;
-  setVisible: (index: number, isVisible: boolean) => void;
   element: IElement;
-  isVisible: {[key: number]: boolean};
   editElement: any;
   wallIndex: number;
 }
@@ -23,9 +21,7 @@ export default function ElementWallAdd({
   position,
   onPressVisible,
   addedElement,
-  setVisible,
   element,
-  isVisible,
   editElement,
   wallIndex,
   ...props
@@ -41,8 +37,6 @@ export default function ElementWallAdd({
       <ModalSizesElement
         position={position}
         nameElement={nameElement}
-        isVisible={isVisible}
-        setVisible={setVisible}
         element={element}
         editElement={editElement}
         wallIndex={wallIndex}

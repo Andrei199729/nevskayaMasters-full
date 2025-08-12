@@ -1,20 +1,20 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
 import {IElement, IElementData} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
-import {Dispatch, SetStateAction, useCallback, useState} from 'react';
+import {useCallback, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   deleteElement,
   setUpdateElementsData,
+  setVisibleElements,
 } from '../../../services/actions/room';
 import {isValidArray} from '../../../utils/validators';
 import {setIsVisibleEditModal} from '../../../services/actions/modalOpen';
 
 interface IModalSizesElement {
-  setVisible: (position: number, bool: boolean) => void;
-  isVisible: {[key: number]: boolean};
+  // setVisible: (position: number, bool: boolean) => void;
   nameElement: string;
   position: number;
   element: IElement;
@@ -23,8 +23,7 @@ interface IModalSizesElement {
 }
 
 export default function ModalSizesElement({
-  setVisible,
-  isVisible,
+  // setVisible,
   nameElement,
   position,
   element,
@@ -33,12 +32,12 @@ export default function ModalSizesElement({
   ...props
 }: IModalSizesElement & any) {
   const dispatch = useDispatch();
-  const {elementsData, sizeWalls, numberCurrentWall} = useSelector(
-    state => state.room,
-  );
+  const {elementsData, sizeWalls, numberCurrentWall, visibleElements} =
+    useSelector(state => state.room);
   const [clickButtonEdit, setClickButtonEdit] = useState(false);
   const onClickModalClose = () => {
-    setVisible(position, false);
+    // setVisible(position, false);
+    dispatch(setVisibleElements({index: position, isVisible: false}));
   };
 
   const onClickEdit = () => {
@@ -74,7 +73,8 @@ export default function ModalSizesElement({
     (wallId: number | boolean | null, elementId: number) => {
       if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
       dispatch(deleteElement(wallId, elementId));
-      setVisible(elementId, false);
+      // setVisible(elementId, false);
+      dispatch(setVisibleElements({index: elementId, isVisible: false}));
     },
     [],
   );
@@ -83,9 +83,9 @@ export default function ModalSizesElement({
     <Modal
       animationType="slide"
       transparent={true}
-      visible={!!isVisible[position]}
+      visible={!!visibleElements[position]}
       onRequestClose={() => {
-        () => setVisible(position, false);
+        () => dispatch(setVisibleElements({index: position, isVisible: false}));
       }}>
       <ModalFormElement
         numberWall={position + 1}

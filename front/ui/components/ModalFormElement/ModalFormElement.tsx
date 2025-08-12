@@ -61,6 +61,7 @@ export default function ModalFormElement({
   const heightLeft = useInput(dataEditElement?.heightLeft || '');
   const heightRight = useInput(dataEditElement?.heightRight || '');
   const radiusElement = useInput(dataEditElement?.radiusElement || '');
+
   const onSaveDataElement = () => {
     const numericNumberWall = typeof numberWall === 'number' ? numberWall : 0;
     const numberElement = numericNumberWall - 1;
@@ -85,6 +86,7 @@ export default function ModalFormElement({
         wallNumber: null,
       }),
     );
+
     dispatch(
       setElementModalVisible({
         isVisible: false,
@@ -93,6 +95,7 @@ export default function ModalFormElement({
       }),
     );
   };
+
   const stateFormElemnt = clickButtonEdit
     ? isVisibleEditModal.isVisible
     : elementModal.isVisible;
@@ -116,10 +119,6 @@ export default function ModalFormElement({
       radiusElement.onChangeText(dataEditElement.radiusElement || '');
     }
   }, [dataEditElement]);
-  console.log(
-    isVisibleEditModal,
-    'isVisibleEditModalisVisibleEditModalisVisibleEditModal',
-  );
 
   return (
     <Modal

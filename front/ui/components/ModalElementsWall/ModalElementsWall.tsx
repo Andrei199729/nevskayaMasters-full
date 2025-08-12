@@ -13,7 +13,6 @@ import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   setElementModalVisible,
   setElementsWallModalVisible,
-  setModalVisible,
 } from '../../../services/actions/modalOpen';
 
 interface IModalElementsWall {
