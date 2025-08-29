@@ -1,7 +1,7 @@
-import {Alert, Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts, Gaps} from '../../shared/tokens';
-import {Key, useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect} from 'react';
 import HeaderScreen from './HeaderScreen';
 import {
   IDrawing,
@@ -20,9 +20,6 @@ import {
   RouteProp,
   useFocusEffect,
 } from '@react-navigation/native';
-import api from '../../utils/api';
-import * as Keychain from 'react-native-keychain';
-import auth from '../../utils/auth';
 import {checkUserAuth} from '../../services/actions/user';
 import {
   addOrUpdateRoom,
@@ -57,13 +54,12 @@ function UnwrappedProductScreen({
 }: IUnwrappedProductScreen) {
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state.user);
-  const {roomData, loading, currentRoomId} = useSelector(state => state.room);
+  const {roomData, loading} = useSelector(state => state.room);
   const onClickAddProduct = () => {
     navigation.navigate('FormDataAddProduct');
     dispatch(resetCurrentDrawing());
     dispatch(setResetLinedasharrays());
   };
-  console.log(currentRoomId, 'state.currentRoomId');
 
   const onClickLinkProduct = (roomId: any) => {
     dispatch(

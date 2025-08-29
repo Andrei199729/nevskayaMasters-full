@@ -5,7 +5,6 @@ import {
   IElement,
   IPaths,
   IPoint,
-  IProductRoom,
   IWall,
 } from '../../shared/types';
 import {TRoomAction} from '../actions/room';
@@ -30,13 +29,19 @@ import {
   ELEMENTS_DATA,
   UPDATE_ELEMENT_ROOM,
   SET_COUNT_WALL_DRAW,
-  EDIT_ELEMENT,
+  // EDIT_ELEMENT,
   DELETE_ELEMENT_ROOM,
   SET_ACTIVE_WALL_INDEX,
   RESET_CURRENT_DRAWING,
   SET_VISIBLE_ELEMENTS,
   SET_CLICK_DATA_WALL,
   SET_CURRENT_ROOM_ID,
+  SET_DATA_EDIT_WALL,
+  PATCH_ROOM_REQUEST,
+  PATCH_ROOM_SUCCESS,
+  PATCH_ROOM_FAILED,
+  SET_ACTIVE_ELEMENT_ID,
+  ADD_ELEMENT_ROOM,
 } from '../constants/constants';
 
 interface IRoomState {
@@ -45,7 +50,7 @@ interface IRoomState {
   success: boolean;
   loading: boolean;
   error: string;
-  sizeWalls: IDrawing[];
+  sizeWalls: any;
   paths: IPaths[];
   points: IPoint[];
   drawingData?: IDrawingData | null;
@@ -53,12 +58,17 @@ interface IRoomState {
   currentPath: string;
   lastPoint: IPoint | null;
   dataObj: IDataElementsWall;
-  elementsData: any[];
+  elementsData: IElement[];
   countWallDraw: number;
   numberCurrentWall: number;
   visibleElements: {[key: number]: boolean};
   clickDataWall: {[key: string]: boolean};
-  currentRoomId: any;
+  currentRoomId: number;
+  dataWall: {
+    dataEditWall: any;
+    currentWall: number;
+  };
+  activeElementId: number | null;
 }
 
 const initialState: IRoomState = {
@@ -84,7 +94,12 @@ const initialState: IRoomState = {
   numberCurrentWall: 0,
   visibleElements: {},
   clickDataWall: {},
-  currentRoomId: null,
+  currentRoomId: 0,
+  dataWall: {
+    dataEditWall: {},
+    currentWall: 0,
+  },
+  activeElementId: null,
 };
 
 export const roomReducer = (
@@ -208,10 +223,15 @@ export const roomReducer = (
         sizeWalls: [],
         countWallDraw: 0,
         elementsData: [],
+        dataWall: {
+          dataEditWall: {},
+          currentWall: 0,
+        },
       };
 
     case WALLS_DATA: {
       const {walls, normalizedSize, numberWallIndex} = action.payload;
+
       const wallsSafe = Array.isArray(walls) ? walls : [];
       const safeNormalizedSize = {
         ...normalizedSize,
@@ -244,6 +264,21 @@ export const roomReducer = (
       const numberWall = state.sizeWalls.length;
       const countWallDraw = state.paths.length;
 
+      // Создаём чистые стены без старых элементов
+      const cleanWalls = wallsData.map((wall: any) => ({
+        ...wall,
+        size: {
+          ...wall.size,
+          arrElements: {elements: []}, // очищаем элементы
+        },
+      }));
+      const newElementsData = cleanWalls.flatMap((wall: any, wallId: any) =>
+        wall.size.arrElements.elements.map((el: any, idx: number) => ({
+          ...el,
+          wallId,
+          position: idx,
+        })),
+      );
       const drawingData = {
         numberWall,
         countWallDraw,
@@ -253,7 +288,7 @@ export const roomReducer = (
           length: path.length,
           points: [...points],
         })),
-        walls: wallsData.map((wall: any) => ({...wall})), // копия массива стен
+        walls: cleanWalls, // используем чистые стены
       };
 
       return {
@@ -263,71 +298,30 @@ export const roomReducer = (
         points: [],
         currentPath: '',
         lastPoint: null,
+        wallsData: [], // очищаем текущие wallsData
+        elementsData: [...state.elementsData, ...newElementsData], // очищаем глобальные элементы
       };
     }
 
     case UPDATE_LAST_DRAWING_WALLS: {
-      const updatedSizeWalls = state.sizeWalls.map((drawing, index) => {
-        if (index === state.sizeWalls.length - 1) {
-          return {
-            ...drawing,
-            drawingData: {
-              ...(drawing.drawingData ?? {}),
-              walls: action.payload.map(wall => ({...wall})),
-            },
-          };
-        }
-        return drawing;
-      });
+      const updatedSizeWalls = state.sizeWalls.map(
+        (drawing: {drawingData: any}, index: number) => {
+          if (index === state.sizeWalls.length - 1) {
+            return {
+              ...drawing,
+              drawingData: {
+                ...(drawing.drawingData ?? {}),
+                walls: action.payload.map(wall => ({...wall})),
+              },
+            };
+          }
+          return drawing;
+        },
+      );
 
       return {...state, sizeWalls: updatedSizeWalls};
     }
 
-    // case UPDATE_SIZE_WALLS: {
-    //   const {numberCurrentWall, data, dataObj, wallId} = action.payload;
-
-    //   const updatedSizeWalls = state.sizeWalls.map((room, index) => {
-    //     if (index !== wallId) return room;
-
-    //     return {
-    //       ...room,
-    //       drawingData: {
-    //         ...room.drawingData,
-    //         walls: room.drawingData.walls.map(wall => {
-    //           // Получаем безопасный массив элементов (если arrElements или elements нет, берем пустой массив)
-    //           const elements = wall.size?.arrElements?.elements ?? [];
-
-    //           if (wall.size.id !== numberCurrentWall) {
-    //             return {
-    //               ...wall,
-    //               size: {
-    //                 ...wall.size,
-    //                 arrElements: {
-    //                   elements: elements.map(el => ({...el})),
-    //                 },
-    //               },
-    //             };
-    //           }
-
-    //           return {
-    //             ...wall,
-    //             size: {
-    //               ...wall.size,
-    //               arrElements: {
-    //                 elements: [
-    //                   ...elements.map(el => ({...el})),
-    //                   {data: {...data}, dataObj: {...dataObj}},
-    //                 ],
-    //               },
-    //             },
-    //           };
-    //         }),
-    //       },
-    //     };
-    //   });
-
-    //   return {...state, sizeWalls: updatedSizeWalls};
-    // }
     case UPDATE_SIZE_WALLS: {
       const {numberCurrentWall, data, dataObj} = action.payload;
 
@@ -336,8 +330,7 @@ export const roomReducer = (
           ...wall.drawingData,
           walls: wall.drawingData.walls.map((wallData: any) => {
             const prevElements = wallData.size?.arrElements?.elements ?? [];
-            console.log(wallData.size.id, 'wallData.size.id');
-            console.log(numberCurrentWall, 'numberCurrentWall');
+            const idElement = (numberCurrentWall + 33) * 1000 + Date.now() * 33;
 
             if (wallData.size.id === numberCurrentWall) {
               return {
@@ -345,7 +338,7 @@ export const roomReducer = (
                 size: {
                   ...wallData.size,
                   arrElements: {
-                    elements: [...prevElements, {data, dataObj}],
+                    elements: [...prevElements, {id: idElement, data, dataObj}],
                   },
                 },
               };
@@ -381,15 +374,44 @@ export const roomReducer = (
     }
 
     case UPDATE_ELEMENT_ROOM: {
-      const updatedElements = state.elementsData.map((item, index) =>
-        index === action.payload.position
-          ? {...item, data: action.payload.updateDate}
-          : item,
-      );
-      return {
-        ...state,
-        elementsData: updatedElements,
-      };
+      const {roomId, numberWall, updatedData, numberEl} = action.payload;
+
+      if (numberEl === null || numberEl === undefined) return state; // если элемент не выбран, ничего не делаем
+
+      const updatedRooms = state.roomData.map((room: any, index: number) => {
+        if (index !== roomId) return room;
+
+        const updatedDataProduct = room.dataProduct.map((drawing: any) => {
+          const updatedWalls = drawing.drawingData.walls.map((wall: any) => {
+            if (wall.numberWall !== numberWall) return wall;
+
+            const updatedElements =
+              wall.size.arrElements?.elements?.map((el: any) =>
+                el.id === numberEl ? {...el, data: updatedData} : el,
+              ) || [];
+
+            return {
+              ...wall,
+              size: {
+                ...wall.size,
+                arrElements: {elements: updatedElements},
+              },
+            };
+          });
+
+          return {
+            ...drawing,
+            drawingData: {
+              ...drawing.drawingData,
+              walls: updatedWalls,
+            },
+          };
+        });
+
+        return {...room, dataProduct: updatedDataProduct};
+      });
+
+      return {...state, roomData: updatedRooms};
     }
 
     case SET_COUNT_WALL_DRAW:
@@ -398,71 +420,47 @@ export const roomReducer = (
         countWallDraw: action.payload,
       };
 
-    case EDIT_ELEMENT: {
-      const {updatedData, dataObj, wallId, elementId} = action.payload;
-
-      const newSizeWalls = state.sizeWalls.map(wall => ({
-        ...wall,
-        drawingData: {
-          ...wall.drawingData,
-          walls: wall.drawingData.walls.map(wallData => {
-            if (wallData.size.id === wallId) {
-              const updatedElements = wallData.size?.arrElements?.elements
-                ? wallData.size.arrElements.elements.map((el, i) =>
-                    i === elementId ? {data: updatedData, dataObj} : {...el},
-                  )
-                : [];
-
-              return {
-                ...wallData,
-                size: {
-                  ...wallData.size,
-                  arrElements: {
-                    elements: updatedElements,
-                  },
-                },
-              };
-            }
-            return wallData;
-          }),
-        },
-      }));
-
-      return {...state, sizeWalls: newSizeWalls};
-    }
-
     case DELETE_ELEMENT_ROOM: {
-      const {wallId, elementId} = action.payload;
+      const {roomId, wallId, elementId, positionEl} = action.payload;
+      if (elementId === null || elementId === undefined) return state;
+      const updatedRooms = state.roomData.map((room: any, index: number) => {
+        if (index !== roomId) return room;
+        const updatedDataProduct = room.dataProduct.map((drawing: any) => {
+          const updatedWalls = drawing.drawingData.walls.map((wall: any) => {
+            if (wall.numberWall !== wallId) return wall;
+            const updatedElements = wall.size.arrElements?.elements?.filter(
+              (el: any) => {
+                return el.id !== elementId;
+              },
+            );
 
-      const newSizeWalls = state.sizeWalls.map(wall => ({
-        ...wall,
-        drawingData: {
-          ...wall.drawingData,
-          walls: wall.drawingData.walls.map(wallData => {
-            if (wallData.size.id === wallId) {
-              const filteredElements = wallData.size?.arrElements?.elements
-                ? wallData.size.arrElements.elements.filter(
-                    (_, i) => i !== elementId,
-                  )
-                : [];
-
-              return {
-                ...wallData,
-                size: {
-                  ...wallData.size,
-                  arrElements: {
-                    elements: filteredElements,
-                  },
-                },
-              };
-            }
-            return wallData;
-          }),
-        },
-      }));
-
-      return {...state, sizeWalls: newSizeWalls};
+            return {
+              ...wall,
+              size: {
+                ...wall.size,
+                arrElements: {elements: updatedElements},
+              },
+            };
+          });
+          return {
+            ...drawing,
+            drawingData: {
+              ...drawing.drawingData,
+              walls: updatedWalls,
+            },
+          };
+        });
+        return {
+          ...room,
+          dataProduct: updatedDataProduct,
+        };
+      });
+      return {...state, roomData: updatedRooms};
     }
+
+    case ADD_ELEMENT_ROOM:
+      const {roomId, wallId, dataElement} = action.payload;
+      return {...state};
 
     case SET_ACTIVE_WALL_INDEX:
       return {
@@ -487,6 +485,49 @@ export const roomReducer = (
       };
     case SET_CURRENT_ROOM_ID:
       return {...state, currentRoomId: action.payload};
+    case SET_DATA_EDIT_WALL:
+      return {
+        ...state,
+        dataWall: {
+          ...state.dataWall,
+          dataEditWall: action.payload.dataEditWall,
+          currentWall: action.payload.currentWall,
+        },
+      };
+    case PATCH_ROOM_REQUEST:
+      return {...state, loading: true};
+
+    case PATCH_ROOM_SUCCESS: {
+      const {dataId, dataProduct, numberCurrentWall, activeId} = action.payload;
+
+      const updatedRooms = state.roomData.map((room: any) =>
+        room._id === dataId
+          ? {
+              ...room,
+              dataProduct, // вот это обновляем
+            }
+          : room,
+      );
+
+      return {
+        ...state,
+        roomData: updatedRooms,
+        loading: false,
+        success: true,
+      };
+    }
+
+    case PATCH_ROOM_FAILED:
+      return {
+        ...state,
+        loading: false,
+        error: action.error,
+      };
+    case SET_ACTIVE_ELEMENT_ID:
+      return {
+        ...state,
+        activeElementId: action.payload,
+      };
     default:
       return state;
   }

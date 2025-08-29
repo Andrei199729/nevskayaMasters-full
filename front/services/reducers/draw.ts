@@ -3,7 +3,6 @@ import {TDrawAction} from '../actions/draw';
 import {
   CURRENT_LINE_DASHARRAYS,
   RESET_LINE_DASHARRAYS,
-  SET_DATA_EDIT_WALL,
   SET_IS_STYLE_LINE,
   SET_SELECTED_LINE,
   SET_UPDATE_STROKE_DASHARRAYS,
@@ -16,10 +15,6 @@ interface IDrawState {
     numberWall: number | null;
   };
   strokeDasharrays: {[key: number]: string};
-  dataWall: {
-    dataEditWall: IExternalSizeWall;
-    currentWall: number;
-  };
 }
 
 const initialState: IDrawState = {
@@ -29,10 +24,6 @@ const initialState: IDrawState = {
     numberWall: null,
   },
   strokeDasharrays: {},
-  dataWall: {
-    dataEditWall: {},
-    currentWall: 0,
-  },
 };
 
 export const drawReducer = (
@@ -72,14 +63,7 @@ export const drawReducer = (
           [action.payload.index - 1]: action.payload.strockLine,
         },
       };
-    case SET_DATA_EDIT_WALL:
-      return {
-        ...state,
-        dataWall: {
-          dataEditWall: action.payload.dataEditWall,
-          currentWall: action.payload.currentWall,
-        },
-      };
+
     case RESET_LINE_DASHARRAYS:
       return {
         ...state,

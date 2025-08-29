@@ -1,11 +1,7 @@
 import {Modal, View, Pressable, StyleSheet} from 'react-native';
-import {
-  IAddBlockDimensions,
-  IDataElementsWall,
-  IElementData,
-} from '../../../shared/types';
+import {IDataElementsWall} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
-import {Dispatch, SetStateAction, useState} from 'react';
+import {useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ElementWall from '../ElementWall/ElementWall';
 import {arrDataElementsWall} from '../../../shared/texts';
@@ -14,31 +10,21 @@ import {
   setElementModalVisible,
   setElementsWallModalVisible,
 } from '../../../services/actions/modalOpen';
+import {setDataObj} from '../../../services/actions/room';
 
 interface IModalElementsWall {
   numberWall: number;
-  onSaveElement: (element: IDataElementsWall, index: number) => void;
-  editElement: any;
-  onSaveElementSize: (
-    element: IElementData,
-    wallId: number,
-    elementId?: number,
-  ) => void;
   wallIndex: number;
 }
 
 export default function ModalElementsWall({
   numberWall,
-  onSaveElement,
-  onSaveElementSize,
   wallIndex,
-  editElement,
   ...props
 }: IModalElementsWall) {
   const dispatch = useDispatch();
-  const {elementsWallModalVisible, modalVisible, elementModal} = useSelector(
-    state => state.modalOpen,
-  );
+  const {elementsWallModalVisible} = useSelector(state => state.modalOpen);
+  // занести в редакс nameElementWall
   const [nameElementWall, setNameElementWall] = useState<IDataElementsWall>(
     {} as IDataElementsWall,
   );
@@ -56,7 +42,10 @@ export default function ModalElementsWall({
       }),
     );
     setNameElementWall(data);
-    onSaveElement(data, index); // Сохраняем данные только при наличии данных
+
+    dispatch(setDataObj(data));
+
+    // Сохраняем данные только при наличии данных
   };
 
   return (
@@ -76,9 +65,7 @@ export default function ModalElementsWall({
       <ModalFormElement
         numberWall={numberWall}
         nameElementWall={nameElementWall.nameElement}
-        onSaveElementSize={onSaveElementSize}
         wallIndex={wallIndex}
-        editElement={editElement}
       />
       <View>
         <Pressable

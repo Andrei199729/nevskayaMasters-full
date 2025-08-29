@@ -1,23 +1,19 @@
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import {Input} from '../../shared/Input/Input';
-import {useContext, useState} from 'react';
+import {useState} from 'react';
 import useInput from '../../hooks/useInput';
-import SelectCustom from '../../shared/SelectCustom/SelectCustom';
-import {arrCountWall} from '../../shared/texts';
-import {IDrawing, PathScreen, RootStackParamList} from '../../shared/types';
+import {PathScreen, RootStackParamList} from '../../shared/types';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
 import {useDispatch, useSelector} from '../../services/hooks';
-import {addRoom, resetCurrentDrawing} from '../../services/actions/room';
+import {addRoom} from '../../services/actions/room';
 
 export default function FormDataAddProductScreen() {
   const navigation =
@@ -27,9 +23,6 @@ export default function FormDataAddProductScreen() {
   const dispatch = useDispatch();
   const {sizeWalls} = useSelector(state => state.room);
   const nameRoom = useInput('');
-  // const [selectedTextDefault, setSelectedTextDefault] = useState({
-  //   defaultCount: 'Выберите количество стен',
-  // });
 
   const [isActiveBtn, setIsActiveBtn] = useState<boolean>(true);
 

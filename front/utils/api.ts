@@ -47,7 +47,7 @@ class Api {
     }
   }
 
-  async editProduct(dataProduct: {dataProduct: any}, dataId: any) {
+  async editRoom(dataProduct: any, dataId: any) {
     try {
       const response = await this.client.patch(`/products/${dataId}`, {
         dataProduct,

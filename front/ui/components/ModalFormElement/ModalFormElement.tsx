@@ -1,6 +1,6 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
-import {Dispatch, SetStateAction, useEffect} from 'react';
-import {IElement, IElementData} from '../../../shared/types';
+import {useCallback, useEffect} from 'react';
+import {IElementData} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
@@ -11,18 +11,17 @@ import {
   setElementsWallModalVisible,
   setIsVisibleEditModal,
 } from '../../../services/actions/modalOpen';
+import {
+  setElementsData,
+  setUpdateElementsData,
+  setUpdateSizeWalls,
+} from '../../../services/actions/room';
+import {isValidArray} from '../../../utils/validators';
 
 interface IModalFormElement {
   nameElementWall: string;
   numberWall: number;
-
-  onSaveElementSize: (
-    element: IElementData,
-    wallId: number,
-    elementId?: number,
-  ) => void;
   dataEditElement?: IElementData;
-  editElement?: any;
   wallIndex: number;
   clickButtonEdit?: any;
 }
@@ -30,9 +29,7 @@ interface IModalFormElement {
 export default function ModalFormElement({
   numberWall,
   nameElementWall,
-  onSaveElementSize,
   dataEditElement,
-  editElement,
   wallIndex,
   clickButtonEdit,
   ...props
@@ -42,7 +39,14 @@ export default function ModalFormElement({
     state => state.modalOpen,
   );
 
-  const {numberCurrentWall} = useSelector(state => state.room);
+  const {
+    numberCurrentWall,
+    dataObj,
+    currentRoomId,
+    sizeWalls,
+    roomData,
+    activeElementId,
+  } = useSelector(state => state.room);
 
   const locationElementTop = useInput(
     dataEditElement?.locationElementTop || '',
@@ -61,6 +65,41 @@ export default function ModalFormElement({
   const heightLeft = useInput(dataEditElement?.heightLeft || '');
   const heightRight = useInput(dataEditElement?.heightRight || '');
   const radiusElement = useInput(dataEditElement?.radiusElement || '');
+  const roomIndex = roomData.findIndex(
+    (room: {id: any}, index: number) => index === currentRoomId,
+  );
+
+  const onSaveEditedElement = (
+    updatedData: IElementData,
+    numberEl: number | null,
+  ) => {
+    dispatch(
+      setUpdateElementsData(
+        numberCurrentWall,
+        numberEl,
+        updatedData,
+        dataObj,
+        currentRoomId,
+      ),
+    ); // Обновляем состояние
+    dispatch(
+      setIsVisibleEditModal({
+        isVisible: false,
+        wallNumber: null,
+        wallNumberElement: null,
+      }),
+    ); // Закрываем модальное окно редактирования
+    // setClickButtonEdit(false);
+  };
+
+  const onSaveElement = (data: IElementData, wallId: number) => {
+    dispatch(setElementsData(data, dataObj, wallId, currentRoomId));
+    if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
+    //  Создаем глубокую копию массива стен
+    dispatch(
+      setUpdateSizeWalls(data, dataObj, numberCurrentWall, wallId, roomIndex),
+    );
+  };
 
   const onSaveDataElement = () => {
     const numericNumberWall = typeof numberWall === 'number' ? numberWall : 0;
@@ -78,8 +117,14 @@ export default function ModalFormElement({
       radiusElement: radiusElement.value,
     };
 
-    onSaveElementSize(updatedDataObjectSizeElement, numberElement);
-    // editElement(updatedDataObjectSizeElement, numberCurrentWall, numberWall);
+    if (dataEditElement) {
+      // редактирование существующего элемента
+      onSaveEditedElement(updatedDataObjectSizeElement, activeElementId);
+    } else {
+      //  добавление нового элемента
+      onSaveElement(updatedDataObjectSizeElement, numberElement);
+      console.log(updatedDataObjectSizeElement, 'updatedDataObjectSizeElement');
+    }
     dispatch(
       setElementsWallModalVisible({
         isVisible: false,

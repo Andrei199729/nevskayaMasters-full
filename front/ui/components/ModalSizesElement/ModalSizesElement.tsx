@@ -1,5 +1,5 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
-import {IElement, IElementData} from '../../../shared/types';
+import {IElement} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
 import {useCallback, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
@@ -7,74 +7,75 @@ import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   deleteElement,
-  setUpdateElementsData,
   setVisibleElements,
 } from '../../../services/actions/room';
 import {isValidArray} from '../../../utils/validators';
 import {setIsVisibleEditModal} from '../../../services/actions/modalOpen';
 
 interface IModalSizesElement {
-  // setVisible: (position: number, bool: boolean) => void;
   nameElement: string;
   position: number;
   element: IElement;
-  editElement: any;
   wallIndex: number;
 }
 
 export default function ModalSizesElement({
-  // setVisible,
   nameElement,
   position,
   element,
-  editElement,
   wallIndex,
+  mode,
   ...props
 }: IModalSizesElement & any) {
   const dispatch = useDispatch();
-  const {elementsData, sizeWalls, numberCurrentWall, visibleElements} =
-    useSelector(state => state.room);
+  const {
+    elementsData,
+    sizeWalls,
+    numberCurrentWall,
+    visibleElements,
+    roomData,
+    currentRoomId,
+    activeElementId,
+  } = useSelector(state => state.room);
   const [clickButtonEdit, setClickButtonEdit] = useState(false);
   const onClickModalClose = () => {
-    // setVisible(position, false);
     dispatch(setVisibleElements({index: position, isVisible: false}));
   };
+  const elementToEdit = elementsData[position]?.data;
+  const room = roomData.find(
+    (r: any, index: number) => index === currentRoomId,
+  );
+  const wall = room?.dataProduct[0]?.drawingData?.walls?.[numberCurrentWall];
+  const elementData = wall?.size?.arrElements?.elements?.[position]?.data || [];
 
   const onClickEdit = () => {
     if (!element.data) return;
     // Здесь вам нужно найти элемент в массиве elementsData, соответствующий текущей позиции
-    const elementToEdit = elementsData[position]?.data;
 
-    if (elementToEdit) {
+    if (elementData) {
       setClickButtonEdit(true);
       dispatch(
         setIsVisibleEditModal({
           isVisible: true,
           wallNumber: wallIndex,
-          wallNumberElement: position,
+          wallNumberElement: activeElementId,
         }),
       );
     }
   };
 
-  const onSaveEditedElement = (updatedData: IElementData) => {
-    dispatch(setUpdateElementsData(position, updatedData)); // Обновляем состояние
-    dispatch(
-      setIsVisibleEditModal({
-        isVisible: false,
-        wallNumber: null,
-        wallNumberElement: null,
-      }),
-    ); // Закрываем модальное окно редактирования
-    // setClickButtonEdit(false);
-  };
-
   const onDeleteElement = useCallback(
-    (wallId: number | boolean | null, elementId: number) => {
+    (
+      currentRoomId: number,
+      wallId: number,
+      elementId: number | null,
+      positionEl: number,
+    ) => {
+      console.log(currentRoomId, wallId, elementId, 'deleteElement');
+
       if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
-      dispatch(deleteElement(wallId, elementId));
-      // setVisible(elementId, false);
-      dispatch(setVisibleElements({index: elementId, isVisible: false}));
+      dispatch(deleteElement(currentRoomId, wallId, elementId, positionEl));
+      dispatch(setVisibleElements({index: positionEl, isVisible: false}));
     },
     [],
   );
@@ -90,9 +91,7 @@ export default function ModalSizesElement({
       <ModalFormElement
         numberWall={position + 1}
         nameElementWall={nameElement}
-        dataEditElement={element.data}
-        onSaveElementSize={onSaveEditedElement}
-        editElement={editElement}
+        dataEditElement={elementData}
         wallIndex={wallIndex}
         clickButtonEdit={clickButtonEdit}
       />
@@ -103,64 +102,71 @@ export default function ModalSizesElement({
               <Text>
                 {position + 1} {nameElement}
               </Text>
-              {element?.data?.locationElementTop !== '' && (
+              {elementData?.locationElementTop !== '' && (
                 <View>
                   <Text> 1 расположение сверху</Text>
-                  <Text>{element?.data?.locationElementTop}</Text>
+                  <Text>{elementData?.locationElementTop}</Text>
                 </View>
               )}
-              {element?.data?.locationElementBottom !== '' && (
+              {elementData?.locationElementBottom !== '' && (
                 <View>
                   <Text> 2 расположение снизу</Text>
-                  <Text>{element?.data?.locationElementBottom}</Text>
+                  <Text>{elementData?.locationElementBottom}</Text>
                 </View>
               )}
-              {element?.data?.locationElementRight !== '' && (
+              {elementData?.locationElementRight !== '' && (
                 <View>
                   <Text> 3 расположение справа</Text>
-                  <Text>{element?.data?.locationElementRight}</Text>
+                  <Text>{elementData?.locationElementRight}</Text>
                 </View>
               )}
-              {element?.data?.locationElementLeft !== '' && (
+              {elementData?.locationElementLeft !== '' && (
                 <View>
                   <Text> 4 расположение слева</Text>
-                  <Text>{element?.data?.locationElementLeft}</Text>
+                  <Text>{elementData?.locationElementLeft}</Text>
                 </View>
               )}
-              {element?.data?.widthTop !== '' && (
+              {elementData?.widthTop !== '' && (
                 <View>
                   <Text> 5 размер стены сверху</Text>
-                  <Text>{element?.data?.widthTop}</Text>
+                  <Text>{elementData?.widthTop}</Text>
                 </View>
               )}
-              {element?.data?.widthBottom !== '' && (
+              {elementData?.widthBottom !== '' && (
                 <View>
                   <Text> 6 размер стены снизу</Text>
-                  <Text>{element?.data?.widthBottom}</Text>
+                  <Text>{elementData?.widthBottom}</Text>
                 </View>
               )}
-              {element?.data?.heightRight !== '' && (
+              {elementData?.heightRight !== '' && (
                 <View>
                   <Text> 7 размер стены справа</Text>
-                  <Text>{element?.data?.heightRight}</Text>
+                  <Text>{elementData?.heightRight}</Text>
                 </View>
               )}
-              {element?.data?.heightLeft !== '' && (
+              {elementData?.heightLeft !== '' && (
                 <View>
                   <Text> 8 размер стены слева</Text>
-                  <Text>{element?.data?.heightLeft}</Text>
+                  <Text>{elementData?.heightLeft}</Text>
                 </View>
               )}
-              {element?.data?.radiusElement !== '' && (
+              {elementData?.radiusElement !== '' && (
                 <View>
                   <Text> 9 радиус стены</Text>
-                  <Text>{element?.data?.radiusElement}</Text>
+                  <Text>{elementData?.radiusElement}</Text>
                 </View>
               )}
               <ButtonCustom textBtn="Редактировать" onPress={onClickEdit} />
               <ButtonCustom
                 textBtn="Удалить"
-                onPress={() => onDeleteElement(numberCurrentWall, position)}
+                onPress={() =>
+                  onDeleteElement(
+                    currentRoomId,
+                    numberCurrentWall,
+                    activeElementId,
+                    position,
+                  )
+                }
               />
               <ButtonCustom textBtn="Закрыть" onPress={onClickModalClose} />
             </View>

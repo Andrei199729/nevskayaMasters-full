@@ -1,13 +1,10 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React, {useCallback, useState} from 'react';
+import React from 'react';
 import {Colors, Fonts} from '../../../shared/tokens';
 import {
   ClickButtonBlockDimensions,
   ClickSelection,
   IAddBlockDimensions,
-  IDataElementsWall,
-  IElementData,
-  IExternalSizeWall,
   TClickButtonBlockDimensions,
 } from '../../../shared/types';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
@@ -17,16 +14,11 @@ import SizeWallText from '../../../shared/SizeWallText/SizeWallText';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   setClickDataWall,
-  setDataObj,
-  setEditElement,
-  setElementsData,
+  setDataEditWall,
   setNumberCurrentWall,
-  setUpdateSizeWalls,
-  setVisibleElements,
 } from '../../../services/actions/room';
-import {isValidArray} from '../../../utils/validators';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
-import {setDataEditWall, setSelectedLine} from '../../../services/actions/draw';
+import {setSelectedLine} from '../../../services/actions/draw';
 import {
   setModalVisible,
   setModalVisibleBacklight,
@@ -35,7 +27,6 @@ import {
 
 export default function AddBlockDimensions({
   numberWall,
-  saveSizeWall,
   externalData,
   currentWall,
   index,
@@ -43,24 +34,15 @@ export default function AddBlockDimensions({
   ...props
 }: IAddBlockDimensions & any) {
   const dispatch = useDispatch();
-  const {
-    sizeWalls,
-    dataObj,
-    numberCurrentWall,
-    clickDataWall,
-    elementsData,
-    roomData,
-    currentRoomId,
-    wallsData,
-  } = useSelector(state => state.room);
-
-  const {modalVisibleBacklight, openFormDataSize} = useSelector(
-    state => state.modalOpen,
+  const {clickDataWall, elementsData, wallsData, roomData} = useSelector(
+    state => state.room,
   );
+
+  const {modalVisibleBacklight} = useSelector(state => state.modalOpen);
 
   const wallIndex = numberWall - 1;
 
-  let size = saveSizeWall?.[wallIndex]?.size;
+  let size = wallsData?.[wallIndex]?.size;
 
   let widthTop = size?.widthTop || externalData?.widthTop;
   let widthBottom = size?.widthBottom || externalData?.widthBottom;
@@ -68,42 +50,16 @@ export default function AddBlockDimensions({
   let heightLeft = size?.heightLeft || externalData?.heightLeft;
   let radiusWall = size?.radiusWall || externalData?.radiusWall;
   let wallAngleDegree = size?.wallAngleDegree || externalData?.wallAngleDegree;
-  console.log(
-    externalData?.arrElements?.elements,
-    'externalData?.arrElements?.elements',
-  );
 
-  // const [clickDataWall, setClickDataWall] = useState<{
-  //   [key: string]: boolean;
-  // }>({});
-
-  const roomIndex = roomData.findIndex(
-    (room: {id: any}, index: number) => index === currentRoomId,
-  );
-  const addElementToData = (data: IElementData, wallId: number) => {
-    dispatch(setElementsData(data, dataObj, wallId, currentRoomId));
-  };
-
-  const onSaveElement = (dataEl: IDataElementsWall) => {
-    dispatch(setDataObj(dataEl));
-  };
-
-  const updateSizeWalls = (data: IElementData, wallId: number) => {
-    if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
-    //  Создаем глубокую копию массива стен
-    dispatch(
-      setUpdateSizeWalls(data, dataObj, numberCurrentWall, wallId, roomIndex),
-    );
-  };
-
-  const editElement = useCallback(
-    (updatedData: any, wallId: number, elementId: number) => {
-      if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
-      dispatch(setEditElement(updatedData, dataObj, wallId, elementId));
-      dispatch(setVisibleElements({index: elementId, isVisible: false}));
-    },
-    [],
-  );
+  const roomRanderSize = ClickSelection.Button ? externalData : size;
+  // const editElement = useCallback(
+  //   (updatedData: any, wallId: number, elementId: number) => {
+  //     if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
+  //     dispatch(setEditElement(updatedData, dataObj, wallId, elementId));
+  //     dispatch(setVisibleElements({index: elementId, isVisible: false}));
+  //   },
+  //   [],
+  // );
 
   const onClickDataWall = (
     isVisible: boolean,
@@ -112,25 +68,8 @@ export default function AddBlockDimensions({
     dispatch(setClickDataWall({isVisible, nameButton}));
   };
 
-  const onClickEditDataWall = (
-    size: IExternalSizeWall | undefined,
-    currentWall: number,
-  ) => {
-    if (!size) {
-      return [];
-    } else {
-      // это сделать редакст и передать currentWall
-      dispatch(
-        setDataEditWall({
-          dataEditWall: size,
-          currentWall: currentWall,
-        }),
-      );
-    }
-  };
-
   const onClickWallIncrease = (
-    size: IExternalSizeWall | undefined,
+    size: any | undefined,
     wallNumber: number,
     click: ClickSelection.Wall | ClickSelection.Button,
   ) => {
@@ -165,25 +104,39 @@ export default function AddBlockDimensions({
       case ClickSelection.Button:
         // Логика, если клик был сделан на кнопку
         dispatch(setNumberCurrentWall(wallNumber));
-        onClickEditDataWall(size, wallNumber);
+        // 2. Закрываем текущее модальное
         dispatch(setModalVisible({isVisible: false, wallNumber: null}));
+        // 3. Включаем подсветку
         dispatch(setModalVisibleBacklight(true));
+        // 4. Открываем форму для ввода размера стены
         dispatch(
           setOpenFormDataSize({
             isOpen: true,
             wallNumber,
           }),
         );
-
+        // 5. Если есть размер — передаем данные для редактирования
+        if (size) {
+          dispatch(
+            setDataEditWall({
+              dataEditWall: size,
+              currentWall: wallNumber,
+            }),
+          );
+        } else {
+          return [];
+        }
         break;
       default:
         // Логика по умолчанию (если нужно обработать другие случаи)
         break;
     }
   };
+
   const elementsForCurrentWall = elementsData.filter(
     el => el.wallId === numberWall - 1,
   );
+
   const elementsToRender =
     mode === 'edit'
       ? elementsForCurrentWall
@@ -194,15 +147,12 @@ export default function AddBlockDimensions({
       <SafeAreaView style={styles.centeredView}>
         <ModalWall
           numberWall={numberWall}
-          saveSizeWall={saveSizeWall}
           externalData={externalData}
           wallIndex={wallIndex}
-          addElementToData={addElementToData}
-          onSaveElement={onSaveElement}
-          updateSizeWalls={updateSizeWalls}
-          editElement={editElement}
+          // editElement={editElement}
           currentWall={currentWall}
           mode={mode}
+          elementsToRender={elementsToRender}
         />
 
         <Pressable
@@ -357,11 +307,6 @@ export default function AddBlockDimensions({
                         }}>
                         {elementsToRender.length > 0 ? (
                           elementsToRender.map((element: any, index: any) => {
-                            console.log(
-                              element,
-                              'element----------------------',
-                            );
-
                             return (
                               <BlockStateElements
                                 key={index}
@@ -418,7 +363,7 @@ export default function AddBlockDimensions({
             textBtn="Редактировать стену"
             onPress={() =>
               onClickWallIncrease(
-                size || externalData,
+                roomRanderSize,
                 wallIndex,
                 ClickSelection.Button,
               )

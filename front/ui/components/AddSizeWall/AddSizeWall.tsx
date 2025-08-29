@@ -1,9 +1,8 @@
 import {StyleSheet, Text, View} from 'react-native';
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {validateNumber} from '../../../customFunc/customFunc';
-import {IExternalSizeWall, IWallSize} from '../../../shared/types';
 import {RadioButton} from 'react-native-paper';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
@@ -15,48 +14,24 @@ import {
   setIsStyleLine,
   setUpdateStrokeDasharrays,
 } from '../../../services/actions/draw';
-interface IAddSizeWall {
-  dataEditWall?: any;
-}
-
-export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
+import useInput from '../../../hooks/useInput';
+export default function AddSizeWall() {
   const dispatch = useDispatch();
-  const {
-    wallsData,
-    currentPath,
-    lastPoint,
-    paths,
-    points,
-    sizeWalls,
-    countWallDraw,
-    numberCurrentWall,
-  } = useSelector(state => state.room);
+  const {wallsData, numberCurrentWall, dataWall} = useSelector(
+    state => state.room,
+  );
   const {openFormDataSize} = useSelector(state => state.modalOpen);
-
-  const [heightRight, setHeightRight] = useState<string>(
-    dataEditWall?.heightRight || '',
+  const heightLeft = useInput(dataWall?.dataEditWall?.heightLeft || '');
+  const heightRight = useInput(dataWall?.dataEditWall?.heightRight || '');
+  const widthTop = useInput(dataWall?.dataEditWall?.widthTop || '');
+  const widthBottom = useInput(dataWall?.dataEditWall?.widthBottom || '');
+  const wallAngleDegree = useInput(
+    dataWall?.dataEditWall?.wallAngleDegree || '',
   );
-  const [widthTop, setWidthTop] = useState<string>(
-    dataEditWall?.widthTop || '',
-  );
-  const [heightLeft, setHeightLeft] = useState<string>(
-    dataEditWall?.heightLeft || '',
-  );
-  const [widthBottom, setWidthBottom] = useState<string>(
-    dataEditWall?.widthBottom || '',
-  );
-  const [wallAngleDegree, setWallAngleDegree] = useState<string>(
-    dataEditWall?.wallAngleDegree || '',
-  );
-  const [radiusWall, setRadiusWall] = useState<string>(
-    dataEditWall?.radiusWall || '',
-  );
-
-  const [valueDegree, setValueDegree] = useState(
-    dataEditWall?.valueDegree || '',
-  );
+  const radiusWall = useInput(dataWall?.dataEditWall?.radiusWall || '');
+  const valueDegree = useInput(dataWall?.dataEditWall?.valueDegree || '');
   const [viewInput, setViewInput] = useState<boolean>(true);
-  const onSaveSizeWall = (size: IExternalSizeWall, numberWall: number) => {
+  const onSaveSizeWall = (size: any, numberWall: number) => {
     if (!size) {
       console.warn('Нет данных для сохранения размера стены');
       return;
@@ -65,14 +40,15 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
     // Убедимся, что все поля имеют строковые значения
     const normalizedSize = {
       ...size,
-      heightRight: size.heightRight || '', // Заменяем undefined на пустую строку
-      heightLeft: size.heightLeft || '',
-      widthTop: size.widthTop || '',
-      widthBottom: size.widthBottom || '',
-      wallAngleDegree: size.wallAngleDegree || '',
-      radiusWall: size.radiusWall || '',
-      valueDegree: size.valueDegree || '',
+      heightRight: size.heightRight.value || '', // Заменяем undefined на пустую строку
+      heightLeft: size.heightLeft.value || '',
+      widthTop: size.widthTop.value || '',
+      widthBottom: size.widthBottom.value || '',
+      wallAngleDegree: size.wallAngleDegree.value || '',
+      radiusWall: size.radiusWall.value || '',
+      valueDegree: size.valueDegree.value || '',
     };
+    // тут смотреть обновление стен
 
     dispatch(setWallsData(wallsData, normalizedSize, numberWall));
     dispatch(
@@ -93,12 +69,12 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
     dispatch(setUpdateStrokeDasharrays(numberWall - 1));
   };
   const handleSubmit = () => {
-    const validHeightRight = validateNumber(heightRight);
-    const validHeightLeft = validateNumber(heightLeft);
-    const validWidthTop = validateNumber(widthTop);
-    const validWidthBottom = validateNumber(widthBottom);
-    const validWallAngleDegree = validateNumber(wallAngleDegree);
-    const validRadiusWall = validateNumber(radiusWall);
+    const validHeightRight = validateNumber(heightRight.value);
+    const validHeightLeft = validateNumber(heightLeft.value);
+    const validWidthTop = validateNumber(widthTop.value);
+    const validWidthBottom = validateNumber(widthBottom.value);
+    const validWallAngleDegree = validateNumber(wallAngleDegree.value);
+    const validRadiusWall = validateNumber(radiusWall.value);
 
     if (
       validHeightRight &&
@@ -106,10 +82,8 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
       validWidthTop &&
       validWidthBottom
     ) {
-      const numericNumberWall =
-        typeof numberCurrentWall === 'number' ? numberCurrentWall : 0;
       const wallData = {
-        id: numericNumberWall,
+        id: numberCurrentWall,
         heightRight,
         heightLeft,
         widthTop,
@@ -118,8 +92,9 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
         radiusWall,
         valueDegree,
       };
-      onSaveSizeWall(wallData, numericNumberWall + 1);
+      onSaveSizeWall(wallData, numberCurrentWall + 1);
     }
+
     setViewInput(false);
     dispatch(setModalVisibleBacklight(false));
     dispatch(
@@ -131,68 +106,67 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
   };
 
   useEffect(() => {
-    if (dataEditWall) {
-      setHeightRight(dataEditWall.heightRight || '');
-      setWidthTop(dataEditWall.widthTop || '');
-      setHeightLeft(dataEditWall.heightLeft || '');
-      setWidthBottom(dataEditWall.widthBottom || '');
-      setRadiusWall(dataEditWall.radiusWall || '');
-      setWallAngleDegree(dataEditWall.wallAngleDegree || '');
-      setValueDegree(dataEditWall.valueDegree || '');
+    if (dataWall.dataEditWall) {
+      heightRight.onChangeText(dataWall.dataEditWall.heightRight || '');
+      widthTop.onChangeText(dataWall.dataEditWall.widthTop || '');
+      heightLeft.onChangeText(dataWall.dataEditWall.heightLeft || '');
+      widthBottom.onChangeText(dataWall.dataEditWall.widthBottom || '');
+      radiusWall.onChangeText(dataWall.dataEditWall.radiusWall || '');
+      wallAngleDegree.onChangeText(dataWall.dataEditWall.wallAngleDegree || '');
+      valueDegree.onChangeText(dataWall.dataEditWall.valueDegree || '');
     }
-  }, [dataEditWall]);
-
+  }, [dataWall.dataEditWall]);
   return (
     <>
       {viewInput && (
         <View>
-          <Text>Стена №{numberCurrentWall + 1}</Text>
+          <Text>Стена №{numberCurrentWall}</Text>
           <View style={styles.wallBlock}>
             <View>
               <Text>ширина верхней стены</Text>
               <Input
-                value={widthTop}
-                onChangeText={setWidthTop}
+                value={widthTop.value}
+                onChangeText={widthTop.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
             <View>
               <Text>высота правой стены</Text>
               <Input
-                value={heightRight}
-                onChangeText={setHeightRight}
+                value={heightRight.value}
+                onChangeText={heightRight.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
             <View>
               <Text>ширина нижней стены</Text>
               <Input
-                value={widthBottom}
-                onChangeText={setWidthBottom}
+                value={widthBottom.value}
+                onChangeText={widthBottom.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
             <View>
               <Text>высота левой стены</Text>
               <Input
-                value={heightLeft}
-                onChangeText={setHeightLeft}
+                value={heightLeft.value}
+                onChangeText={heightLeft.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
             <View>
               <Text>радиус дуги стены</Text>
               <Input
-                value={radiusWall}
-                onChangeText={setRadiusWall}
+                value={radiusWall.value}
+                onChangeText={radiusWall.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
             <View>
               <Text>градус угла стены</Text>
               <Input
-                value={wallAngleDegree}
-                onChangeText={setWallAngleDegree}
+                value={wallAngleDegree.value}
+                onChangeText={wallAngleDegree.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
@@ -200,8 +174,8 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
               <Text style={styles.label}>Выберите тип угла:</Text>
               <View style={{padding: 20}}>
                 <RadioButton.Group
-                  onValueChange={newValue => setValueDegree(newValue)}
-                  value={valueDegree}>
+                  onValueChange={newValue => valueDegree.onChangeText(newValue)}
+                  value={valueDegree.value}>
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <RadioButton value="interior" />
                     <Text>Внутренний угол</Text>
@@ -217,14 +191,14 @@ export default function AddSizeWall({dataEditWall}: IAddSizeWall) {
           <ButtonCustom
             textBtn="Сохранить данные"
             disabledState={
-              !heightRight ||
-              !widthTop ||
-              !heightLeft ||
-              !widthBottom ||
-              !validateNumber(heightRight) ||
-              !validateNumber(heightLeft) ||
-              !validateNumber(widthTop) ||
-              !validateNumber(widthBottom)
+              !heightRight.value ||
+              !widthTop.value ||
+              !heightLeft.value ||
+              !widthBottom.value ||
+              !validateNumber(heightRight.value) ||
+              !validateNumber(heightLeft.value) ||
+              !validateNumber(widthTop.value) ||
+              !validateNumber(widthBottom.value)
             }
             onPress={handleSubmit}
           />

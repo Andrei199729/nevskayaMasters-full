@@ -1,8 +1,6 @@
-import {IExternalSizeWall} from '../../shared/types';
 import {
   CURRENT_LINE_DASHARRAYS,
   RESET_LINE_DASHARRAYS,
-  SET_DATA_EDIT_WALL,
   SET_IS_STYLE_LINE,
   SET_SELECTED_LINE,
   SET_UPDATE_STROKE_DASHARRAYS,
@@ -34,14 +32,6 @@ export interface ISetCurrentLineDasharrays {
   };
 }
 
-export interface IsetDataEditWall {
-  readonly type: typeof SET_DATA_EDIT_WALL;
-  readonly payload: {
-    dataEditWall: IExternalSizeWall;
-    currentWall: number;
-  };
-}
-
 export interface ISetResetLineDasharrays {
   readonly type: typeof RESET_LINE_DASHARRAYS;
 }
@@ -51,7 +41,6 @@ export type TDrawAction =
   | ISetIsStyleLine
   | ISetUpdateStrokeDasharrays
   | ISetCurrentLineDasharrays
-  | IsetDataEditWall
   | ISetResetLineDasharrays;
 
 export const setSelectedLine = (index: number): ISetSelectedLine => ({
@@ -79,14 +68,6 @@ export const setCurrentLineDasharrays = (payload: {
   strockLine: string;
 }): ISetCurrentLineDasharrays => ({
   type: CURRENT_LINE_DASHARRAYS,
-  payload,
-});
-
-export const setDataEditWall = (payload: {
-  dataEditWall: IExternalSizeWall;
-  currentWall: number;
-}): IsetDataEditWall => ({
-  type: SET_DATA_EDIT_WALL,
   payload,
 });
 

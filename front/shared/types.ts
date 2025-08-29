@@ -96,7 +96,7 @@ export type RootStackParamList = {
   FormDataAddProduct: undefined;
   Main: undefined;
   UnwrappedProduct: {
-    dataProduct: IDrawing[];
+    dataProduct?: IDrawing[];
     nameRoom?: string;
   };
   Product: undefined;
@@ -162,6 +162,7 @@ interface IElementDataObj {
 
 export interface IElement {
   wallId?: number;
+  roomIndex?: number;
   data: IElementData;
   dataObj: IElementDataObj;
 }
@@ -179,14 +180,13 @@ export interface IExternalSizeWall {
 
 export interface ISaveSizeWall {
   [key: number]: {
-    size: IExternalSizeWall; // Здесь описано, что каждый элемент по индексу содержит объект с `size`
+    size: any; // Здесь описано, что каждый элемент по индексу содержит объект с `size`
     numberWall: number;
   };
 }
 
 export interface IAddBlockDimensions {
   numberWall: number;
-  saveSizeWall?: ISaveSizeWall;
   externalData: IExternalSizeWall | undefined | any;
   index: number;
   currentWall?: boolean;

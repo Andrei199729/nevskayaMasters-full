@@ -9,12 +9,7 @@ import DrawElement from '../DrawElement/DrawElement';
 import AddSizeWall from '../AddSizeWall/AddSizeWall';
 import AddBlockDimensions from '../AddBlockDimensions/AddBlockDimensions';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {
-  DasharrayStrokeValue,
-  IDrawing,
-  IExternalSizeWall,
-  IPoint,
-} from '../../../shared/types';
+import {DasharrayStrokeValue, IDrawing, IPoint} from '../../../shared/types';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
@@ -51,7 +46,6 @@ export default function Draw() {
   } = useSelector(state => state.room);
 
   const {openFormDataSize} = useSelector(state => state.modalOpen);
-  const {dataWall} = useSelector(state => state.draw);
 
   // Хранит углы между линиями для отображения дополнительной информации.
   const [angles, setAngles] = useState<number[]>([]); // Массив углов между линиями
@@ -337,7 +331,6 @@ export default function Draw() {
                   index={index}
                   numberWall={index + 1}
                   currentWall={currentWall}
-                  saveSizeWall={wallsData || {}}
                   externalData={undefined}
                   mode="edit"
                 />
@@ -345,7 +338,7 @@ export default function Draw() {
             );
           }}
         />
-        {openFormDataSize.isOpen && <AddSizeWall dataEditWall={dataWall} />}
+        {openFormDataSize.isOpen && <AddSizeWall />}
       </View>
     </View>
   );

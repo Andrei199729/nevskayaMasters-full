@@ -117,7 +117,7 @@ export interface IDrawing {
 }
 
 export interface IProductRoom {
-  dataProduct: IDrawing[];
+  dataProduct: any;
   nameRoom: string;
   owner: mongoose.Types.ObjectId;
 }
@@ -167,6 +167,7 @@ const ElementDataObjSchema = new mongoose.Schema(
 
 const ElementSchema = new mongoose.Schema(
   {
+    id: { type: Number, required: true },
     data: ElementDataSchema,
     dataObj: ElementDataObjSchema,
   },
@@ -175,7 +176,7 @@ const ElementSchema = new mongoose.Schema(
 
 const SizeSchema = new mongoose.Schema(
   {
-    id: Number,
+    id: { type: Number, required: true },
     heightRight: String,
     heightLeft: String,
     widthTop: String,
@@ -186,8 +187,8 @@ const SizeSchema = new mongoose.Schema(
     arrElements: {
       elements: [ElementSchema],
     },
-  },
-  { _id: false }
+  }
+  // { _id: false }
 );
 
 const WallSchema = new mongoose.Schema(
