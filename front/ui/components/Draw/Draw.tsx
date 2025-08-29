@@ -9,7 +9,12 @@ import DrawElement from '../DrawElement/DrawElement';
 import AddSizeWall from '../AddSizeWall/AddSizeWall';
 import AddBlockDimensions from '../AddBlockDimensions/AddBlockDimensions';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {DasharrayStrokeValue, IDrawing, IPoint} from '../../../shared/types';
+import {
+  DasharrayStrokeValue,
+  IDrawing,
+  IPoint,
+  Mode,
+} from '../../../shared/types';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
@@ -332,7 +337,7 @@ export default function Draw() {
                   numberWall={index + 1}
                   currentWall={currentWall}
                   externalData={undefined}
-                  mode="edit"
+                  mode={Mode.Edit}
                 />
               </View>
             );

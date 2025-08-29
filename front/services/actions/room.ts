@@ -215,6 +215,8 @@ export interface IAddElementRoom {
     wallId: number;
     roomId: number;
     dataElement: any;
+    dataElementObj: any;
+    idElement: number;
   };
 }
 
@@ -478,9 +480,11 @@ export const addElementRoom = (
   roomId: number,
   wallId: number,
   dataElement: any,
+  dataElementObj: any,
+  idElement: number,
 ): IAddElementRoom => ({
   type: ADD_ELEMENT_ROOM,
-  payload: {roomId, wallId, dataElement},
+  payload: {roomId, wallId, dataElement, dataElementObj, idElement},
 });
 
 export const deleteElement = (

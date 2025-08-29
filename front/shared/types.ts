@@ -62,6 +62,11 @@ export enum ClickButtonBlockDimensions {
   Elements = 'elements',
 }
 
+export enum Mode {
+  Edit = 'edit',
+  View = 'view',
+}
+
 export type TClickButtonBlockDimensions =
   | ClickButtonBlockDimensions.Width
   | ClickButtonBlockDimensions.Height
@@ -95,7 +100,7 @@ export type RootStackParamList = {
   SuccessScreen: undefined;
   FormDataAddProduct: undefined;
   Main: undefined;
-  UnwrappedProduct: {
+  UnwrappedProduct?: {
     dataProduct?: IDrawing[];
     nameRoom?: string;
   };

@@ -94,6 +94,7 @@ export default function ModalSizesElement({
         dataEditElement={elementData}
         wallIndex={wallIndex}
         clickButtonEdit={clickButtonEdit}
+        mode={mode}
       />
       <View style={{position: 'absolute', top: -50, left: 100}}>
         <View style={styles.centeredView}>

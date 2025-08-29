@@ -15,11 +15,13 @@ import {setDataObj} from '../../../services/actions/room';
 interface IModalElementsWall {
   numberWall: number;
   wallIndex: number;
+  mode: any;
 }
 
 export default function ModalElementsWall({
   numberWall,
   wallIndex,
+  mode,
   ...props
 }: IModalElementsWall) {
   const dispatch = useDispatch();
@@ -66,6 +68,7 @@ export default function ModalElementsWall({
         numberWall={numberWall}
         nameElementWall={nameElementWall.nameElement}
         wallIndex={wallIndex}
+        mode={mode}
       />
       <View>
         <Pressable

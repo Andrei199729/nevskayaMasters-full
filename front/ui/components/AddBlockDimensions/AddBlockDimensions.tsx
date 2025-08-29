@@ -149,7 +149,6 @@ export default function AddBlockDimensions({
           numberWall={numberWall}
           externalData={externalData}
           wallIndex={wallIndex}
-          // editElement={editElement}
           currentWall={currentWall}
           mode={mode}
           elementsToRender={elementsToRender}

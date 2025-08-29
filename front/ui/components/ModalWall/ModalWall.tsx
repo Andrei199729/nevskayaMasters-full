@@ -8,7 +8,12 @@ import {
 } from 'react-native';
 import React from 'react';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {IElement, IElementData, IExternalSizeWall} from '../../../shared/types';
+import {
+  IElement,
+  IElementData,
+  IExternalSizeWall,
+  Mode,
+} from '../../../shared/types';
 import ModalElementsWall from '../ModalElementsWall/ModalElementsWall';
 import ElementWallAdd from '../ElementWallAdd/ElementWallAdd';
 import SizeWallTextModal from '../../../shared/SizeWallTextModal/SizeWallTextModal';
@@ -25,14 +30,12 @@ interface IModalWall {
   numberWall: number;
   wallIndex: number;
   updateSizeWalls: (data: IElementData, wallId: number) => void;
-  // editElement: (updatedData: any, wallId: number, elementId: number) => void;
   externalData?: any | undefined;
-  mode: 'edit' | 'view';
+  mode: Mode;
 }
 export default function ModalWall({
   numberWall,
   wallIndex,
-  // editElement,
   externalData,
   currentWall,
   mode,
@@ -191,7 +194,11 @@ export default function ModalWall({
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      <ModalElementsWall numberWall={numberWall} wallIndex={wallIndex} />
+      <ModalElementsWall
+        numberWall={numberWall}
+        wallIndex={wallIndex}
+        mode={mode}
+      />
     </>
   );
 }

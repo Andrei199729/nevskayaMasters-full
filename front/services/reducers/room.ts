@@ -458,9 +458,51 @@ export const roomReducer = (
       return {...state, roomData: updatedRooms};
     }
 
-    case ADD_ELEMENT_ROOM:
-      const {roomId, wallId, dataElement} = action.payload;
-      return {...state};
+    case ADD_ELEMENT_ROOM: {
+      const {roomId, wallId, dataElement, dataElementObj, idElement} =
+        action.payload;
+      const updatedRooms = state.roomData.map((room: any, index: number) => {
+        if (index !== roomId) return room;
+        const updatedDataProduct = room.dataProduct.map((drawing: any) => {
+          const updatedWalls = drawing.drawingData.walls.map(
+            (wall: any, index: number) => {
+              const prevElements = wall.size?.arrElements?.elements ?? [];
+              console.log(prevElements, 'prevElements');
+
+              if (wall.numberWall !== wallId) return wall;
+              return {
+                ...wall,
+                size: {
+                  ...wall.size,
+                  arrElements: {
+                    elements: [
+                      ...prevElements,
+                      {
+                        id: idElement,
+                        data: dataElement,
+                        dataObj: dataElementObj,
+                      },
+                    ],
+                  },
+                },
+              };
+            },
+          );
+          return {
+            ...drawing,
+            drawingData: {
+              ...drawing.drawingData,
+              walls: updatedWalls,
+            },
+          };
+        });
+        return {
+          ...room,
+          dataProduct: updatedDataProduct,
+        };
+      });
+      return {...state, roomData: updatedRooms};
+    }
 
     case SET_ACTIVE_WALL_INDEX:
       return {

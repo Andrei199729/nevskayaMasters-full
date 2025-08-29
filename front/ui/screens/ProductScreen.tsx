@@ -5,6 +5,7 @@ import AddBlockDimensions from '../components/AddBlockDimensions/AddBlockDimensi
 import {
   IDrawing,
   IWall,
+  Mode,
   PathScreen,
   RootStackParamList,
 } from '../../shared/types';
@@ -45,11 +46,13 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
     // Обработать ошибку или вернуть заглушку
     return <Text>Нет данных для отображения</Text>;
   }
+
   const onSaveEditDataWall = () => {
     const currentRoomId = roomData._id;
-    const activeId = activeElementId; // берём id элемента из Redux
+    const activeId = activeElementId || null; // берём id элемента из Redux
 
     if (!activeId) return; // если элемент не выбран, ничего не делаем
+
     const updatedDataProduct = roomData.dataProduct.map((drawing: any) => ({
       ...drawing,
       drawingData: {
@@ -89,7 +92,9 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
     dispatch(
       editRoom(updatedDataProduct, currentRoomId, numberCurrentWall, activeId),
     );
-    navigation.goBack();
+    console.log('save');
+
+    navigation.navigate('UnwrappedProduct');
   };
 
   const productsArray = Array.isArray(roomData?.dataProduct)
@@ -135,8 +140,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
                   externalData={wall.size || {}}
                   index={index}
                   currentWall={isActiveWall}
-                  mode="view"
-                  onSaveEditDataWall={onSaveEditDataWall}
+                  mode={Mode.View}
                 />
               </View>
             );

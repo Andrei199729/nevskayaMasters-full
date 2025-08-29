@@ -1,6 +1,6 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
 import {useCallback, useEffect} from 'react';
-import {IElementData} from '../../../shared/types';
+import {IElementData, Mode} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
@@ -12,6 +12,8 @@ import {
   setIsVisibleEditModal,
 } from '../../../services/actions/modalOpen';
 import {
+  addElementRoom,
+  setActiveElementId,
   setElementsData,
   setUpdateElementsData,
   setUpdateSizeWalls,
@@ -24,6 +26,7 @@ interface IModalFormElement {
   dataEditElement?: IElementData;
   wallIndex: number;
   clickButtonEdit?: any;
+  mode: 'view' | 'edit';
 }
 
 export default function ModalFormElement({
@@ -32,6 +35,7 @@ export default function ModalFormElement({
   dataEditElement,
   wallIndex,
   clickButtonEdit,
+  mode,
   ...props
 }: IModalFormElement) {
   const dispatch = useDispatch();
@@ -68,6 +72,7 @@ export default function ModalFormElement({
   const roomIndex = roomData.findIndex(
     (room: {id: any}, index: number) => index === currentRoomId,
   );
+  const idElement = (numberCurrentWall + 33) * 1000 + Date.now() * 33;
 
   const onSaveEditedElement = (
     updatedData: IElementData,
@@ -122,7 +127,27 @@ export default function ModalFormElement({
       onSaveEditedElement(updatedDataObjectSizeElement, activeElementId);
     } else {
       //  добавление нового элемента
-      onSaveElement(updatedDataObjectSizeElement, numberElement);
+      switch (mode) {
+        case Mode.View: {
+          dispatch(
+            addElementRoom(
+              currentRoomId,
+              numberCurrentWall,
+              updatedDataObjectSizeElement,
+              dataObj,
+              idElement,
+            ),
+          );
+          dispatch(setActiveElementId(idElement));
+          break;
+        }
+        case Mode.Edit: {
+          onSaveElement(updatedDataObjectSizeElement, numberElement);
+          break;
+        }
+        default:
+          break;
+      }
       console.log(updatedDataObjectSizeElement, 'updatedDataObjectSizeElement');
     }
     dispatch(
