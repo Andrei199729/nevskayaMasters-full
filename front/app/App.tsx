@@ -4,6 +4,7 @@ import Navigate from './Navigate';
 import {ButtonProvider} from '../shared/ButtonContext/ButtonContext';
 import {Provider} from 'react-redux';
 import store from '../services/store';
+import {Colors} from '../shared/tokens';
 function App(): React.JSX.Element {
   return (
     <Provider store={store}>
@@ -19,7 +20,7 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.white,
   },
 });
 

@@ -6,14 +6,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {
-  IElement,
-  IElementData,
-  IExternalSizeWall,
-  Mode,
-} from '../../../shared/types';
+import {IElementWallRoom, IWallSize, Mode} from '../../../shared/types';
 import ModalElementsWall from '../ModalElementsWall/ModalElementsWall';
 import ElementWallAdd from '../ElementWallAdd/ElementWallAdd';
 import SizeWallTextModal from '../../../shared/SizeWallTextModal/SizeWallTextModal';
@@ -29,64 +24,88 @@ import {
 interface IModalWall {
   numberWall: number;
   wallIndex: number;
-  updateSizeWalls: (data: IElementData, wallId: number) => void;
-  externalData?: any | undefined;
+  externalData?: IWallSize;
   mode: Mode;
+  currentWall?: boolean;
+  elementsToRender: IElementWallRoom[];
 }
 export default function ModalWall({
   numberWall,
   wallIndex,
   externalData,
-  currentWall,
   mode,
   elementsToRender,
   ...props
-}: IModalWall & any) {
+}: IModalWall) {
+  console.log(elementsToRender, 'elementsToRender');
+
   const dispatch = useDispatch();
-  const {
-    elementsData,
-    wallsData,
-    roomData,
-    numberCurrentWall,
-    currentRoomId,
-    activeElementId,
-  } = useSelector(state => state.room);
+  const {wallsData} = useSelector(state => state.room);
   const {modalVisible} = useSelector(state => state.modalOpen);
   const isCurrentWallModalVisible =
     modalVisible.isVisible && modalVisible.wallNumber === wallIndex;
 
-  let size = wallsData?.[wallIndex]?.size;
+  const size = useMemo(() => {
+    return wallsData?.[wallIndex]?.size;
+  }, [wallsData, wallIndex]);
 
-  let widthTop = size?.widthTop || externalData?.widthTop;
-  let widthBottom = size?.widthBottom || externalData?.widthBottom;
-  let heightRight = size?.heightRight || externalData?.heightRight;
-  let heightLeft = size?.heightLeft || externalData?.heightLeft;
-  let radiusWall = size?.radiusWall || externalData?.radiusWall;
-  let wallAngleDegree = size?.wallAngleDegree || externalData?.wallAngleDegree;
+  const {
+    widthTop,
+    widthBottom,
+    heightRight,
+    heightLeft,
+    radiusWall,
+    wallAngleDegree,
+  } = useMemo(() => {
+    return {
+      widthTop: size?.widthTop || externalData?.widthTop,
+      widthBottom: size?.widthBottom || externalData?.widthBottom,
+      heightRight: size?.heightRight || externalData?.heightRight,
+      heightLeft: size?.heightLeft || externalData?.heightLeft,
+      radiusWall: size?.radiusWall || externalData?.radiusWall,
+      wallAngleDegree: size?.wallAngleDegree || externalData?.wallAngleDegree,
+    };
+  }, [size, externalData]);
 
-  const onClickElementModal = () => {
+  const onClickElementModal = useCallback(() => {
     dispatch(
       setElementsWallModalVisible({isVisible: true, wallNumber: wallIndex}),
     );
     dispatch(setModalVisible({isVisible: true, wallNumber: wallIndex}));
-  };
+  }, [dispatch, wallIndex]);
 
-  const handleClose = () => {
-    dispatch(setModalVisible({isVisible: false, wallNumber: currentWall}));
-  };
-  const currentRoom = roomData.find(
-    (room: any, index: number) => index === currentRoomId,
-  );
-  const currentDrawing = currentRoom?.dataProduct?.[0]?.drawingData;
-  const currentWallData = currentDrawing?.walls?.find(
-    (wall: any) => wall.numberWall === numberCurrentWall,
+  const handleClose = useCallback(() => {
+    dispatch(setModalVisible({isVisible: false, wallNumber: null}));
+  }, [dispatch]);
+
+  const onPressVisible = useCallback(
+    (index: number, idElement: number) => {
+      dispatch(setVisibleElements({index, isVisible: true}));
+      dispatch(setActiveElementId(idElement));
+    },
+    [dispatch],
   );
 
-  const elementsForCurrentWall =
-    currentWallData?.size?.arrElements?.elements || [];
-  const elementsForCurrent = elementsData.filter(
-    el => el.wallId === numberWall - 1,
-  );
+  const renderElements = useMemo(() => {
+    return elementsToRender.map((element: IElementWallRoom, index: number) => {
+      console.log(element, 'element');
+
+      return (
+        <ElementWallAdd
+          key={index}
+          element={element}
+          position={index}
+          nameElement={element?.dataObj?.nameElement || ''}
+          stateElement={element?.dataObj?.stateElement || ''}
+          onPressVisible={() => {
+            onPressVisible(index, element.id);
+          }}
+          mode={mode}
+          wallIndex={wallIndex}
+        />
+      );
+    });
+  }, [elementsToRender, mode, wallIndex, onPressVisible]);
 
   return (
     <>
@@ -94,14 +113,7 @@ export default function ModalWall({
         animationType="slide"
         transparent={true}
         visible={isCurrentWallModalVisible}
-        onRequestClose={() =>
-          dispatch(
-            setModalVisible({
-              isVisible: false,
-              wallNumber: wallIndex,
-            }),
-          )
-        }>
+        onRequestClose={handleClose}>
         <TouchableWithoutFeedback onPress={handleClose}>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
@@ -112,26 +124,7 @@ export default function ModalWall({
                   left: '10%',
                   zIndex: 4,
                 }}>
-                {elementsToRender.length > 0 &&
-                  elementsToRender.map((element: any, index: number) => {
-                    return (
-                      <ElementWallAdd
-                        key={index}
-                        element={element}
-                        position={index}
-                        nameElement={element?.dataObj?.nameElement || ''}
-                        stateElement={element?.dataObj?.stateElement || ''}
-                        onPressVisible={() => {
-                          dispatch(
-                            setVisibleElements({index, isVisible: true}),
-                          );
-                          dispatch(setActiveElementId(element.id));
-                        }}
-                        mode={mode}
-                        wallIndex={wallIndex}
-                      />
-                    );
-                  })}
+                {elementsToRender.length > 0 && renderElements}
               </View>
               <Pressable onPress={onClickElementModal}>
                 <View style={{backgroundColor: Colors.white}}>

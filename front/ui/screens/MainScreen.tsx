@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {useMemo, useState} from 'react';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {Colors} from '../../shared/tokens';
 import Tomorrow from '../../assets/images/icon/iconFunc/tomorrow';
 import NotProcessed from '../../assets/images/icon/iconFunc/not-processed';
@@ -25,23 +25,28 @@ type MenuBottomNavigationProp = StackNavigationProp<RootStackParamList>;
 
 function MainScreen({children, ...props}: IMainScreen) {
   const navigation = useNavigation<MenuBottomNavigationProp>();
-  const [buttonActive, setButtonActive] = useState<Array<IMenuBottomState>>([
-    {
-      icon: <NotProcessed />,
-      state: false,
-      text: 'Не обработанные',
-      btn: null,
-    },
-    {icon: <Tomorrow />, state: false, text: 'На завтра', btn: null},
-    {icon: <CreateTask />, state: false, text: null, btn: 'CreateProject'},
-    {
-      icon: <NotProcessed />,
-      state: false,
-      text: 'Не обработанные',
-      btn: null,
-    },
-    {icon: <Tomorrow />, state: false, text: 'На завтра', btn: null},
-  ]);
+  //  мемоизируем массив иконок
+  const initialButtons = useMemo<IMenuBottomState[]>(
+    () => [
+      {
+        icon: <NotProcessed />,
+        state: false,
+        text: 'Не обработанные',
+        btn: null,
+      },
+      {icon: <Tomorrow />, state: false, text: 'На завтра', btn: null},
+      {icon: <CreateTask />, state: false, text: null, btn: 'CreateProject'},
+      {
+        icon: <NotProcessed />,
+        state: false,
+        text: 'Не обработанные',
+        btn: null,
+      },
+      {icon: <Tomorrow />, state: false, text: 'На завтра', btn: null},
+    ],
+    [],
+  ); // ← массив создаётся один раз при монтировании
+  const [buttonActive, setButtonActive] = useState(initialButtons);
   const onClickBtnHeader = (index: number) => {
     const newActiveButtons = buttonActive.map((active, i) => ({
       ...active,
@@ -87,14 +92,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-  },
-  mainContent: {
-    maxWidth: '100%',
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 16,
-    paddingVertical: 24,
   },
   menuBottom: {
     position: 'absolute',

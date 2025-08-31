@@ -1,8 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import MainScreen from '../../screens/MainScreen';
-import HeaderScreen from '../../screens/HeaderScreen';
 import React from 'react';
-import PopupScreen from '../../screens/PopupScreen';
 import {Colors, Gaps} from '../../../shared/tokens';
 import ButtonProfile from '../../../shared/ButtonProfile/ButtonProfile';
 

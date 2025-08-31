@@ -1,5 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {validateNumber} from '../../../customFunc/customFunc';
@@ -15,11 +15,26 @@ import {
   setUpdateStrokeDasharrays,
 } from '../../../services/actions/draw';
 import useInput from '../../../hooks/useInput';
+import {IElementWallRoom, IWallSize} from '../../../shared/types';
+interface IWallSizeInput {
+  id: number;
+  heightRight?: {value?: string};
+  heightLeft?: {value?: string};
+  widthTop?: {value?: string};
+  widthBottom?: {value?: string};
+  wallAngleDegree?: {value?: string};
+  radiusWall?: {value?: string};
+  valueDegree?: {value?: string};
+  arrElements?: {
+    elements?: IElementWallRoom[];
+  };
+}
 export default function AddSizeWall() {
   const dispatch = useDispatch();
   const {wallsData, numberCurrentWall, dataWall} = useSelector(
     state => state.room,
   );
+
   const {openFormDataSize} = useSelector(state => state.modalOpen);
   const heightLeft = useInput(dataWall?.dataEditWall?.heightLeft || '');
   const heightRight = useInput(dataWall?.dataEditWall?.heightRight || '');
@@ -31,44 +46,49 @@ export default function AddSizeWall() {
   const radiusWall = useInput(dataWall?.dataEditWall?.radiusWall || '');
   const valueDegree = useInput(dataWall?.dataEditWall?.valueDegree || '');
   const [viewInput, setViewInput] = useState<boolean>(true);
-  const onSaveSizeWall = (size: any, numberWall: number) => {
-    if (!size) {
-      console.warn('Нет данных для сохранения размера стены');
-      return;
-    }
+  const onSaveSizeWall = useCallback(
+    (size: IWallSizeInput, numberWall: number) => {
+      if (!size) {
+        console.warn('Нет данных для сохранения размера стены');
+        return;
+      }
 
-    // Убедимся, что все поля имеют строковые значения
-    const normalizedSize = {
-      ...size,
-      heightRight: size.heightRight.value || '', // Заменяем undefined на пустую строку
-      heightLeft: size.heightLeft.value || '',
-      widthTop: size.widthTop.value || '',
-      widthBottom: size.widthBottom.value || '',
-      wallAngleDegree: size.wallAngleDegree.value || '',
-      radiusWall: size.radiusWall.value || '',
-      valueDegree: size.valueDegree.value || '',
-    };
-    // тут смотреть обновление стен
+      // Убедимся, что все поля имеют строковые значения
+      const normalizedSize: IWallSize = {
+        ...size,
+        heightRight: size.heightRight?.value || '', // Заменяем undefined на пустую строку
+        heightLeft: size.heightLeft?.value || '',
+        widthTop: size.widthTop?.value || '',
+        widthBottom: size.widthBottom?.value || '',
+        wallAngleDegree: size.wallAngleDegree?.value || '',
+        radiusWall: size.radiusWall?.value || '',
+        valueDegree: size.valueDegree?.value || '',
+      };
+      // тут смотреть обновление стен
 
-    dispatch(setWallsData(wallsData, normalizedSize, numberWall));
-    dispatch(
-      setIsStyleLine({
-        numberWall,
-        isLine: true,
-      }),
-    );
-    if (openFormDataSize)
+      dispatch(setWallsData(wallsData, normalizedSize, numberWall));
+
       dispatch(
         setIsStyleLine({
-          numberWall: null,
-          isLine: false,
+          numberWall,
+          isLine: true,
         }),
       );
-    // обновления состояния strokeDasharray
+      if (openFormDataSize)
+        dispatch(
+          setIsStyleLine({
+            numberWall: null,
+            isLine: false,
+          }),
+        );
+      // обновления состояния strokeDasharray
 
-    dispatch(setUpdateStrokeDasharrays(numberWall - 1));
-  };
-  const handleSubmit = () => {
+      dispatch(setUpdateStrokeDasharrays(numberWall - 1));
+    },
+    [wallsData, openFormDataSize, dispatch],
+  );
+
+  const handleSubmit = useCallback(() => {
     const validHeightRight = validateNumber(heightRight.value);
     const validHeightLeft = validateNumber(heightLeft.value);
     const validWidthTop = validateNumber(widthTop.value);
@@ -103,7 +123,18 @@ export default function AddSizeWall() {
         wallNumber: 0,
       }),
     );
-  };
+  }, [
+    heightRight,
+    heightLeft,
+    widthTop,
+    widthBottom,
+    wallAngleDegree,
+    radiusWall,
+    dispatch,
+    numberCurrentWall,
+    valueDegree,
+    onSaveSizeWall,
+  ]);
 
   useEffect(() => {
     if (dataWall.dataEditWall) {
@@ -115,7 +146,17 @@ export default function AddSizeWall() {
       wallAngleDegree.onChangeText(dataWall.dataEditWall.wallAngleDegree || '');
       valueDegree.onChangeText(dataWall.dataEditWall.valueDegree || '');
     }
-  }, [dataWall.dataEditWall]);
+  }, [
+    dataWall.dataEditWall,
+    heightLeft,
+    heightRight,
+    radiusWall,
+    valueDegree,
+    wallAngleDegree,
+    widthBottom,
+    widthTop,
+  ]);
+
   return (
     <>
       {viewInput && (

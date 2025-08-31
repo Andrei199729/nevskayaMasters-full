@@ -9,6 +9,7 @@ const Tomorrow = () => (
       x={0}
       y={0}
       maskUnits="userSpaceOnUse"
+      // eslint-disable-next-line react-native/no-inline-styles
       style={{
         maskType: 'alpha',
       }}>
@@ -42,4 +43,5 @@ const Tomorrow = () => (
     </Defs>
   </Svg>
 );
+
 export default Tomorrow;

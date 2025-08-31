@@ -14,18 +14,22 @@ export default function ButtonMenuBottom({
   text: string | null;
   btn: string | null;
 }) {
+  const getButtonStyle = (btn: string | null, isActive: boolean) => [
+    styles.buttonHeader,
+    {
+      opacity: isActive ? 0.5 : 1,
+      justifyContent: 'center' as const,
+    },
+    btn === 'CreateProject' && {
+      backgroundColor: Colors.lightGrayThree,
+      borderRadius: Radius.rC,
+      width: 36,
+      height: 36,
+    },
+  ];
+
   return (
-    <Pressable
-      style={{
-        ...styles.buttonHeader,
-        opacity: isActive ? 0.5 : 1,
-        backgroundColor: btn === 'CreateProject' ? Colors.lightGrayThree : '',
-        borderRadius: btn === 'CreateProject' ? Radius.rC : '',
-        width: btn === 'CreateProject' ? 36 : 'auto',
-        height: btn === 'CreateProject' ? 36 : 'auto',
-        justifyContent: btn === 'CreateProject' ? 'center' : 'center',
-      }}
-      onPress={onPressClick}>
+    <Pressable style={getButtonStyle(btn, isActive)} onPress={onPressClick}>
       {icon}
       {btn !== 'CreateProject' && (
         <Text style={styles.textMenuBottom}>{text}</Text>

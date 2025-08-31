@@ -1,4 +1,4 @@
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import MainScreen from './MainScreen';
 import HeaderScreen from './HeaderScreen';
 import {ReactNode} from 'react';

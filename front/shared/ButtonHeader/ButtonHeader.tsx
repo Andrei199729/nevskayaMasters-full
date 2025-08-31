@@ -9,10 +9,12 @@ export default function ButtonHeader({
   isActive: boolean;
   icon: JSX.Element;
 }) {
+  const getButtonStyle = (isActive: boolean) => ({
+    ...styles.buttonHeader,
+    opacity: isActive ? 0.5 : 1,
+  });
   return (
-    <Pressable
-      style={{...styles.buttonHeader, opacity: isActive ? 0.5 : 1}}
-      onPress={onPressClick}>
+    <Pressable style={getButtonStyle(isActive)} onPress={onPressClick}>
       {icon}
     </Pressable>
   );

@@ -16,8 +16,8 @@ import {
   POST_LOGOUT_SUCCESS,
   POST_LOGOUT_FAILED,
 } from '../constants/constants';
-import {TLogout, TUser, TUserData, TUserWrapper} from '../types/data';
-import {AppDispatch, AppThunk} from '../types/index';
+import {TLogout, TUserWrapper} from '../types/data';
+import {AppDispatch} from '../types/index';
 import {deleteKeychain, getKeychain, setKeychain} from '../../utils/keychain';
 import auth from '../../utils/auth';
 import api from '../../utils/api';

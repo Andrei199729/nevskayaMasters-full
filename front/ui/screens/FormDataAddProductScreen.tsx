@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import {Input} from '../../shared/Input/Input';
-import {useState} from 'react';
+import {useCallback} from 'react';
 import useInput from '../../hooks/useInput';
 import {PathScreen, RootStackParamList} from '../../shared/types';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
@@ -24,9 +24,7 @@ export default function FormDataAddProductScreen() {
   const {sizeWalls} = useSelector(state => state.room);
   const nameRoom = useInput('');
 
-  const [isActiveBtn, setIsActiveBtn] = useState<boolean>(true);
-
-  const onSaveDataWall = () => {
+  const onSaveDataWall = useCallback(() => {
     if (!sizeWalls.length) {
       console.warn('⚠️ Нет данных для сохранения!');
       return;
@@ -41,7 +39,7 @@ export default function FormDataAddProductScreen() {
         });
       })
       .catch(err => console.log(err));
-  };
+  }, [sizeWalls, dispatch, nameRoom.value, navigation]);
 
   return (
     <KeyboardAvoidingView
@@ -75,9 +73,6 @@ export default function FormDataAddProductScreen() {
             </View>
           </View>
 
-          {!isActiveBtn && (
-            <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
-          )}
           <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
         </View>
       </ScrollView>

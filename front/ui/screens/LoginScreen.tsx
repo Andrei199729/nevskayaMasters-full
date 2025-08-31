@@ -1,4 +1,4 @@
-import {KeyboardAvoidingView, Platform, StyleSheet, View} from 'react-native';
+import {KeyboardAvoidingView, Platform, StyleSheet} from 'react-native';
 import AuthSection from '../section/AuthSection';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Input} from '../../shared/Input/Input';
@@ -7,17 +7,13 @@ import {useEffect, useState} from 'react';
 import {errorTextEmail} from '../../shared/texts';
 import ErrorText from '../../shared/ErrorText/ErrorText';
 import HeaderScreen from './HeaderScreen';
-import {INavigationScreenProps} from '../../shared/types';
 import useInput from '../../hooks/useInput';
-import auth from '../../utils/auth';
-import * as Keychain from 'react-native-keychain';
-import api from '../../utils/api';
-import {useDispatch, useSelector} from 'react-redux';
 import {postLoginAuth} from '../../services/actions/user';
+import {useDispatch, useSelector} from '../../services/hooks';
 
 function LoginScreen({navigation}: any) {
   const dispatch = useDispatch();
-  const {accessToken} = useSelector((state: any) => state.user);
+  const {accessToken} = useSelector(state => state.user);
   const emailInput = useInput('19972910mana@gmail.com');
   const passwordInput = useInput('123456789');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
@@ -29,8 +25,9 @@ function LoginScreen({navigation}: any) {
   // const [email, setEmail] = useState('');
 
   useEffect(() => {
-    const isFormValid = emailInput && passwordInput.value.length > 6; // Проверяем, что и email, и пароль введены
-    setEmailError(!emailInput); // Устанавливаем ошибку, если email некорректен
+    const isFormValid =
+      emailInput.value.length > 0 && passwordInput.value.length > 6; // Проверяем, что и email, и пароль введены
+    setEmailError(emailInput.value.length === 0); // Устанавливаем ошибку, если email некорректен
     setDisabledLoginState(!isFormValid); // Отключаем кнопку, если форма не валидна
   }, [emailInput, passwordInput]);
 
@@ -38,7 +35,7 @@ function LoginScreen({navigation}: any) {
     if (accessToken) {
       navigation.navigate('Main');
     }
-  }, [accessToken]);
+  }, [accessToken, navigation]);
 
   const onSubmitMainScreen = (email: string, password: string) => {
     dispatch(postLoginAuth(email, password));

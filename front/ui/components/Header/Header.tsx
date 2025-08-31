@@ -1,7 +1,7 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {Colors, Fonts, Gaps, Radius} from '../../../shared/tokens';
 import ButtonHeader from '../../../shared/ButtonHeader/ButtonHeader';
-import {useContext, useEffect, useState} from 'react';
+import {useCallback, useContext, useEffect, useState} from 'react';
 import Search from '../../../assets/images/icon/iconFunc/search';
 import FilterIcon from '../../../assets/images/icon/iconFunc/filter-icon';
 import ProfileIcon from '../../../assets/images/icon/iconFunc/profile-icon';
@@ -43,45 +43,48 @@ export default function Header() {
   ]);
   const [profilePopup, setProfilePopup] = useState<boolean>(false);
 
-  useEffect(() => {
-    return () => {
-      setActiveButtonIndex(null);
-    };
-  }, []);
-
-  const onClickBtnHeader = (index: number) => {
-    const newActiveButtons = buttonActive.map((active, i) => ({
-      ...active,
-      state: i === index ? !active.state : false,
-    }));
-    const newActiveButtonsDisabled = buttonActive.map((active, i) => ({
-      ...active,
-      state: false,
-    }));
-    setButtonActive(newActiveButtons);
-    const screenName = newActiveButtons[index].pathScreen;
-    setActiveButtonIndex(index);
-    if (
-      currentRouteName === PathScreenAuth.Login ||
-      currentRouteName === PathScreenAuth.NewPassword ||
-      currentRouteName === PathScreenAuth.Register ||
-      currentRouteName === PathScreenAuth.RestorePassword ||
-      currentRouteName === PathScreenAuth.Success
-    ) {
-      setButtonActive(newActiveButtonsDisabled);
-      navigation.canGoBack();
-      setActiveButtonIndex(null);
-    } else {
-      if (screenName !== PathScreenHeader.Profile) {
-        navigation.navigate(screenName as keyof RootStackParamList);
-      }
-      setProfilePopup(
-        prevState => screenName === PathScreenHeader.Profile && !prevState,
+  const onClickBtnHeader = useCallback(
+    (index: number) => {
+      // const newActiveButtons = buttonActive.map((active, i) => ({
+      //   ...active,
+      //   state: i === index ? !active.state : false,
+      // }));
+      // const newActiveButtonsDisabled = buttonActive.map((active, i) => ({
+      //   ...active,
+      //   state: false,
+      // }));
+      setButtonActive(prev =>
+        prev.map((active, i) => ({
+          ...active,
+          state: i === index ? !active.state : false,
+        })),
       );
-    }
-  };
+      // setButtonActive(newActiveButtons);
+      const screenName = buttonActive[index]?.pathScreen;
+      setActiveButtonIndex(index);
+      if (
+        currentRouteName === PathScreenAuth.Login ||
+        currentRouteName === PathScreenAuth.NewPassword ||
+        currentRouteName === PathScreenAuth.Register ||
+        currentRouteName === PathScreenAuth.RestorePassword ||
+        currentRouteName === PathScreenAuth.Success
+      ) {
+        setButtonActive(prev => prev.map(a => ({...a, state: false})));
+        navigation.canGoBack();
+        setActiveButtonIndex(null);
+      } else {
+        if (screenName !== PathScreenHeader.Profile) {
+          navigation.navigate(screenName as keyof RootStackParamList);
+        }
+        setProfilePopup(
+          prevState => screenName === PathScreenHeader.Profile && !prevState,
+        );
+      }
+    },
+    [buttonActive, currentRouteName, navigation, setActiveButtonIndex],
+  );
 
-  const onLogout = async () => {
+  const onLogout = useCallback(async () => {
     try {
       const refreshToken = await getKeychain('refreshToken'); // Важно получить именно accessToken
       console.log('accessToken для logout:', refreshToken);
@@ -106,7 +109,14 @@ export default function Header() {
     } catch (error) {
       console.error('Logout error:', error);
     }
-  };
+  }, [dispatch, navigation]);
+
+  useEffect(() => {
+    return () => {
+      setActiveButtonIndex(null);
+    };
+  }, [setActiveButtonIndex]);
+
   return (
     <View style={styles.header}>
       <View>

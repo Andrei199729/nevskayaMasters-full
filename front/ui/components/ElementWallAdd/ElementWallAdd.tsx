@@ -1,6 +1,6 @@
-import {View, StyleSheet} from 'react-native';
+import {View} from 'react-native';
 import ModalSizesElement from '../ModalSizesElement/ModalSizesElement';
-import {IElement, TStateElement} from '../../../shared/types';
+import {IElementWallRoom, Mode, TStateElement} from '../../../shared/types';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
 
 interface IElementWallAdd {
@@ -9,10 +9,9 @@ interface IElementWallAdd {
   position: number;
   onPressVisible: () => void;
   addedElement?: boolean;
-  element: IElement;
-  // editElement: any;
+  element: IElementWallRoom;
   wallIndex: number;
-  mode: any;
+  mode: Mode;
 }
 
 export default function ElementWallAdd({
@@ -22,7 +21,6 @@ export default function ElementWallAdd({
   onPressVisible,
   addedElement,
   element,
-  // editElement,
   wallIndex,
   mode,
   ...props
@@ -39,12 +37,9 @@ export default function ElementWallAdd({
         position={position}
         nameElement={nameElement}
         element={element}
-        // editElement={editElement}
         wallIndex={wallIndex}
         mode={mode}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({});

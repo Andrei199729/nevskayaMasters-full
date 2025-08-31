@@ -20,12 +20,12 @@ import {
 } from '../../shared/types';
 import useInput from '../../hooks/useInput';
 import {RadioButton} from 'react-native-paper';
-import {useDispatch, useSelector} from 'react-redux';
 import {postRegisterAuth} from '../../services/actions/user';
+import {useDispatch, useSelector} from '../../services/hooks';
 
 function RegisterScreen({navigation}: INavigationScreenProps) {
   const dispatch = useDispatch();
-  const {userData, isAuthloggedIn} = useSelector((state: any) => state.user);
+  const {userData} = useSelector(state => state.user);
 
   const emailInput = useInput('');
   const passwordInput = useInput('');
@@ -64,7 +64,14 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
       repeatPassword.reset();
       setChoiceRights('');
     }
-  }, [userData, emailInput.value]);
+  }, [
+    userData,
+    emailInput.value,
+    emailInput,
+    navigation,
+    passwordInput,
+    repeatPassword,
+  ]);
 
   const handleRegistration = (
     email: string,

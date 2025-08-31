@@ -1,10 +1,13 @@
 import {
   IDataElementsWall,
+  IDrawing,
   IElementData,
+  IExternalSizeWall,
   IPaths,
   IPoint,
   IProductRoom,
   IWall,
+  IWallSize,
   TClickButtonBlockDimensions,
 } from '../../shared/types';
 import api from '../../utils/api';
@@ -35,7 +38,6 @@ import {
   UPDATE_ELEMENT_ROOM,
   RESET_CURRENT_DRAWING,
   SET_COUNT_WALL_DRAW,
-  // EDIT_ELEMENT,
   DELETE_ELEMENT_ROOM,
   SET_ACTIVE_WALL_INDEX,
   SET_VISIBLE_ELEMENTS,
@@ -68,7 +70,7 @@ export interface IGetRoomFailedAction {
 
 export interface IPostAddRoomSuccessAction {
   readonly type: typeof POST_ADD_ROOM_SUCCESS;
-  readonly payload: any;
+  readonly payload: {name: string; dataProduct: IDrawing[]};
 }
 
 export interface IPostAddRoomRequestAction {
@@ -83,10 +85,10 @@ export interface IPostAddRoomFailedAction {
 export interface IPatchEditRoomSuccessAction {
   readonly type: typeof PATCH_ROOM_SUCCESS;
   readonly payload: {
-    dataId: number;
-    dataProduct: any;
+    dataId: string;
+    dataProduct: IDrawing[];
     numberCurrentWall: number | null;
-    activeId: any;
+    activeId: number | null;
   };
 }
 
@@ -116,7 +118,7 @@ export interface IAddRoomDataAction {
 
 export interface INotificationSaveRoomAction {
   readonly type: typeof NOTIFICATION_SAVE_ROOM;
-  readonly payload: {points: any; wallsData: any};
+  readonly payload: {points: IPoint[]; wallsData: IWall[]};
 }
 
 export interface IUpdateLastDrawingWallsAction {
@@ -155,7 +157,7 @@ export interface IWallsDataAction {
   readonly type: typeof WALLS_DATA;
   readonly payload: {
     walls: IWall[]; // текущий массив стен из состояния (через useSelector)
-    normalizedSize: any;
+    normalizedSize: IExternalSizeWall;
     numberWallIndex: number;
   };
 }
@@ -186,7 +188,7 @@ export interface ISetElementsDataAction {
     data: IElementData;
     dataObj: IDataElementsWall;
     wallId: number;
-    roomIndex: any;
+    roomIndex: string | null;
   };
 }
 
@@ -196,8 +198,8 @@ export interface ISetUpdateElementsDataAction {
     numberWall: number;
     numberEl: number | null;
     updatedData: IElementData;
-    dataObj: any;
-    roomId: any;
+    dataObj: IDataElementsWall;
+    roomId: string | null;
   };
 }
 
@@ -213,9 +215,9 @@ export interface IAddElementRoom {
   readonly type: typeof ADD_ELEMENT_ROOM;
   readonly payload: {
     wallId: number;
-    roomId: number;
-    dataElement: any;
-    dataElementObj: any;
+    roomId: string | null;
+    dataElement: IElementData;
+    dataElementObj: IDataElementsWall;
     idElement: number;
   };
 }
@@ -223,7 +225,7 @@ export interface IAddElementRoom {
 export interface IDeleteElement {
   readonly type: typeof DELETE_ELEMENT_ROOM;
   readonly payload: {
-    roomId: number;
+    roomId: string | null;
     wallId: number;
     elementId: number | null;
     positionEl: number;
@@ -252,13 +254,13 @@ export interface ISetClickDataWall {
 
 export interface ISetCurrentRoomId {
   readonly type: typeof SET_CURRENT_ROOM_ID;
-  readonly payload: any;
+  readonly payload: string | null;
 }
 
-export interface IsetDataEditWall {
+export interface ISetDataEditWall {
   readonly type: typeof SET_DATA_EDIT_WALL;
   readonly payload: {
-    dataEditWall: any;
+    dataEditWall: IWallSize;
     currentWall: number;
   };
 }
@@ -303,7 +305,7 @@ export type TRoomAction =
   | ISetVisibleElements
   | ISetClickDataWall
   | ISetCurrentRoomId
-  | IsetDataEditWall
+  | ISetDataEditWall
   | IPatchEditRoomFailedAction
   | IPatchEditRoomRequestAction
   | IPatchEditRoomSuccessAction
@@ -326,11 +328,12 @@ export const postAddRoomRequestAction = (): IPostAddRoomRequestAction => ({
   type: POST_ADD_ROOM_REQUEST,
 });
 
-export const postAddRoomSuccessAction = (
-  room: any,
-): IPostAddRoomSuccessAction => ({
+export const postAddRoomSuccessAction = (payload: {
+  name: string;
+  dataProduct: IDrawing[];
+}): IPostAddRoomSuccessAction => ({
   type: POST_ADD_ROOM_SUCCESS,
-  payload: room,
+  payload,
 });
 
 export const postAddRoomFailedAction = (
@@ -411,7 +414,7 @@ export const clearPoints = (): IClearPointsAction => ({
 
 export const setWallsData = (
   walls: IWall[],
-  normalizedSize: any,
+  normalizedSize: IExternalSizeWall,
   numberWallIndex: number,
 ): IWallsDataAction => ({
   type: WALLS_DATA,
@@ -449,7 +452,7 @@ export const setElementsData = (
   data: IElementData,
   dataObj: IDataElementsWall,
   wallId: number,
-  roomIndex: any,
+  roomIndex: string | null,
 ): ISetElementsDataAction => ({
   type: ELEMENTS_DATA,
   payload: {data, dataObj, wallId, roomIndex},
@@ -458,8 +461,8 @@ export const setUpdateElementsData = (
   numberWall: number,
   numberEl: number | null,
   updatedData: IElementData,
-  dataObj: any,
-  roomId: any,
+  dataObj: IDataElementsWall,
+  roomId: string | null,
 ): ISetUpdateElementsDataAction => ({
   type: UPDATE_ELEMENT_ROOM,
   payload: {numberWall, numberEl, updatedData, dataObj, roomId},
@@ -477,10 +480,10 @@ export const setCountWallDraw = (
 });
 
 export const addElementRoom = (
-  roomId: number,
+  roomId: string | null,
   wallId: number,
-  dataElement: any,
-  dataElementObj: any,
+  dataElement: IElementData,
+  dataElementObj: IDataElementsWall,
   idElement: number,
 ): IAddElementRoom => ({
   type: ADD_ELEMENT_ROOM,
@@ -488,7 +491,7 @@ export const addElementRoom = (
 });
 
 export const deleteElement = (
-  roomId: number,
+  roomId: string | null,
   wallId: number,
   elementId: number | null,
   positionEl: number,
@@ -520,15 +523,17 @@ export const setClickDataWall = (payload: {
   payload,
 });
 
-export const setCurrentRoomId = (payload: any): ISetCurrentRoomId => ({
+export const setCurrentRoomId = (
+  payload: string | null,
+): ISetCurrentRoomId => ({
   type: SET_CURRENT_ROOM_ID,
   payload,
 });
 
 export const setDataEditWall = (payload: {
-  dataEditWall: any;
+  dataEditWall: IWallSize;
   currentWall: number;
-}): IsetDataEditWall => ({
+}): ISetDataEditWall => ({
   type: SET_DATA_EDIT_WALL,
   payload,
 });
@@ -543,10 +548,10 @@ export const patchEditRoomFailedAction = (
   error,
 });
 export const patchEditRoomSuccesAction = (payload: {
-  dataId: number;
-  dataProduct: any;
+  dataId: string;
+  dataProduct: IDrawing[];
   numberCurrentWall: number | null;
-  activeId: any;
+  activeId: number | null;
 }): IPatchEditRoomSuccessAction => ({
   type: PATCH_ROOM_SUCCESS,
   payload,
@@ -583,7 +588,7 @@ export function getRoomsInitial() {
   };
 }
 
-export function addRoom(name: string, sizeWalls: any) {
+export function addRoom(name: string, sizeWalls: IDrawing[]) {
   return async function (dispatch: AppDispatch) {
     dispatch(postAddRoomRequestAction());
     try {
@@ -591,8 +596,8 @@ export function addRoom(name: string, sizeWalls: any) {
         name,
         sizeWalls,
       );
-      dispatch(postAddRoomSuccessAction({payload: {nameRoom, dataProduct}}));
-      return {dataProduct, nameRoom};
+      dispatch(postAddRoomSuccessAction({name, dataProduct}));
+      return {dataProduct, name: nameRoom};
     } catch (error: any) {
       dispatch(postAddRoomFailedAction(error.message));
     }
@@ -600,10 +605,10 @@ export function addRoom(name: string, sizeWalls: any) {
 }
 
 export function editRoom(
-  dataProduct: any,
-  dataId: any,
+  dataProduct: IDrawing[],
+  dataId: string,
   numberCurrentWall: number | null,
-  activeId: any,
+  activeId: number | null,
 ) {
   return async function (dispatch: AppDispatch) {
     dispatch(patchEditRoomRequestAction());

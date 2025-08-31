@@ -5,7 +5,6 @@ import {
   SET_MODAL_VISIBLE,
   SET_MODAL_VISIBLE_BACK_LIGHT,
   SET_OPEN_FORM_DATA_SIZE,
-  SET_SELECTED_LINE,
 } from '../constants/constants';
 
 export interface ISetModalVisibleBackLight {

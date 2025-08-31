@@ -1,5 +1,5 @@
 import {NavigationProp} from '@react-navigation/native';
-import {Dispatch, ReactNode, SetStateAction} from 'react';
+import {ReactNode} from 'react';
 
 export enum ObjectStatus {
   Created = 'created',
@@ -109,15 +109,15 @@ export type RootStackParamList = {
 
 export interface IWallSize {
   id: number;
-  heightRight: string;
-  heightLeft: string;
-  widthTop: string;
-  widthBottom: string;
+  heightRight?: string;
+  heightLeft?: string;
+  widthTop?: string;
+  widthBottom?: string;
   wallAngleDegree?: string;
   radiusWall?: string;
   valueDegree?: string;
   arrElements?: {
-    elements?: IElement[];
+    elements?: IElementWallRoom[];
   };
 }
 
@@ -156,7 +156,6 @@ export interface IDrawing {
 
 export interface INavigationScreenProps {
   navigation: NavigationProp<RootStackParamList, keyof RootStackParamList>;
-  setIsAuthenticated?: any;
 }
 
 interface IElementDataObj {
@@ -165,9 +164,9 @@ interface IElementDataObj {
   id: number;
 }
 
-export interface IElement {
-  wallId?: number;
-  roomIndex?: number;
+export interface IElementWallRoom {
+  id: number;
+  roomIndex?: string | null;
   data: IElementData;
   dataObj: IElementDataObj;
 }
@@ -185,17 +184,17 @@ export interface IExternalSizeWall {
 
 export interface ISaveSizeWall {
   [key: number]: {
-    size: any; // Здесь описано, что каждый элемент по индексу содержит объект с `size`
+    size: IExternalSizeWall; // Здесь описано, что каждый элемент по индексу содержит объект с `size`
     numberWall: number;
   };
 }
 
 export interface IAddBlockDimensions {
   numberWall: number;
-  externalData: IExternalSizeWall | undefined | any;
+  externalData?: IWallSize;
   index: number;
-  currentWall?: boolean;
-  mode?: 'edit' | 'view';
+  currentWall: boolean;
+  mode: Mode;
 }
 
 export interface IDataElementsWall {

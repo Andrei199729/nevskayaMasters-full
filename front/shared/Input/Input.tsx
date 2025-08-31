@@ -6,7 +6,6 @@ import {
   StyleSheet,
   InputModeOptions,
   TextInputProps,
-  Text,
 } from 'react-native';
 import {Colors, Fonts, Radius} from '../tokens';
 import EyeOpen from '../../assets/images/icon/iconFunc/eye-open';
@@ -23,7 +22,7 @@ interface IInputProps {
   isOpenSearch?: boolean | undefined;
   isSelectActive?: boolean;
   isDimmed?: boolean;
-  setSearchText?: any;
+  setSearchText?: (text: string) => void;
 }
 
 export function Input({
@@ -32,19 +31,19 @@ export function Input({
   isPassword,
   isSearch,
   errorState,
-  isOpenSearch,
+  // isOpenSearch,
   isSelectActive,
   isDimmed,
   setSearchText,
   ...props
 }: IInputProps & TextInputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  const [isSearchVisible, setIsSearchVisible] = useState<boolean | undefined>(
-    isOpenSearch,
-  );
+  // const [isSearchVisible, setIsSearchVisible] = useState<boolean | undefined>(
+  //   isOpenSearch,
+  // );
   const onClickClear = () => {
     if (!isDimmed) {
-      setSearchText('');
+      setSearchText?.('');
     }
   };
 

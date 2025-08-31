@@ -20,11 +20,6 @@ function SuccessScreen({navigation}: INavigationScreenProps) {
     errorNumberCodeRestore,
   );
 
-  const handleTextChange = (text: string) => {
-    // Проверяем, что вводятся только числа
-    const filteredText = text.replace(/[^0-9]/g, '');
-  };
-
   useEffect(() => {
     setRestoreCodeError(!restoreCodeLogin.value); // Устанавливаем ошибку, если email некорректен
     setDisabledRestoreCodeState(!restoreCodeLogin.value); // Отключаем кнопку, если форма не валидна

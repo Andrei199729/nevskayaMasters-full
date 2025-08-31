@@ -1,4 +1,3 @@
-import {Action} from 'redux';
 import {TUserAction} from '../actions/user';
 // import {TWsConnectionAction} from '../actions/wsAction';
 import {rootReducer} from '../reducers/rootReducer';
@@ -6,7 +5,6 @@ import {ThunkAction, ThunkDispatch} from 'redux-thunk';
 import {TRoomAction} from '../actions/room';
 import {TModalOpenAction} from '../actions/modalOpen';
 import {TDrawAction} from '../actions/draw';
-// import {TWsConnectionProfileAction} from '../actions/wsActionProfile';
 
 type TApplicationActions =
   | TUserAction

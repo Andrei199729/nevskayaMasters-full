@@ -121,17 +121,10 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     width: '100%',
   },
-  item: {},
-  text: {
-    fontSize: 16,
-  },
   selectContent: {
     backgroundColor: Colors.white,
     marginTop: 16,
     paddingTop: 18,
     borderRadius: Radius.r8,
-  },
-  blockBtn: {
-    marginTop: 'auto',
   },
 });

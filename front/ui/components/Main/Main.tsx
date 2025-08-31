@@ -5,9 +5,8 @@ import {ObjectStatus} from '../../../shared/types';
 import HeaderScreen from '../../screens/HeaderScreen';
 import ButtonLink from '../../../shared/ButtonLink/ButtonLink';
 import {useNavigation, useNavigationState} from '@react-navigation/native';
-import {useEffect} from 'react';
 
-function Main(props: any) {
+function Main() {
   const navigation = useNavigation();
   const currentRouteName = useNavigationState(
     state => state.routes[state.index].name,

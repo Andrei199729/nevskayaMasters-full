@@ -3,7 +3,7 @@ import {Gaps} from '../tokens';
 import ButtonLink from '../ButtonLink/ButtonLink';
 import DownloadIcon from '../../assets/images/icon/iconFunc/downloadIcon';
 
-function ButtonDownload({textBtn, path}: {textBtn?: string; path?: string}) {
+function ButtonDownload({textBtn}: {textBtn?: string; path?: string}) {
   return (
     <View style={styles.buttonDownload}>
       <DownloadIcon />

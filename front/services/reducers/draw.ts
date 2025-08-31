@@ -1,4 +1,3 @@
-import {IExternalSizeWall} from '../../shared/types';
 import {TDrawAction} from '../actions/draw';
 import {
   CURRENT_LINE_DASHARRAYS,
@@ -45,7 +44,8 @@ export const drawReducer = (
           numberWall: action.payload.numberWall,
         },
       };
-    case SET_UPDATE_STROKE_DASHARRAYS:
+
+    case SET_UPDATE_STROKE_DASHARRAYS: {
       const newDasharray =
         state.strokeDasharrays[action.payload] === '0' ? '10' : '0'; // Пример: переключаем между '10' и '0'
       return {
@@ -55,6 +55,7 @@ export const drawReducer = (
           [action.payload]: newDasharray,
         },
       };
+    }
     case CURRENT_LINE_DASHARRAYS:
       return {
         ...state,

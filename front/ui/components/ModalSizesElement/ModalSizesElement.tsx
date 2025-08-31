@@ -1,7 +1,7 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
-import {IElement} from '../../../shared/types';
+import {IElementWallRoom, IProductRoom, Mode} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
-import {useCallback, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {useDispatch, useSelector} from '../../../services/hooks';
@@ -15,8 +15,9 @@ import {setIsVisibleEditModal} from '../../../services/actions/modalOpen';
 interface IModalSizesElement {
   nameElement: string;
   position: number;
-  element: IElement;
+  element: IElementWallRoom;
   wallIndex: number;
+  mode: Mode;
 }
 
 export default function ModalSizesElement({
@@ -26,10 +27,9 @@ export default function ModalSizesElement({
   wallIndex,
   mode,
   ...props
-}: IModalSizesElement & any) {
+}: IModalSizesElement) {
   const dispatch = useDispatch();
   const {
-    elementsData,
     sizeWalls,
     numberCurrentWall,
     visibleElements,
@@ -38,19 +38,26 @@ export default function ModalSizesElement({
     activeElementId,
   } = useSelector(state => state.room);
   const [clickButtonEdit, setClickButtonEdit] = useState(false);
-  const onClickModalClose = () => {
-    dispatch(setVisibleElements({index: position, isVisible: false}));
-  };
-  const elementToEdit = elementsData[position]?.data;
-  const room = roomData.find(
-    (r: any, index: number) => index === currentRoomId,
-  );
-  const wall = room?.dataProduct[0]?.drawingData?.walls?.[numberCurrentWall];
-  const elementData = wall?.size?.arrElements?.elements?.[position]?.data || [];
 
-  const onClickEdit = () => {
+  const onClickModalClose = useCallback(() => {
+    dispatch(setVisibleElements({index: position, isVisible: false}));
+  }, [dispatch, position]);
+
+  const room = useMemo(() => {
+    return roomData.find((r: IProductRoom) => r._id === currentRoomId);
+  }, [roomData, currentRoomId]);
+
+  const wall = useMemo(() => {
+    return room?.dataProduct[0]?.drawingData?.walls?.[numberCurrentWall];
+  }, [room, numberCurrentWall]);
+
+  const elementData = useMemo(() => {
+    return wall?.size?.arrElements?.elements?.[position]?.data;
+  }, [wall, position]);
+
+  const onClickEdit = useCallback(() => {
     if (!element.data) return;
-    // Здесь вам нужно найти элемент в массиве elementsData, соответствующий текущей позиции
+    // Здесь вам нужно найти элемент в массиве element, соответствующий текущей позиции
 
     if (elementData) {
       setClickButtonEdit(true);
@@ -62,22 +69,27 @@ export default function ModalSizesElement({
         }),
       );
     }
-  };
+  }, [
+    element,
+    setClickButtonEdit,
+    dispatch,
+    wallIndex,
+    activeElementId,
+    elementData,
+  ]);
 
   const onDeleteElement = useCallback(
     (
-      currentRoomId: number,
+      currentRoomId: string | null,
       wallId: number,
       elementId: number | null,
       positionEl: number,
     ) => {
-      console.log(currentRoomId, wallId, elementId, 'deleteElement');
-
       if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
       dispatch(deleteElement(currentRoomId, wallId, elementId, positionEl));
       dispatch(setVisibleElements({index: positionEl, isVisible: false}));
     },
-    [],
+    [dispatch, sizeWalls],
   );
 
   return (
@@ -85,14 +97,11 @@ export default function ModalSizesElement({
       animationType="slide"
       transparent={true}
       visible={!!visibleElements[position]}
-      onRequestClose={() => {
-        () => dispatch(setVisibleElements({index: position, isVisible: false}));
-      }}>
+      onRequestClose={onClickModalClose}>
       <ModalFormElement
         numberWall={position + 1}
         nameElementWall={nameElement}
         dataEditElement={elementData}
-        wallIndex={wallIndex}
         clickButtonEdit={clickButtonEdit}
         mode={mode}
       />

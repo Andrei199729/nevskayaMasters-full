@@ -11,12 +11,8 @@ import {
   POST_LOGOUT_FAILED,
   POST_LOGOUT_REQUEST,
   POST_LOGOUT_SUCCESS,
-  //   PATCH_ABOUT_USER_SUCCESS,
-  //   PATCH_ABOUT_USER_REQUEST,
-  //   PATCH_ABOUT_USER_FAILED,
-  //   RESET_PASSWORD_SUCCESS,
 } from '../constants/constants';
-import {TUser, TUserData, TUserWrapper} from '../types/data';
+import {TUser, TUserWrapper} from '../types/data';
 
 type TUserState = {
   userData: TUserWrapper | null;

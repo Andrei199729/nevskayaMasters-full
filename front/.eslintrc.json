@@ -1,5 +1,5 @@
 {
-  "plugins": ["prettier", "react", "react-native"],
+  "plugins": ["react", "react-native", "react-hooks"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "rules": {
     "react-native/no-unused-styles": 2,
@@ -8,7 +8,8 @@
     "react-native/no-color-literals": 2,
     "react-native/no-raw-text": 2,
     "react-native/no-single-element-style-arrays": 2,
-    "react-hooks/exhaustive-deps": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
     "import/order": "off",
 
     "@typescript-eslint/no-empty-function": ["off"],

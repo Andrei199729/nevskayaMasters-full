@@ -5,7 +5,7 @@ interface IBlockStateElements {
   nameElement: string;
   stateElement: TStateElement | string;
   position: number;
-  onPressVisible: () => void;
+  onPressVisible?: () => void;
 }
 export default function BlockStateElements({
   nameElement,

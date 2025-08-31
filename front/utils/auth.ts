@@ -1,7 +1,6 @@
 import axios from 'axios';
-import {LOGOUT_PATH, TOKEN_PATH} from './constants';
+import {TOKEN_PATH} from './constants';
 import {getKeychain, setKeychain} from './keychain';
-import {ChoiceRights} from '../shared/types';
 const BASE_URL = 'http://10.0.2.2:3000';
 // export const BASE_URL = 'http://10.207.190.140:3000';
 
@@ -12,7 +11,7 @@ const HEADERS = {
 const getJson = (res: Response) => {
   return res.ok ? res.json() : res.json().then(err => Promise.reject(err));
 };
-const postRefreshToken = async (refreshToken?: any) => {
+const postRefreshToken = async (refreshToken?: string) => {
   try {
     const response = await axios.post(
       `${BASE_URL}/${TOKEN_PATH}`,
@@ -29,13 +28,15 @@ const postRefreshToken = async (refreshToken?: any) => {
 };
 
 export const fetchWithRefresh = async (url: string, options: any) => {
+  console.log(options, 'options');
+
   try {
     const res = await fetch(url, options);
     return await getJson(res);
   } catch (err: any) {
     if (err.message === 'jwt expired') {
       const refreshToken = getKeychain('refreshToken');
-      const refreshData = await postRefreshToken(refreshToken);
+      const refreshData = await postRefreshToken(await refreshToken);
       if (!refreshData.success) {
         return Promise.reject(refreshData);
       }
@@ -80,17 +81,12 @@ const login = async (email: string, password: string) => {
 };
 
 // прописать logout
-
 const postLogout = async (refreshToken: string | undefined) => {
-  try {
-    const response = await axios.delete(`${BASE_URL}/logout`, {
-      headers: HEADERS,
-      data: {refreshToken},
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axios.delete(`${BASE_URL}/logout`, {
+    headers: HEADERS,
+    data: {refreshToken},
+  });
+  return response.data;
 };
 
 const examinationValidationToken = async (token: string) => {

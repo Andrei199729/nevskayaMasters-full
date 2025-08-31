@@ -1,13 +1,16 @@
 import jwt from "jsonwebtoken";
 import UserToken from "../models/userToken";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from ".";
+import { log } from "console";
 
 export enum ChoiceRights {
   Supervisor = "supervisor",
   Manager = "manager",
 }
 
-const generateTokens = async (user: { _id: any; roles: any }) => {
+const generateTokens = async (user: any) => {
+  console.log(user, "user");
+
   try {
     const payload = { _id: user._id, roles: user.roles };
     const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "14m" });

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import Svg, {SvgProps, G, Path, Defs, ClipPath} from 'react-native-svg';
-const EyeClosed = (props: SvgProps) => (
+import Svg, {G, Path, Defs, ClipPath} from 'react-native-svg';
+const EyeClosed = () => (
   <Svg width={24} height={24} fill="none">
     <G
       stroke="#000"

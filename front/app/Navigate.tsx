@@ -1,4 +1,4 @@
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from '../ui/screens/LoginScreen';
 import RegisterScreen from '../ui/screens/RegisterScreen';
