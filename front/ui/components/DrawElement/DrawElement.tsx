@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {Dimensions, Pressable, StyleSheet} from 'react-native';
 import Svg, {G} from 'react-native-svg';
 import {Colors, Fonts} from '../../../shared/tokens';
 import {
@@ -39,7 +39,6 @@ export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
     },
     [dispatch],
   );
-
   // При первом рендере все линии будут пунктирными
   // Обновляем все линии, если данные заполнены
   useEffect(() => {
@@ -86,7 +85,7 @@ export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
             }
             indexLast={idx}
             indexPaths={drawing?.shapes}
-            midX={midX}
+            midX={midX - 10}
             midY={midY - 5}
             fontSize={Fonts.f14}
             fillSvg={'blue'}
@@ -106,21 +105,16 @@ export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
 
   return (
     <Pressable style={styles.container}>
-      <Svg style={StyleSheet.absoluteFill}>{renderedLines}</Svg>
+      <Svg style={{flex: 1}}>{renderedLines}</Svg>
     </Pressable>
   );
 }
 const styles = StyleSheet.create({
   container: {
-    width: 300,
-    height: 300,
-    flex: 1,
-    borderColor: 'red',
-    borderWidth: 3,
-  },
-
-  savedDrawing: {
     width: '100%',
     height: 400,
+    flex: 1,
+    borderColor: Colors.red,
+    borderWidth: 3,
   },
 });

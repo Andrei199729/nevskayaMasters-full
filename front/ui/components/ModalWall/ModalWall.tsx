@@ -37,8 +37,6 @@ export default function ModalWall({
   elementsToRender,
   ...props
 }: IModalWall) {
-  console.log(elementsToRender, 'elementsToRender');
-
   const dispatch = useDispatch();
   const {wallsData} = useSelector(state => state.room);
   const {modalVisible} = useSelector(state => state.modalOpen);
@@ -88,8 +86,6 @@ export default function ModalWall({
 
   const renderElements = useMemo(() => {
     return elementsToRender.map((element: IElementWallRoom, index: number) => {
-      console.log(element, 'element');
-
       return (
         <ElementWallAdd
           key={index}

@@ -43,7 +43,7 @@ export default function LineSvg({
 
       {/* Вывод длины линии рядом с ней  */}
 
-      {!isLast(indexLast, indexPaths) && (
+      {
         <TextSvg
           x={midX}
           y={midY}
@@ -52,7 +52,7 @@ export default function LineSvg({
           textAnchor={textAnchor}>
           {indexLast + 1}
         </TextSvg>
-      )}
+      }
     </>
   );
 }

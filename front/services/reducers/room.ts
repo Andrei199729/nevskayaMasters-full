@@ -263,7 +263,6 @@ export const roomReducer = (
             ...wallsSafe,
             {size: safeNormalizedSize, numberWall: numberWallIndex - 1},
           ];
-      console.log(updatedWalls, 'updatedWalls');
 
       return {
         ...state,

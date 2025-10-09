@@ -70,8 +70,6 @@ export default function ModalFormElement({
   const roomIndex = roomData.findIndex(
     (room: IProductRoom) => room._id === currentRoomId,
   );
-  console.log(roomIndex, 'roomIndex');
-  console.log(typeof roomIndex, 'roomIndex');
 
   const idElement = (numberCurrentWall + 33) * 1000 + Date.now() * 33;
 
@@ -96,8 +94,6 @@ export default function ModalFormElement({
     },
     [numberCurrentWall, dataObj, currentRoomId, dispatch],
   );
-  console.log(currentRoomId, 'currentRoomId');
-  console.log(typeof currentRoomId, 'currentRoomId');
 
   const onSaveElement = useCallback(
     (data: IElementData, wallId: number) => {

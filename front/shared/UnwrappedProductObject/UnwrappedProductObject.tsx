@@ -7,8 +7,6 @@ interface IObjectApplication {
 }
 
 function UnwrappedProductObject({status, ...props}: IObjectApplication) {
-  console.log(status);
-
   return (
     <View style={styles.objectApplicationContainer}>
       <View style={styles.blockApplication}>

@@ -23,7 +23,7 @@ const DrawingCanvas = () => {
   );
 
   // Пороговое значение расстояния для автоматической привязки точек.
-  const DISTANCE_THRESHOLD = 20; // Порог для автоматического соединения
+  const DISTANCE_THRESHOLD = 100; // Порог для автоматического соединения
   // Функция вычисляет длину линии между двумя точками по формуле расстояния.
   const calculateLength = useCallback((p1: IPoint, p2: IPoint) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -40,8 +40,6 @@ const DrawingCanvas = () => {
   // Обработчик события при движении пальца
   const onGestureEvent = useCallback(
     (event: any) => {
-      console.log(event, 'event');
-
       const {x, y} = event.nativeEvent; // Получаем координаты текущего жеста.
       if (isNaN(x) || isNaN(y)) {
         console.warn('Invalid coordinates: x and y must be numbers');
@@ -55,25 +53,29 @@ const DrawingCanvas = () => {
       }
 
       if (lastPoint) {
+        let newAdjustedPoint = adjustedPoint;
+
+        // Привязка к последней точке текущей линии
+        if (isNearPoint(lastPoint, adjustedPoint)) {
+          newAdjustedPoint = lastPoint;
+        }
+
         const newPath = `${currentPath} L${Math.round(
-          adjustedPoint.x,
-        )},${Math.round(adjustedPoint.y)}`;
+          newAdjustedPoint.x,
+        )},${Math.round(newAdjustedPoint.y)}`;
         dispatch(setCurrentPath(newPath));
-        // Добавляем точку в текущий путь.
+
+        // Обновляем lastPoint на новую точку
+        dispatch(setLastPoint(newAdjustedPoint));
       } else {
-        // Если это первая точка новой линии, проверяем привязку
         const startPoint =
           points.length > 0 && isNearPoint(points[points.length - 1], {x, y})
             ? points[points.length - 1]
             : adjustedPoint;
-        const startNewPath = `M${startPoint.x},${startPoint.y}`;
-        if (isNaN(startPoint.x) || isNaN(startPoint.y)) {
-          return;
-        }
 
-        dispatch(setLastPoint(startPoint)); // Устанавливаем первую точку.
-        // Начало нового пути.
+        const startNewPath = `M${startPoint.x},${startPoint.y}`;
         dispatch(setCurrentPath(startNewPath));
+        dispatch(setLastPoint(startPoint)); // <- обязательно!
       }
     },
     [lastPoint, isNearPoint, currentPath, dispatch, points],

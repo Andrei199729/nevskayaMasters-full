@@ -61,7 +61,6 @@ export default function Draw() {
   // Показывает уведомление о сохранении.
   const saveDrawing = useCallback(() => {
     dispatch(notificationSaveRoom(points, wallsData));
-    console.log(JSON.stringify(wallsData, null, 2), 'wallsData');
 
     dispatch(setCountWallDraw(countWallDraw));
     // Очистка путей после сохранения
@@ -80,7 +79,7 @@ export default function Draw() {
     // Обновляем количество линий для последнего рисунка
     if (sizeWalls.length > 0) {
       const lastDrawing = sizeWalls[sizeWalls.length - 1];
-      dispatch(setCountWallDraw(lastDrawing?.drawingData?.shapes?.length - 1));
+      dispatch(setCountWallDraw(lastDrawing?.drawingData?.shapes?.length));
     }
   }, [dispatch, sizeWalls]);
 

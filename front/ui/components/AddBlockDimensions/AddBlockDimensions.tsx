@@ -33,7 +33,6 @@ export default function AddBlockDimensions({
   externalData,
   currentWall,
   mode,
-  ...props
 }: IAddBlockDimensions) {
   const dispatch = useDispatch();
   const {clickDataWall, elementsData, wallsData} = useSelector(
@@ -115,8 +114,6 @@ export default function AddBlockDimensions({
           );
           // 5. Если есть размер — передаем данные для редактирования
           if (size) {
-            console.log(JSON.stringify(size, null, 2), 'size');
-
             dispatch(
               setDataEditWall({
                 dataEditWall: size,

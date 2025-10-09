@@ -32,10 +32,10 @@ export default function FormDataAddProductScreen() {
     dispatch(addRoom(nameRoom.value, sizeWalls))
       .then(result => {
         if (!result) return;
-        const {dataProduct, nameRoom} = result;
+        const {dataProduct, name} = result;
         navigation.navigate('UnwrappedProduct', {
           dataProduct: dataProduct,
-          nameRoom: nameRoom,
+          nameRoom: name,
         });
       })
       .catch(err => console.log(err));
