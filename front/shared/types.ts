@@ -1,5 +1,5 @@
 import {NavigationProp} from '@react-navigation/native';
-import {Dispatch, ReactNode, SetStateAction} from 'react';
+import {ReactNode} from 'react';
 
 export enum ObjectStatus {
   Created = 'created',
@@ -14,7 +14,7 @@ export enum PathScreenHeader {
 }
 
 export enum PathScreenAuth {
-  Register = 'signin',
+  Register = 'Register',
   Login = 'Login',
   RestorePassword = 'RestorePassword',
   Success = 'Success',
@@ -62,6 +62,11 @@ export enum ClickButtonBlockDimensions {
   Elements = 'elements',
 }
 
+export enum Mode {
+  Edit = 'edit',
+  View = 'view',
+}
+
 export type TClickButtonBlockDimensions =
   | ClickButtonBlockDimensions.Width
   | ClickButtonBlockDimensions.Height
@@ -95,24 +100,24 @@ export type RootStackParamList = {
   SuccessScreen: undefined;
   FormDataAddProduct: undefined;
   Main: undefined;
-  UnwrappedProduct: {
-    dataProduct: IDrawing[];
-    nameRoom: string;
+  UnwrappedProduct?: {
+    dataProduct?: IDrawing[];
+    nameRoom?: string;
   };
-  Product: {productRoom: IProductRoom};
+  Product: undefined;
 };
 
 export interface IWallSize {
   id: number;
-  heightRight: string;
-  heightLeft: string;
-  widthTop: string;
-  widthBottom: string;
+  heightRight?: string;
+  heightLeft?: string;
+  widthTop?: string;
+  widthBottom?: string;
   wallAngleDegree?: string;
   radiusWall?: string;
   valueDegree?: string;
   arrElements?: {
-    elements?: IElement[];
+    elements?: IElementWallRoom[];
   };
 }
 
@@ -151,7 +156,6 @@ export interface IDrawing {
 
 export interface INavigationScreenProps {
   navigation: NavigationProp<RootStackParamList, keyof RootStackParamList>;
-  setIsAuthenticated?: any;
 }
 
 interface IElementDataObj {
@@ -160,13 +164,15 @@ interface IElementDataObj {
   id: number;
 }
 
-export interface IElement {
+export interface IElementWallRoom {
+  id: number;
+  roomIndex?: string | null;
   data: IElementData;
   dataObj: IElementDataObj;
 }
 
 export interface IExternalSizeWall {
-  id: number;
+  id?: number;
   widthTop?: string;
   widthBottom?: string;
   heightRight?: string;
@@ -185,23 +191,10 @@ export interface ISaveSizeWall {
 
 export interface IAddBlockDimensions {
   numberWall: number;
-  saveSizeWall?: ISaveSizeWall;
-  setSizeWalls: Dispatch<SetStateAction<IDrawing[]>>;
-  setNumberCurrentWall: Dispatch<SetStateAction<number | boolean | null>>;
-  numberCurrentWall: number | boolean | null;
-  setModalVisibleBacklight: Dispatch<SetStateAction<number | boolean | null>>;
-  modalVisibleBacklight: number | boolean | null;
-  onClickWallIncrease: (
-    data: IExternalSizeWall | undefined,
-    wallIndex: number,
-    click: ClickSelection.Wall | ClickSelection.Button,
-  ) => void;
-  setModalVisible: Dispatch<SetStateAction<number | boolean | null>>;
-  modalVisible: number | boolean | null;
-  arrElements?: IElement[];
-  setIsVisibleEditModal: Dispatch<SetStateAction<boolean>>;
-  externalData: IExternalSizeWall | undefined;
-  onClickEditDataWall: (size: IExternalSizeWall, currentWall: number) => void;
+  externalData?: IWallSize;
+  index: number;
+  currentWall: boolean;
+  mode: Mode;
 }
 
 export interface IDataElementsWall {
@@ -232,4 +225,6 @@ export interface IElementData {
 export interface IProductRoom {
   dataProduct: IDrawing[];
   nameRoom: string;
+  _id?: string;
+  owner: string;
 }

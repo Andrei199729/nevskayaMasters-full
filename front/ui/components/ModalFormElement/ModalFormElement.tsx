@@ -1,37 +1,55 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
-import {Dispatch, SetStateAction, useEffect} from 'react';
-import {IElementData} from '../../../shared/types';
+import {useCallback, useEffect} from 'react';
+import {IElementData, IProductRoom, Mode} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import useInput from '../../../hooks/useInput';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setElementModalVisible,
+  setElementsWallModalVisible,
+  setIsVisibleEditModal,
+} from '../../../services/actions/modalOpen';
+import {
+  addElementRoom,
+  setActiveElementId,
+  setElementsData,
+  setUpdateElementsData,
+  setUpdateSizeWalls,
+} from '../../../services/actions/room';
+import {isValidArray} from '../../../utils/validators';
+
 interface IModalFormElement {
   nameElementWall: string;
   numberWall: number;
-  modalVisible: number | boolean | null;
-  setModalVisibleWall: Dispatch<SetStateAction<number | boolean | null>>;
-  setModalVisible: Dispatch<SetStateAction<number | boolean | null>>;
-  onSaveElementSize: (
-    element: IElementData,
-    wallId: number,
-    elementId?: number,
-  ) => void;
   dataEditElement?: IElementData;
-  // editElement?: (element: IElement, wallId: number, elementId: number) => void;
-  numberCurrentWall?: number | boolean | null;
+  clickButtonEdit?: boolean;
+  mode: Mode;
 }
 
 export default function ModalFormElement({
-  modalVisible,
-  setModalVisible,
   numberWall,
   nameElementWall,
-  setModalVisibleWall,
-  onSaveElementSize,
   dataEditElement,
-  numberCurrentWall,
+  clickButtonEdit,
+  mode,
   ...props
 }: IModalFormElement) {
+  const dispatch = useDispatch();
+  const {isVisibleEditModal, elementModal} = useSelector(
+    state => state.modalOpen,
+  );
+
+  const {
+    numberCurrentWall,
+    dataObj,
+    currentRoomId,
+    sizeWalls,
+    roomData,
+    activeElementId,
+  } = useSelector(state => state.room);
+
   const locationElementTop = useInput(
     dataEditElement?.locationElementTop || '',
   );
@@ -49,7 +67,47 @@ export default function ModalFormElement({
   const heightLeft = useInput(dataEditElement?.heightLeft || '');
   const heightRight = useInput(dataEditElement?.heightRight || '');
   const radiusElement = useInput(dataEditElement?.radiusElement || '');
-  const onSaveDataElement = () => {
+  const roomIndex = roomData.findIndex(
+    (room: IProductRoom) => room._id === currentRoomId,
+  );
+
+  const idElement = (numberCurrentWall + 33) * 1000 + Date.now() * 33;
+
+  const onSaveEditedElement = useCallback(
+    (updatedData: IElementData, numberEl: number | null) => {
+      dispatch(
+        setUpdateElementsData(
+          numberCurrentWall,
+          numberEl,
+          updatedData,
+          dataObj,
+          currentRoomId,
+        ),
+      ); // Обновляем состояние
+      dispatch(
+        setIsVisibleEditModal({
+          isVisible: false,
+          wallNumber: null,
+          wallNumberElement: null,
+        }),
+      ); // Закрываем модальное окно редактирования
+    },
+    [numberCurrentWall, dataObj, currentRoomId, dispatch],
+  );
+
+  const onSaveElement = useCallback(
+    (data: IElementData, wallId: number) => {
+      dispatch(setElementsData(data, dataObj, wallId, currentRoomId));
+      if (!isValidArray(sizeWalls, 'sizeWalls')) return sizeWalls;
+      //  Создаем глубокую копию массива стен
+      dispatch(
+        setUpdateSizeWalls(data, dataObj, numberCurrentWall, wallId, roomIndex),
+      );
+    },
+    [dataObj, currentRoomId, sizeWalls, numberCurrentWall, roomIndex, dispatch],
+  );
+
+  const onSaveDataElement = useCallback(() => {
     const numericNumberWall = typeof numberWall === 'number' ? numberWall : 0;
     const numberElement = numericNumberWall - 1;
     const updatedDataObjectSizeElement = {
@@ -65,11 +123,74 @@ export default function ModalFormElement({
       radiusElement: radiusElement.value,
     };
 
-    onSaveElementSize(updatedDataObjectSizeElement, numberElement);
-    // editElement(updatedDataObjectSizeElement, numberCurrentWall, position);
-    setModalVisible(!modalVisible);
-    setModalVisibleWall(false);
-  };
+    if (dataEditElement) {
+      // редактирование существующего элемента
+      onSaveEditedElement(updatedDataObjectSizeElement, activeElementId);
+    } else {
+      //  добавление нового элемента
+      switch (mode) {
+        case Mode.View: {
+          dispatch(
+            addElementRoom(
+              currentRoomId,
+              numberCurrentWall,
+              updatedDataObjectSizeElement,
+              dataObj,
+              idElement,
+            ),
+          );
+          dispatch(setActiveElementId(idElement));
+          break;
+        }
+        case Mode.Edit: {
+          onSaveElement(updatedDataObjectSizeElement, numberElement);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    dispatch(
+      setElementsWallModalVisible({
+        isVisible: false,
+        wallNumber: null,
+      }),
+    );
+
+    dispatch(
+      setElementModalVisible({
+        isVisible: false,
+        wallNumber: null,
+        wallNumberElement: null,
+      }),
+    );
+  }, [
+    numberWall,
+    nameElementWall,
+    locationElementTop.value,
+    locationElementRight.value,
+    locationElementLeft.value,
+    locationElementBottom.value,
+    widthTop.value,
+    widthBottom.value,
+    heightLeft.value,
+    heightRight.value,
+    radiusElement.value,
+    dataEditElement,
+    dispatch,
+    onSaveEditedElement,
+    activeElementId,
+    mode,
+    currentRoomId,
+    numberCurrentWall,
+    dataObj,
+    idElement,
+    onSaveElement,
+  ]);
+
+  const stateFormElemnt = clickButtonEdit
+    ? isVisibleEditModal.isVisible
+    : elementModal.isVisible;
 
   useEffect(() => {
     if (dataEditElement) {
@@ -89,16 +210,33 @@ export default function ModalFormElement({
       heightRight.onChangeText(dataEditElement.heightRight || '');
       radiusElement.onChangeText(dataEditElement.radiusElement || '');
     }
-  }, [dataEditElement]);
+  }, [
+    dataEditElement,
+    heightLeft,
+    heightRight,
+    locationElementBottom,
+    locationElementLeft,
+    locationElementRight,
+    locationElementTop,
+    radiusElement,
+    widthBottom,
+    widthTop,
+  ]);
 
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={typeof modalVisible === 'boolean' && modalVisible}
-      onRequestClose={() => {
-        setModalVisible(!modalVisible);
-      }}>
+      visible={stateFormElemnt}
+      onRequestClose={() =>
+        dispatch(
+          setElementModalVisible({
+            isVisible: false,
+            wallNumber: null,
+            wallNumberElement: null,
+          }),
+        )
+      }>
       <View
         style={{
           backgroundColor: Colors.white,

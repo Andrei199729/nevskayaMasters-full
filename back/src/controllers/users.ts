@@ -5,13 +5,15 @@ import getDataFromFile from "../helpers/files";
 import path from "path";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../configs";
+import { JWT_REFRESH_SECRET, JWT_SECRET } from "../configs";
 import checkToken from "../helpers/check-token";
 import ErrorNotFound from "../errors/ErrorNotFound";
 import BadRequestError from "../errors/BadRequestError";
 import Unauthorized from "../errors/Unauthorized";
 import ErrorConflict from "../errors/ErrorConflict";
 import InternalServerError from "../errors/InternalServerError";
+import { AuthenticatedRequest } from "../middlewares/auth";
+import generateTokens from "../configs/generateTokens";
 
 export const getUsers = async (
   req: Request,
@@ -26,6 +28,36 @@ export const getUsers = async (
     return next(err);
   }
 };
+
+export function getUserMe(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    User.findById(req?.user?._id)
+      .then((user) => {
+        if (!user?._id) {
+          return next(
+            new ErrorNotFound({
+              message: "Запрашиваемый пользователь не найден",
+            })
+          );
+        }
+        return res.send({ data: user });
+      })
+      .catch((err) => {
+        if (err.name === "CastError") {
+          return next(
+            new BadRequestError({ message: "Переданы некорректные данные" })
+          );
+        }
+        return next(err);
+      });
+  } catch (err) {
+    return next(err);
+  }
+}
 
 export const getUserId = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -63,13 +95,13 @@ export const register = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password, rules } = req.body;
+    const { email, password, roles } = req.body;
 
     if (!email || !password) {
       return next(new Unauthorized("Указан некорректный Email или пароль."));
     }
-    if (rules === "Supervisor") {
-      const existingSupervisor = await User.findOne({ rules: "Supervisor" });
+    if (roles === "supervisor") {
+      const existingSupervisor = await User.findOne({ roles: "supervisor" });
       if (existingSupervisor) {
         return next(new ErrorConflict("Руководитель уже зарегистрирован"));
       }
@@ -82,12 +114,11 @@ export const register = async (
           )
         );
       }
-
       try {
         const hash = await bcrypt.hash(password, 10);
-        User.create({ rules, email, password: hash })
-          .then(({ _id, email, rules }) =>
-            res.status(201).send({ _id, email, rules })
+        User.create({ roles, email, password: hash })
+          .then(({ _id, email, roles }) =>
+            res.status(201).send({ _id, email, roles })
           )
           .catch((err) => {
             if (err.name === "ValidationError") {
@@ -147,28 +178,25 @@ export const login = async (
           new Unauthorized(`Пользователь с таким email ${email} не существует`)
         );
       }
+      const payload = { _id: admin._id };
       bcrypt
         .compare(password, admin?.password)
-        .then((matched) => {
+        .then(async (matched) => {
           if (!matched) {
             throw new Unauthorized("Указан некорректный Email или пароль.");
           }
-          const token = jwt.sign(
-            { _id: admin._id },
-            JWT_SECRET,
-            (err: any, token: any) => {
-              if (err) {
-                return next(new InternalServerError("Ошибка на сервере"));
-              }
-              return res.send({
-                message: "Авторизация успешна",
-                token,
-              });
-            }
-          );
+          const { accessToken, refreshToken } = await generateTokens(admin);
+
+          return res.send({
+            message: "Авторизация успешна",
+            accessToken,
+            refreshToken,
+          });
         })
         .catch((err) => {
-          return next(new InternalServerError("Ошибка на сервере"));
+          return next(
+            new Unauthorized("Указан некорректный Email или пароль.")
+          );
         });
     });
   } catch (err) {

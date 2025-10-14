@@ -1,0 +1,99 @@
+// user
+export const GET_ABOUT_USER_SUCCESS = 'GET_ABOUT_USER_SUCCESS' as const;
+export const GET_ABOUT_USER_REQUEST = 'GET_ABOUT_USER_REQUEST' as const;
+export const GET_ABOUT_USER_FAILED = 'GET_ABOUT_USER_FAILED' as const;
+
+export const POST_REGISTER_SUCCESS = 'POST_REGISTER_SUCCESS' as const;
+export const POST_REGISTER_REQUEST = 'POST_REGISTER_REQUEST' as const;
+export const POST_REGISTER_FAILED = 'POST_REGISTER_FAILED' as const;
+export const SET_AUTH_LOGGED_IN = 'SET_AUTH_LOGGED_IN' as const;
+
+export const POST_LOGIN_REQUEST = 'POST_LOGIN_REQUEST' as const;
+export const POST_LOGIN_FAILED = 'POST_LOGIN_FAILED' as const;
+
+export const SET_USER_DATA = 'SET_USER_DATA' as const;
+
+export const POST_REFRESH_TOKEN_SUCCESS = 'POST_REFRESH_TOKEN_SUCCESS' as const;
+export const POST_REFRESH_TOKEN_REQUEST = 'POST_REFRESH_TOKEN_REQUEST' as const;
+export const POST_REFRESH_TOKEN_FAILED = 'POST_REFRESH_TOKEN_FAILED' as const;
+
+export const POST_LOGOUT_SUCCESS = 'POST_LOGOUT_SUCCESS' as const;
+export const POST_LOGOUT_REQUEST = 'POST_LOGOUT_REQUEST' as const;
+export const POST_LOGOUT_FAILED = 'POST_LOGOUT_FAILED' as const;
+
+// room
+export const SET_ROOM_DATA = 'SET_ROOM_DATA' as const;
+export const SET_SIZE_WALS = 'SET_SIZE_WALS' as const;
+
+export const ADD_ROOM_DATA = 'ADD_ROOM_DATA' as const;
+
+export const ADD_ELEMENT_ROOM = 'ADD_ELEMENT_ROOM' as const;
+export const DELETE_ELEMENT_ROOM = 'DELETE_ELEMENT_ROOM' as const;
+export const UPDATE_ELEMENT_ROOM = 'UPDATE_ELEMENT_ROOM' as const;
+export const ELEMENTS_DATA = 'ELEMENTS_DATA' as const;
+export const UPDATE_ROOM_DATA = 'UPDATE_ROOM_DATA' as const;
+export const DATA_OBJ = 'DATA_OBJ' as const;
+
+export const GET_ROOM_REQUEST = 'GET_ROOM_REQUEST' as const;
+export const GET_ROOM_SUCCESS = 'GET_ROOM_SUCCESS' as const;
+export const GET_ROOM_FAILED = 'GET_ROOM_FAILED' as const;
+
+export const POST_ADD_ROOM_REQUEST = 'POST_ADD_ROOM_REQUEST' as const;
+export const POST_ADD_ROOM_SUCCESS = 'POST_ADD_ROOM_SUCCESS' as const;
+export const POST_ADD_ROOM_FAILED = 'POST_ADD_ROOM_FAILED' as const;
+
+export const PATCH_ROOM_REQUEST = 'PATCH_ROOM_REQUEST' as const;
+export const PATCH_ROOM_SUCCESS = 'PATCH_ROOM_SUCCESS' as const;
+export const PATCH_ROOM_FAILED = 'PATCH_ROOM_FAILED' as const;
+
+export const ADD_OR_UPDATE_ROOM = 'ADD_OR_UPDATE_ROOM' as const;
+
+export const NOTIFICATION_SAVE_ROOM = 'NOTIFICATION_SAVE_ROOM' as const;
+
+export const UPDATE_LAST_DRAWING_WALLS = 'UPDATE_LAST_DRAWING_WALLS' as const;
+
+export const UPDATE_SIZE_WALLS = 'UPDATE_SIZE_WALLS' as const;
+
+export const PATHS = 'PATHS' as const;
+export const POINTS = 'POINTS';
+export const CLEAR_PATHS = 'CLEAR_PATHS' as const;
+export const CLEAR_POINTS = 'CLEAR_POINTS' as const;
+export const RESET_CURRENT_DRAWING = 'RESET_CURRENT_DRAWING' as const;
+export const SET_COUNT_WALL_DRAW = 'SET_COUNT_WALL_DRAW' as const;
+export const WALLS_DATA = 'WALLS_DATA' as const;
+
+export const SET_CURRENT_PATH = 'SET_CURRENT_PATH' as const;
+export const ADD_TO_CURRENT_PATH = 'ADD_TO_CURRENT_PATH' as const;
+export const SET_LAST_POINT = 'SET_LAST_POINT' as const;
+
+export const SET_MODAL_VISIBLE_BACK_LIGHT =
+  'SET_MODAL_VISIBLE_BACK_LIGHT' as const;
+export const SET_MODAL_VISIBLE = 'SET_MODAL_VISIBLE' as const;
+
+export const SET_ELEMENTS_WALL_MODAL_VISIBLE =
+  'SET_ELEMENTS_WALL_MODAL_VISIBLE' as const;
+export const SET_IS_VISIBLE_EDIT_MODAL = 'SET_IS_VISIBLE_EDIT_MODAL' as const;
+
+export const SET_ELEMENT_MODAL_VISIBLE = 'SET_ELEMENT_MODAL_VISIBLE' as const;
+
+export const SET_OPEN_FORM_DATA_SIZE = 'SET_OPEN_FORM_DATA_SIZE' as const;
+
+export const SET_SELECTED_LINE = 'SET_SELECTED_LINE' as const;
+
+export const SET_IS_STYLE_LINE = 'SET_IS_STYLE_LINE' as const;
+
+export const SET_ACTIVE_WALL_INDEX = 'SET_ACTIVE_WALL_INDEX' as const;
+
+export const SET_UPDATE_STROKE_DASHARRAYS =
+  'SET_UPDATE_STROKE_DASHARRAYS' as const;
+export const RESET_LINE_DASHARRAYS = 'RESET_LINE_DASHARRAYS' as const;
+export const CURRENT_LINE_DASHARRAYS = 'CURRENT_LINE_DASHARRAYS' as const;
+
+export const SET_DATA_EDIT_WALL = 'SET_DATA_EDIT_WALL' as const;
+
+export const SET_VISIBLE_ELEMENTS = 'SET_VISIBLE_ELEMENTS' as const;
+
+export const SET_CLICK_DATA_WALL = 'SET_CLICK_DATA_WALL' as const;
+
+export const SET_CURRENT_ROOM_ID = 'SET_CURRENT_ROOM_ID' as const;
+export const SET_ACTIVE_ELEMENT_ID = 'SET_ACTIVE_ELEMENT_ID' as const;

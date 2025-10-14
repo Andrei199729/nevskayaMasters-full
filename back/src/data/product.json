@@ -1,0 +1,710 @@
+[
+  {
+    "nameRoom": "fsdffs",
+    "dataProduct": [
+      {
+        "drawingData": {
+          "numberWall": 0,
+          "countWallDraw": 5,
+          "shapes": [
+            {
+              "id": 1,
+              "path": "M102,62 L150,60",
+              "length": 48,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "path": "M150,60 L233,151",
+              "length": 123,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "path": "M233,151 L142,158",
+              "length": 91,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "path": "M142,158 L105,60",
+              "length": 105,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "path": "M105,60 L102,62",
+              "length": 105,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            }
+          ],
+          "walls": [
+            {
+              "size": {
+                "id": 0,
+                "heightRight": "123",
+                "heightLeft": "21",
+                "widthTop": "1233",
+                "widthBottom": "1221",
+                "wallAngleDegree": "",
+                "radiusWall": "",
+                "valueDegree": "external",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Двери",
+                        "locationElementTop": "123",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Двери",
+                        "stateElement": "elementDoor",
+                        "id": 1
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 0
+            },
+            {
+              "size": {
+                "id": 1,
+                "heightRight": "312",
+                "heightLeft": "21",
+                "widthTop": "123",
+                "widthBottom": "312",
+                "wallAngleDegree": "",
+                "radiusWall": "2",
+                "valueDegree": "interior",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Розетка",
+                        "locationElementTop": "123",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Розетка",
+                        "stateElement": "elementSocket",
+                        "id": 3
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 1
+            },
+            {
+              "size": {
+                "id": 2,
+                "heightRight": "3123",
+                "heightLeft": "21",
+                "widthTop": "123",
+                "widthBottom": "123",
+                "wallAngleDegree": "",
+                "radiusWall": "",
+                "valueDegree": "",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Двери",
+                        "locationElementTop": "123",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Двери",
+                        "stateElement": "elementDoor",
+                        "id": 1
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 2
+            },
+            {
+              "size": {
+                "id": 3,
+                "heightRight": "12213",
+                "heightLeft": "21",
+                "widthTop": "1233",
+                "widthBottom": "312",
+                "wallAngleDegree": "",
+                "radiusWall": "",
+                "valueDegree": "",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Окно",
+                        "locationElementTop": "213",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Окно",
+                        "stateElement": "elementWindow",
+                        "id": 2
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 3
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "nameRoom": "fsdffs",
+    "dataProduct": [
+      {
+        "drawingData": {
+          "numberWall": 0,
+          "countWallDraw": 5,
+          "shapes": [
+            {
+              "id": 1,
+              "path": "M102,62 L150,60",
+              "length": 48,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "path": "M150,60 L233,151",
+              "length": 123,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "path": "M233,151 L142,158",
+              "length": 91,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "path": "M142,158 L105,60",
+              "length": 105,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "path": "M105,60 L102,62",
+              "length": 105,
+              "points": [
+                {
+                  "x": 102,
+                  "y": 62
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 150,
+                  "y": 60
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 233,
+                  "y": 151
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 142,
+                  "y": 158
+                },
+                {
+                  "x": 105,
+                  "y": 60
+                }
+              ]
+            }
+          ],
+          "walls": [
+            {
+              "size": {
+                "id": 0,
+                "heightRight": "123",
+                "heightLeft": "21",
+                "widthTop": "1233",
+                "widthBottom": "1221",
+                "wallAngleDegree": "",
+                "radiusWall": "",
+                "valueDegree": "external",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Двери",
+                        "locationElementTop": "123",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Двери",
+                        "stateElement": "elementDoor",
+                        "id": 1
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 0
+            },
+            {
+              "size": {
+                "id": 1,
+                "heightRight": "312",
+                "heightLeft": "21",
+                "widthTop": "123",
+                "widthBottom": "312",
+                "wallAngleDegree": "",
+                "radiusWall": "2",
+                "valueDegree": "interior",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Розетка",
+                        "locationElementTop": "123",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Розетка",
+                        "stateElement": "elementSocket",
+                        "id": 3
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 1
+            },
+            {
+              "size": {
+                "id": 2,
+                "heightRight": "3123",
+                "heightLeft": "21",
+                "widthTop": "123",
+                "widthBottom": "123",
+                "wallAngleDegree": "",
+                "radiusWall": "",
+                "valueDegree": "",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Двери",
+                        "locationElementTop": "123",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Двери",
+                        "stateElement": "elementDoor",
+                        "id": 1
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 2
+            },
+            {
+              "size": {
+                "id": 3,
+                "heightRight": "12213",
+                "heightLeft": "21",
+                "widthTop": "1233",
+                "widthBottom": "312",
+                "wallAngleDegree": "",
+                "radiusWall": "",
+                "valueDegree": "",
+                "arrElements": {
+                  "elements": [
+                    {
+                      "data": {
+                        "nameElementWall": "Окно",
+                        "locationElementTop": "213",
+                        "locationElementRight": "",
+                        "locationElementLeft": "",
+                        "locationElementBottom": "",
+                        "widthTop": "",
+                        "widthBottom": "",
+                        "heightLeft": "",
+                        "heightRight": "",
+                        "radiusElement": ""
+                      },
+                      "dataObj": {
+                        "nameElement": "Окно",
+                        "stateElement": "elementWindow",
+                        "id": 2
+                      }
+                    }
+                  ]
+                }
+              },
+              "numberWall": 3
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

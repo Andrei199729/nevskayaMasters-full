@@ -6,7 +6,6 @@ import {ObjectStatus} from '../../shared/types';
 import {Colors, Gaps, Radius} from '../../shared/tokens';
 import Square from '../components/Square/Square';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
-import Draw from '../components/Draw/Draw';
 
 export default function CreateProjectScreen() {
   const array = Array.from({length: 9}).fill(0);
@@ -31,17 +30,6 @@ export default function CreateProjectScreen() {
 }
 
 const styles = StyleSheet.create({
-  containerWall: {
-    maxWidth: '100%',
-    width: '100%',
-    gap: 10,
-
-    flexDirection: 'row',
-  },
-  addedContainerWall: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   drawing: {
     borderRadius: Radius.r8,
     backgroundColor: Colors.black,

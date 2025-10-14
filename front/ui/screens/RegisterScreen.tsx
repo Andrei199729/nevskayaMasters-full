@@ -1,4 +1,10 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Input} from '../../shared/Input/Input';
 import {Gaps} from '../../shared/tokens';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
@@ -10,22 +16,21 @@ import HeaderScreen from './HeaderScreen';
 import {
   ChoiceRights,
   INavigationScreenProps,
-  PathScreen,
   PathScreenAuth,
-  RootStackParamList,
 } from '../../shared/types';
 import useInput from '../../hooks/useInput';
 import {RadioButton} from 'react-native-paper';
-import auth from '../../utils/auth';
-import * as Keychain from 'react-native-keychain';
+import {postRegisterAuth} from '../../services/actions/user';
+import {useDispatch, useSelector} from '../../services/hooks';
 
 function RegisterScreen({navigation}: INavigationScreenProps) {
+  const dispatch = useDispatch();
+  const {userData} = useSelector(state => state.user);
+
   const emailInput = useInput('');
   const passwordInput = useInput('');
   const repeatPassword = useInput('');
-  // const choiceRights = useInput('');
   const [choiceRights, setChoiceRights] = useState('');
-  const [checked, setChecked] = useState('first');
   const [disabledState, setDisabledState] = useState<boolean>(true);
   const [inputError, setInputError] = useState<boolean>(false);
   const [localError, setLocalError] = useState<string | undefined>(
@@ -34,6 +39,7 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
 
   useEffect(() => {
     // Проверяем, совпадают ли пароли
+
     if (
       emailInput.value &&
       passwordInput.value === repeatPassword.value &&
@@ -50,32 +56,29 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
     repeatPassword.value,
     choiceRights,
   ]);
+  useEffect(() => {
+    if (userData && userData.email === emailInput.value) {
+      navigation.navigate(PathScreenAuth.Login);
+      emailInput.reset();
+      passwordInput.reset();
+      repeatPassword.reset();
+      setChoiceRights('');
+    }
+  }, [
+    userData,
+    emailInput.value,
+    emailInput,
+    navigation,
+    passwordInput,
+    repeatPassword,
+  ]);
 
-  const handleRegistration = async (
+  const handleRegistration = (
     email: string,
     password: string,
-    rules: string,
+    roles: string,
   ) => {
-    auth
-      .register(email, password, rules)
-      .then((res: any) => {
-        if (res) {
-          // handleInfoTooltip({
-          //   union: unionTrue,
-          //   text: 'Вы успешно зарегистрировались!',
-          // });
-          navigation.navigate(PathScreenAuth.Login);
-          console.log(res, 'Вы успешно зарегистрировались');
-          return Keychain.setGenericPassword('authToken', res.token);
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-        // handleInfoTooltip({
-        //   union: unionFalse,
-        //   text: 'Что-то пошло не так! Попробуйте ещё раз.',
-        // });
-      });
+    dispatch(postRegisterAuth(email, password, roles));
   };
 
   return (
@@ -86,7 +89,9 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
         textBtn={'Войти'}
         pathLink={'Login'}
         textWithBtn="Уже есть профиль?">
-        <View style={styles.inputs}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.inputs}>
           <View style={styles.container}>
             <Text style={styles.label}>Выберите тип управления:</Text>
             <View style={{padding: 5}}>
@@ -111,6 +116,7 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
             inputModeText="email"
             onChangeText={emailInput.onChangeText}
             isSelectActive={emailInput.isActive}
+            value={emailInput.value}
           />
           <Input
             textPlaceholder="Введите Пароль"
@@ -118,6 +124,7 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
             onChangeText={passwordInput.onChangeText}
             errorState={inputError}
             isSelectActive={passwordInput.isActive}
+            value={passwordInput.value}
           />
           <Input
             textPlaceholder="Повторите пароль"
@@ -125,6 +132,7 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
             onChangeText={repeatPassword.onChangeText}
             isSelectActive={repeatPassword.isActive}
             errorState={inputError}
+            value={repeatPassword.value}
           />
           <ButtonCustom
             textBtn="Зарегистрироваться"
@@ -137,7 +145,7 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
               )
             }
           />
-        </View>
+        </KeyboardAvoidingView>
         {passwordInput.value.length <= 6 ? (
           <ErrorText errorText={localError} />
         ) : null}

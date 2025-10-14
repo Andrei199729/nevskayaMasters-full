@@ -1,8 +1,7 @@
-import {View, StyleSheet} from 'react-native';
+import {View} from 'react-native';
 import ModalSizesElement from '../ModalSizesElement/ModalSizesElement';
-import {IElement, TStateElement} from '../../../shared/types';
+import {IElementWallRoom, Mode, TStateElement} from '../../../shared/types';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
-import {Dispatch, SetStateAction} from 'react';
 
 interface IElementWallAdd {
   nameElement: string;
@@ -10,14 +9,9 @@ interface IElementWallAdd {
   position: number;
   onPressVisible: () => void;
   addedElement?: boolean;
-  setVisible: (index: number, isVisible: boolean) => void;
-  element: IElement;
-  isVisible: {[key: number]: boolean};
-  elementsData: IElement[];
-  setElementsData: Dispatch<SetStateAction<IElement[]>>;
-  setModalVisibleWall: Dispatch<SetStateAction<number | boolean | null>>;
-  numberCurrentWall: number | boolean | null;
-  deleteElement: (wallId: number | boolean | null, elementId: number) => void;
+  element: IElementWallRoom;
+  wallIndex: number;
+  mode: Mode;
 }
 
 export default function ElementWallAdd({
@@ -26,14 +20,9 @@ export default function ElementWallAdd({
   position,
   onPressVisible,
   addedElement,
-  setVisible,
   element,
-  isVisible,
-  elementsData,
-  setElementsData,
-  setModalVisibleWall,
-  numberCurrentWall,
-  deleteElement,
+  wallIndex,
+  mode,
   ...props
 }: IElementWallAdd) {
   return (
@@ -47,17 +36,10 @@ export default function ElementWallAdd({
       <ModalSizesElement
         position={position}
         nameElement={nameElement}
-        isVisible={isVisible}
-        setVisible={setVisible}
         element={element}
-        elementsData={elementsData}
-        setElementsData={setElementsData}
-        setModalVisibleWall={setModalVisibleWall}
-        numberCurrentWall={numberCurrentWall}
-        deleteElement={deleteElement}
+        wallIndex={wallIndex}
+        mode={mode}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({});

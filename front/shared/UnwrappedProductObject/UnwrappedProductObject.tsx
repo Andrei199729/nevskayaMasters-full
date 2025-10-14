@@ -129,10 +129,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  boxProductsCountApplication: {
-    flexDirection: 'row',
-    gap: Gaps.g6,
-  },
   boxPencilApplication: {
     flexDirection: 'row',
     gap: Gaps.g6,

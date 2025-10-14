@@ -15,10 +15,13 @@ function ButtonClear({
   textBtn: string;
   disabledState: boolean;
 }) {
+  const getButtonStyle = (disabled: boolean) => ({
+    ...styles.buttonClear,
+    opacity: disabled ? 0.2 : 1,
+  });
   return (
     <Pressable {...props}>
-      <Animated.View
-        style={{...styles.buttonClear, opacity: disabledState ? 0.2 : 1}}>
+      <Animated.View style={getButtonStyle(disabledState)}>
         <Text style={styles.buttonText}>{textBtn}</Text>
       </Animated.View>
     </Pressable>

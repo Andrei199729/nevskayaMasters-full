@@ -15,6 +15,7 @@ function ButtonLink({
       navigationPath.navigate(path, {name: textBtn});
     }
   };
+
   return (
     <Pressable onPress={handlePress} style={styles.button}>
       <Text style={styles.buttonText}>{textBtn}</Text>

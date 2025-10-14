@@ -1,18 +1,25 @@
 import { Router } from "express";
 import { register, login } from "../controllers/users";
 import userRoute from "./users";
+import productRoute from "./products";
 import auth from "../middlewares/auth";
-import { loginValid, registerValid } from "../middlewares/validationJoi";
+import {
+  loginValid,
+  refreshTokenBodyValidation,
+  registerValid,
+} from "../middlewares/validationJoi";
+import refreshTokenRoutes from "../routes/refreshToken";
 import ErrorNotFound from "../errors/ErrorNotFound";
 const router = Router();
 
 router.post("/signup", registerValid, register);
 router.post("/signin", loginValid, login);
+router.use("/logout", refreshTokenBodyValidation, refreshTokenRoutes);
 
 router.use(auth);
 
 router.use("/users", userRoute);
-// router.use("/cards", cardsRoute);
+router.use("/products", productRoute);
 
 router.use((req, res, next) => {
   return next(new ErrorNotFound({ message: "Данный путь не найден" }));

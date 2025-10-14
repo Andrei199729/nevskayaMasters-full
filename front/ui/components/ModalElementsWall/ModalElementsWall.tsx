@@ -1,80 +1,95 @@
 import {Modal, View, Pressable, StyleSheet} from 'react-native';
-import {
-  IAddBlockDimensions,
-  IDataElementsWall,
-  IElementData,
-} from '../../../shared/types';
+import {IDataElementsWall, Mode} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
-import {Dispatch, SetStateAction, useState} from 'react';
+import {useCallback, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
-import ElementWall from '../ElementWall/ElementWall';
 import {arrDataElementsWall} from '../../../shared/texts';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setElementModalVisible,
+  setElementsWallModalVisible,
+} from '../../../services/actions/modalOpen';
+import {setDataObj} from '../../../services/actions/room';
+import BlockStateElements from '../BlockStateElements/BlockStateElements';
 
 interface IModalElementsWall {
-  modalVisible: boolean | number | null;
   numberWall: number;
-  setModalVisible: Dispatch<SetStateAction<boolean | number | null>>;
-  onSaveElement: (element: IDataElementsWall) => void;
-  onSaveElementSize: (
-    element: IElementData,
-    wallId: number,
-    elementId?: number,
-  ) => void;
+  wallIndex: number;
+  mode: Mode;
 }
 
 export default function ModalElementsWall({
-  modalVisible,
-  setModalVisible,
   numberWall,
-  onSaveElement,
-  onSaveElementSize,
+  wallIndex,
+  mode,
   ...props
 }: IModalElementsWall) {
-  const [element, setElement] = useState<number | boolean | null>(false);
+  const dispatch = useDispatch();
+  const {elementsWallModalVisible} = useSelector(state => state.modalOpen);
+  // занести в редакс nameElementWall
   const [nameElementWall, setNameElementWall] = useState<IDataElementsWall>(
     {} as IDataElementsWall,
   );
 
-  const onClickElement = async (data: IDataElementsWall, index: number) => {
-    setElement(!element);
-    setNameElementWall(data);
-    onSaveElement(data); // Сохраняем данные только при наличии данных
-  };
+  const isCurrentElementsModalVisible =
+    elementsWallModalVisible.isVisible &&
+    elementsWallModalVisible.wallNumber === wallIndex;
+
+  const onClickElement = useCallback(
+    async (data: IDataElementsWall, index: number) => {
+      dispatch(
+        setElementModalVisible({
+          isVisible: true,
+          wallNumber: wallIndex,
+          wallNumberElement: index,
+        }),
+      );
+      setNameElementWall(data);
+
+      dispatch(setDataObj(data));
+
+      // Сохраняем данные только при наличии данных
+    },
+    [dispatch, wallIndex],
+  );
+
+  const renderedElements = arrDataElementsWall.map((data, index) => (
+    <BlockStateElements
+      nameElement={data.nameElement}
+      stateElement={data.stateElement}
+      position={index}
+      onPressVisible={() => onClickElement(data, index)}
+      key={index}
+    />
+  ));
 
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={typeof modalVisible === 'boolean' && modalVisible}
+      visible={isCurrentElementsModalVisible}
       onRequestClose={() => {
-        setElement(false);
+        dispatch(
+          setElementModalVisible({
+            isVisible: false,
+            wallNumber: null,
+            wallNumberElement: null,
+          }),
+        );
       }}>
       <ModalFormElement
-        modalVisible={element}
-        setModalVisible={setModalVisible}
-        setModalVisibleWall={setElement}
         numberWall={numberWall}
         nameElementWall={nameElementWall.nameElement}
-        onSaveElementSize={onSaveElementSize}
+        mode={mode}
       />
       <View>
         <Pressable
           onPress={() => {
-            setElement(element);
+            dispatch(
+              setElementsWallModalVisible({isVisible: false, wallNumber: null}),
+            );
           }}>
-          <View style={styles.elementsWallContainer}>
-            {arrDataElementsWall?.map((data, index) => {
-              return (
-                <ElementWall
-                  nameElement={data.nameElement}
-                  stateElement={data.stateElement}
-                  position={index + 1}
-                  onPress={() => onClickElement(data, index)}
-                  key={index}
-                />
-              );
-            })}
-          </View>
+          <View style={styles.elementsWallContainer}>{renderedElements}</View>
         </Pressable>
       </View>
     </Modal>
@@ -90,31 +105,5 @@ const styles = StyleSheet.create({
     top: 630,
     borderColor: Colors.black,
     borderWidth: 1,
-  },
-
-  elementVentilation: {
-    width: 30,
-    height: 30,
-    borderWidth: 1,
-    borderColor: Colors.black,
-    borderStyle: 'solid',
-    borderRadius: 1000,
-    backgroundColor: Colors.menuBottom,
-  },
-
-  elementDoor: {
-    width: 30,
-    height: 40,
-    borderWidth: 1,
-    borderColor: Colors.black,
-    borderStyle: 'solid',
-  },
-
-  elementWindow: {
-    width: 30,
-    height: 30,
-    borderWidth: 1,
-    borderColor: Colors.black,
-    borderStyle: 'solid',
   },
 });

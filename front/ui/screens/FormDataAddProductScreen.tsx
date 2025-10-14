@@ -1,81 +1,81 @@
-import {ScrollView, Text, View} from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import {Input} from '../../shared/Input/Input';
-import {useContext, useState} from 'react';
+import {useCallback} from 'react';
 import useInput from '../../hooks/useInput';
-import SelectCustom from '../../shared/SelectCustom/SelectCustom';
-import {arrCountWall} from '../../shared/texts';
-import {IDrawing, PathScreen, RootStackParamList} from '../../shared/types';
+import {PathScreen, RootStackParamList} from '../../shared/types';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
-import IndexWallContext from '../../context/IndexWallContext/IndexWallContext';
+import {useDispatch, useSelector} from '../../services/hooks';
+import {addRoom} from '../../services/actions/room';
 
 export default function FormDataAddProductScreen() {
   const navigation =
     useNavigation<
       NavigationProp<RootStackParamList, PathScreen.UnwrappedProduct>
     >();
+  const dispatch = useDispatch();
+  const {sizeWalls} = useSelector(state => state.room);
   const nameRoom = useInput('');
-  const [selectedTextDefault, setSelectedTextDefault] = useState({
-    defaultCount: 'Выберите количество стен',
-  });
 
-  const [isActiveBtn, setIsActiveBtn] = useState<boolean>(true);
-  const [countWall, setCountWall] = useState('');
-  const [sizeWalls, setSizeWalls] = useState<IDrawing[]>([]);
-  const [modalVisibleBacklight, setModalVisibleBacklight] = useState<
-    boolean | number | null
-  >(false);
-  const indexWallContext = useContext(IndexWallContext);
-  if (!indexWallContext) {
-    return null;
-  }
-  const {activeWallIndex, setActiveWallIndex} = indexWallContext;
-
-  const onSaveDataWall = () => {
+  const onSaveDataWall = useCallback(() => {
     if (!sizeWalls.length) {
       console.warn('⚠️ Нет данных для сохранения!');
       return;
     }
-
-    navigation.navigate('UnwrappedProduct', {
-      dataProduct: sizeWalls,
-      nameRoom: nameRoom.value,
-    });
-  };
+    dispatch(addRoom(nameRoom.value, sizeWalls))
+      .then(result => {
+        if (!result) return;
+        const {dataProduct, name} = result;
+        navigation.navigate('UnwrappedProduct', {
+          dataProduct: dataProduct,
+          nameRoom: name,
+        });
+      })
+      .catch(err => console.log(err));
+  }, [sizeWalls, dispatch, nameRoom.value, navigation]);
 
   return (
-    <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
-      <View>
-        <Text>Введите название комнаты</Text>
-        <Input onChangeText={nameRoom.onChangeText} />
-      </View>
-      <View>
-        <Text>Выберите количество стен</Text>
-        <SelectCustom
-          isSelect
-          options={arrCountWall}
-          textDefaultSelect={selectedTextDefault.defaultCount}
-          isActiveBtnState={(item: boolean) => setIsActiveBtn(item)}
-          onSelectedReset={() => {}}
-          countWallText={(item: string) => setCountWall(item)}
-        />
-        <View>
-          <Draw
-            setSizeWalls={setSizeWalls}
-            sizeWalls={sizeWalls}
-            setNumberCurrentWall={setActiveWallIndex}
-            numberCurrentWall={activeWallIndex}
-            setModalVisibleBacklight={setModalVisibleBacklight}
-            modalVisibleBacklight={modalVisibleBacklight}
-          />
-        </View>
-      </View>
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+      <ScrollView
+        horizontal={false}
+        showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        // contentContainerStyle={{paddingBottom: 50}}
+        contentContainerStyle={{flexGrow: 1}}>
+        <View
+          style={{flex: 1, justifyContent: 'space-between', paddingBottom: 16}}>
+          <View>
+            <Text>Введите название комнаты</Text>
+            <Input onChangeText={nameRoom.onChangeText} />
+          </View>
+          <View>
+            {/* <Text>Выберите количество стен</Text>
+            <SelectCustom
+              isSelect
+              options={arrCountWall}
+              textDefaultSelect={selectedTextDefault.defaultCount}
+              isActiveBtnState={(item: boolean) => setIsActiveBtn(item)}
+              onSelectedReset={() => {}}
+              countWallText={(item: string) => setCountWall(item)}
+            /> */}
+            <View>
+              <Draw />
+            </View>
+          </View>
 
-      {!isActiveBtn && (
-        <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
-      )}
-      <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
-    </ScrollView>
+          <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

@@ -18,6 +18,7 @@ function Main() {
     {status: ObjectStatus.Completed},
     {status: ObjectStatus.Created},
   ];
+
   return (
     <HeaderScreen>
       <MainScreen mainTitle="Объекты" path="main" pathLink="Politics">

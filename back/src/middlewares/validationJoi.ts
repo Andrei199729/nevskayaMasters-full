@@ -17,7 +17,7 @@ export const registerValid = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
-    rules: Joi.string().valid("supervisor", "manager").required(),
+    roles: Joi.string().valid("supervisor", "manager").required(),
   }),
 });
 
@@ -25,6 +25,12 @@ export const loginValid = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
+  }),
+});
+
+export const refreshTokenBodyValidation = celebrate({
+  body: Joi.object({
+    refreshToken: Joi.string().required().label("Refresh Token"),
   }),
 });
 

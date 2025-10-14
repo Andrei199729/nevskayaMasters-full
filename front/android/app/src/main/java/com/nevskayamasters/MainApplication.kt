@@ -40,4 +40,5 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
   }
+
 }

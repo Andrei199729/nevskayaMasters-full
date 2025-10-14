@@ -1,281 +1,178 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Colors, Fonts} from '../../../shared/tokens';
 import {
   ClickButtonBlockDimensions,
   ClickSelection,
   IAddBlockDimensions,
-  IDataElementsWall,
-  IElement,
-  IElementData,
+  IElementWallRoom,
+  IWallSize,
+  Mode,
   TClickButtonBlockDimensions,
 } from '../../../shared/types';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import ModalWall from '../ModalWall/ModalWall';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
 import SizeWallText from '../../../shared/SizeWallText/SizeWallText';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {
+  setClickDataWall,
+  setDataEditWall,
+  setNumberCurrentWall,
+} from '../../../services/actions/room';
+import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
+import {setSelectedLine} from '../../../services/actions/draw';
+import {
+  setModalVisible,
+  setModalVisibleBacklight,
+  setOpenFormDataSize,
+} from '../../../services/actions/modalOpen';
 
 export default function AddBlockDimensions({
   numberWall,
-  saveSizeWall,
-  setSizeWalls,
-  setNumberCurrentWall,
-  numberCurrentWall,
-  setModalVisibleBacklight,
-  modalVisibleBacklight,
-  onClickWallIncrease,
-  setModalVisible,
-  modalVisible,
-  arrElements,
-  setIsVisibleEditModal,
   externalData,
-  ...props
+  currentWall,
+  mode,
 }: IAddBlockDimensions) {
+  const dispatch = useDispatch();
+  const {clickDataWall, elementsData, wallsData} = useSelector(
+    state => state.room,
+  );
+
+  const {modalVisibleBacklight} = useSelector(state => state.modalOpen);
+
   const wallIndex = numberWall - 1;
 
-  let size = saveSizeWall?.[wallIndex]?.size;
+  const size = wallsData?.[wallIndex]?.size;
 
-  let widthTop = size?.widthTop || externalData?.widthTop;
-  let widthBottom = size?.widthBottom || externalData?.widthBottom;
-  let heightRight = size?.heightRight || externalData?.heightRight;
-  let heightLeft = size?.heightLeft || externalData?.heightLeft;
-  let radiusWall = size?.radiusWall || externalData?.radiusWall;
-  let wallAngleDegree = size?.wallAngleDegree || externalData?.wallAngleDegree;
+  const widthTop = size?.widthTop || externalData?.widthTop;
+  const widthBottom = size?.widthBottom || externalData?.widthBottom;
+  const heightRight = size?.heightRight || externalData?.heightRight;
+  const heightLeft = size?.heightLeft || externalData?.heightLeft;
+  const radiusWall = size?.radiusWall || externalData?.radiusWall;
+  const wallAngleDegree =
+    size?.wallAngleDegree || externalData?.wallAngleDegree;
 
-  const [clickDataWall, setClickDataWall] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [elementsData, setElementsData] = useState<IElement[]>(
-    arrElements || [],
+  const roomRanderSize: IWallSize = ClickSelection.Button
+    ? externalData || ({} as IWallSize)
+    : size || ({} as IWallSize);
+
+  const onClickDataWall = useCallback(
+    (isVisible: boolean, nameButton: TClickButtonBlockDimensions) => {
+      dispatch(setClickDataWall({isVisible, nameButton}));
+    },
+    [dispatch],
   );
-  const [dataObj, setDataObj] = useState({
-    nameElement: '',
-    stateElement: '',
-    id: 0,
-  });
-  const [visibleElements, setVisibleElements] = useState<{
-    [key: number]: boolean;
-  }>({});
 
-  const toggleElementVisibility = (index: number, isVisible: boolean) => {
-    setVisibleElements(prev => ({
-      ...prev,
-      [index]: isVisible, // Устанавливаем видимость только для конкретного элемента
-    }));
-  };
+  const onClickWallIncrease = useCallback(
+    (
+      size: IWallSize,
+      wallNumber: number,
+      click: ClickSelection.Wall | ClickSelection.Button,
+    ) => {
+      switch (click) {
+        case ClickSelection.Wall:
+          // Логика, если клик был сделан на стену
+          dispatch(setNumberCurrentWall(wallNumber));
+          dispatch(setSelectedLine(wallNumber));
 
-  const addElementToData = (data: IElementData) => {
-    setElementsData(prev => {
-      const updatedElements = [...prev, {data, dataObj}];
-      return updatedElements;
-    });
-  };
-  const onSaveElement = (dataEl: IDataElementsWall) => {
-    setDataObj(prev => {
-      const update = {...prev, ...dataEl};
-      return update;
-    });
-  };
-  const updateSizeWalls = (data: IElementData, wallId: number) => {
-    setSizeWalls(prevSizeWall => {
-      if (!Array.isArray(prevSizeWall)) {
-        console.error(
-          '❌ Ошибка: prevSizeWall не является массивом!',
-          prevSizeWall,
-        );
-        return [];
-      }
-
-      // Создаем глубокую копию массива стен
-      const newWalls = prevSizeWall.map(wall => {
-        const updatedDrawingData = {...wall.drawingData};
-
-        // Обновляем массив стен внутри drawingData
-        updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-          if (wallData.size.id === numberCurrentWall) {
-            return {
-              ...wallData,
-              size: {
-                ...wallData.size,
-                arrElements: {
-                  // wallId,
-                  elements: [
-                    ...(wallData.size?.arrElements?.elements ?? []),
-                    {data, dataObj},
-                  ], // Добавляем новый элемент
-                },
-              },
-            };
+          if (size) {
+            dispatch(setModalVisible({isVisible: true, wallNumber}));
+            dispatch(setModalVisibleBacklight(false));
+            dispatch(
+              setOpenFormDataSize({
+                isOpen: false,
+                wallNumber: 0,
+              }),
+            );
+          } else {
+            dispatch(setModalVisible({isVisible: false, wallNumber: null}));
+            dispatch(setModalVisibleBacklight(true));
+            dispatch(
+              setOpenFormDataSize({
+                isOpen: true,
+                wallNumber,
+              }),
+            );
           }
-          return wallData;
-        });
 
-        return {
-          ...wall,
-          drawingData: updatedDrawingData,
-        };
-      });
+          break;
 
-      return newWalls;
-    });
-  };
-
-  const editElement = useCallback(
-    (updatedData: any, wallId: number, elementId: number) => {
-      setSizeWalls(prevSizeWall => {
-        if (!Array.isArray(prevSizeWall)) {
-          console.error(
-            '❌ Ошибка: prevSizeWall не является массивом!',
-            prevSizeWall,
+        case ClickSelection.Button:
+          // Логика, если клик был сделан на кнопку
+          dispatch(setNumberCurrentWall(wallNumber));
+          // 2. Закрываем текущее модальное
+          dispatch(setModalVisible({isVisible: false, wallNumber: null}));
+          // 3. Включаем подсветку
+          dispatch(setModalVisibleBacklight(true));
+          // 4. Открываем форму для ввода размера стены
+          dispatch(
+            setOpenFormDataSize({
+              isOpen: true,
+              wallNumber,
+            }),
           );
-          return prevSizeWall;
-        }
-
-        // Создаем глубокую копию массива стен
-        const newWalls = prevSizeWall.map(wall => {
-          const updatedDrawingData = {...wall.drawingData};
-
-          // Обновляем массив стен внутри drawingData
-          updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-            // Проверяем, совпадает ли ID стены
-            if (wallData.size.id === wallId) {
-              // Удаляем элемент с определенным индексом
-              const updatedElements = elementsData.map(
-                (item: IElement, index: number) =>
-                  index === elementId ? {...item, data: updatedData} : item,
-              );
-
-              setElementsData(updatedElements);
-              return {
-                ...wallData,
-                size: {
-                  ...wallData.size,
-                  arrElements: {
-                    ...wallData.size.arrElements,
-                    elements: updatedElements, // Обновляем элементы без удаленного
-                  },
-                },
-              };
-            }
-            return wallData;
-          });
-
-          return {
-            ...wall,
-            drawingData: updatedDrawingData,
-          };
-        });
-
-        return newWalls; // Возвращаем обновленный массив
-      });
-      toggleElementVisibility(elementId, false);
+          // 5. Если есть размер — передаем данные для редактирования
+          if (size) {
+            dispatch(
+              setDataEditWall({
+                dataEditWall: size,
+                currentWall: wallNumber,
+              }),
+            );
+          } else {
+            return [];
+          }
+          break;
+        default:
+          // Логика по умолчанию (если нужно обработать другие случаи)
+          break;
+      }
     },
-    [],
+    [dispatch],
   );
 
-  const deleteElement = useCallback(
-    (wallId: number | boolean | null, elementId: number) => {
-      setSizeWalls(prevSizeWall => {
-        if (!Array.isArray(prevSizeWall)) {
-          console.error(
-            '❌ Ошибка: prevSizeWall не является массивом!',
-            prevSizeWall,
-          );
-          return prevSizeWall;
-        }
+  const elementsForCurrentWall = useMemo(() => {
+    return elementsData.filter(el => el.id === numberWall - 1);
+  }, [elementsData, numberWall]);
 
-        // Создаем глубокую копию массива стен
-        const newWalls = prevSizeWall.map(wall => {
-          const updatedDrawingData = {...wall.drawingData};
-
-          // Обновляем массив стен внутри drawingData
-          updatedDrawingData.walls = updatedDrawingData.walls.map(wallData => {
-            // Проверяем, совпадает ли ID стены
-            if (wallData.size.id === wallId) {
-              // Удаляем элемент с определенным индексом
-              const updatedElements =
-                wallData?.size?.arrElements?.elements?.filter(
-                  (element, index) => index !== elementId,
-                ) || [];
-              setElementsData(updatedElements);
-              return {
-                ...wallData,
-                size: {
-                  ...wallData.size,
-                  arrElements: {
-                    ...wallData.size.arrElements,
-                    elements: updatedElements, // Обновляем элементы без удаленного
-                  },
-                },
-              };
-            }
-            return wallData;
-          });
-
-          return {
-            ...wall,
-            drawingData: updatedDrawingData,
-          };
-        });
-
-        return newWalls; // Возвращаем обновленный массив
-      });
-      toggleElementVisibility(elementId, false);
-    },
-    [],
-  );
-
-  const onClickDataWall = (
-    isVisible: boolean,
-    nameButton: TClickButtonBlockDimensions,
-  ) => {
-    setClickDataWall(prev => ({
-      ...prev,
-      [nameButton]: isVisible, // Устанавливаем видимость только для конкретного элемента
-    }));
-  };
-
-  // Синхронизируем elementsData с arrElements при изменении пропса
-  useEffect(() => {
-    setElementsData(arrElements || []);
-  }, [arrElements]);
+  const elementsToRender = useMemo(() => {
+    return mode === Mode.Edit
+      ? elementsForCurrentWall
+      : externalData?.arrElements?.elements ?? [];
+  }, [mode, elementsForCurrentWall, externalData?.arrElements?.elements]);
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.centeredView}>
         <ModalWall
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
           numberWall={numberWall}
-          saveSizeWall={saveSizeWall}
           externalData={externalData}
-          numberCurrentWall={numberCurrentWall}
           wallIndex={wallIndex}
-          arrElements={arrElements}
-          addElementToData={addElementToData}
-          onSaveElement={onSaveElement}
-          updateSizeWalls={updateSizeWalls}
-          setElementsData={setElementsData}
-          elementsData={elementsData}
-          deleteElement={deleteElement}
-          setVisible={toggleElementVisibility}
-          visibleElements={visibleElements}
-          editElement={editElement}
+          currentWall={currentWall}
+          mode={mode}
+          elementsToRender={elementsToRender}
         />
+
         <Pressable
           onPress={() =>
-            onClickWallIncrease(size, wallIndex, ClickSelection.Wall)
+            onClickWallIncrease(
+              externalData || size,
+              wallIndex,
+              ClickSelection.Wall,
+            )
           }>
           <View>
-            <Text style={styles.textDimensions}>Стена №{numberWall}</Text>
+            <Text style={styles.textDimensions}>Стена №{numberWall + 1}</Text>
             <View
               style={[
                 styles.wallBlock,
                 {
                   ...styles.addedWall,
-                  borderColor: modalVisibleBacklight
-                    ? Colors.green
-                    : Colors.black,
+                  borderColor:
+                    modalVisibleBacklight && currentWall
+                      ? Colors.green
+                      : Colors.black,
                 },
               ]}>
               {
@@ -407,21 +304,25 @@ export default function AddBlockDimensions({
                           borderStyle: 'solid',
                           marginTop: 10,
                         }}>
-                        {Array.isArray(elementsData) &&
-                        elementsData.length > 0 ? (
-                          elementsData.map((element, index) => (
-                            <BlockStateElements
-                              key={index}
-                              nameElement={
-                                element?.dataObj?.nameElement || 'Без имени'
-                              }
-                              stateElement={
-                                element?.dataObj?.stateElement || 'Не задано'
-                              }
-                              position={index}
-                              onPressVisible={() => {}}
-                            />
-                          ))
+                        {elementsToRender.length > 0 ? (
+                          elementsToRender.map(
+                            (element: IElementWallRoom, index: number) => {
+                              return (
+                                <BlockStateElements
+                                  key={index}
+                                  nameElement={
+                                    element?.dataObj?.nameElement || 'Без имени'
+                                  }
+                                  stateElement={
+                                    element?.dataObj?.stateElement ||
+                                    'Не задано'
+                                  }
+                                  position={index}
+                                  // onPressVisible={() => {}}
+                                />
+                              );
+                            },
+                          )
                         ) : (
                           <Text>Добавьте элементы</Text>
                         )}
@@ -459,6 +360,18 @@ export default function AddBlockDimensions({
             </View>
           </View>
         </Pressable>
+        {
+          <ButtonCustom
+            textBtn="Редактировать стену"
+            onPress={() =>
+              onClickWallIncrease(
+                roomRanderSize,
+                wallIndex,
+                ClickSelection.Button,
+              )
+            }
+          />
+        }
       </SafeAreaView>
     </SafeAreaProvider>
   );

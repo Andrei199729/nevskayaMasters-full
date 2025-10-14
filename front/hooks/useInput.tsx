@@ -17,8 +17,8 @@ function useInput(initialValue: string) {
     setValue(text);
     setIsActive(text.length === 0);
   };
-
-  return {value, isActive, onChangeText, onChangeTextNotLength};
+  const reset = () => setValue('');
+  return {value, isActive, onChangeText, onChangeTextNotLength, reset};
 }
 
 export default useInput;

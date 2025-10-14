@@ -1,10 +1,9 @@
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts, Gaps} from '../../shared/tokens';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo} from 'react';
 import HeaderScreen from './HeaderScreen';
 import {
-  IDrawing,
   IProductRoom,
   ObjectStatus,
   PathScreen,
@@ -15,17 +14,28 @@ import UnwrappedProductObject from '../../shared/UnwrappedProductObject/Unwrappe
 import Title from '../../shared/Title/Title';
 import ButtonDownload from '../../shared/ButtonDownload/ButtonDownload';
 import ButtonAddProduct from '../../shared/ButtonAddProduct/ButtonAddProduct';
-import {NavigationProp, RouteProp} from '@react-navigation/native';
+import {NavigationProp, useFocusEffect} from '@react-navigation/native';
+import {checkUserAuth} from '../../services/actions/user';
+import {
+  addOrUpdateRoom,
+  getRoomsInitial,
+  resetCurrentDrawing,
+  setCurrentRoomId,
+} from '../../services/actions/room';
+import {useDispatch, useSelector} from '../../services/hooks';
+import {setResetLinedasharrays} from '../../services/actions/draw';
+import {setOpenFormDataSize} from '../../services/actions/modalOpen';
+import {ProductItem} from '../../shared/RoomItem/RoomItem';
 
-type TUnwrappedProductScreenRouteProp = RouteProp<
-  {
-    UnwrappedProduct: {
-      dataProduct: IDrawing[];
-      nameRoom: string;
-    };
-  },
-  'UnwrappedProduct'
->;
+// type TUnwrappedProductScreenRouteProp = RouteProp<
+//   {
+//     UnwrappedProduct: {
+//       dataProduct: IDrawing[];
+//       nameRoom: string;
+//     };
+//   },
+//   'UnwrappedProduct'
+// >;
 
 interface IUnwrappedProductScreen {
   applicationNumber?: string;
@@ -38,43 +48,64 @@ function UnwrappedProductScreen({
   route,
   ...props
 }: IUnwrappedProductScreen) {
-  const {dataProduct, nameRoom} = route.params ?? {};
+  const dispatch = useDispatch();
+  const {userData} = useSelector(state => state.user);
+  const {roomData, loading} = useSelector(state => state.room);
+  const userId = userData?.data?._id;
 
-  const [productsRooms, setProductsRooms] = useState<IProductRoom[]>([]);
-
-  const onClickAddProduct = () => {
+  const onClickAddProduct = useCallback(() => {
     navigation.navigate('FormDataAddProduct');
-  };
+    dispatch(resetCurrentDrawing());
+    dispatch(setResetLinedasharrays());
+  }, [navigation, dispatch]);
 
-  const onClickLinkProduct = (productRoom: IProductRoom) => {
-    navigation.navigate('Product', {
-      productRoom: productRoom,
-    });
-  };
+  const onClickLinkProduct = useCallback(
+    (roomId: string | null) => {
+      dispatch(
+        setOpenFormDataSize({
+          isOpen: false,
+          wallNumber: null,
+        }),
+      );
+      dispatch(setCurrentRoomId(roomId));
+      navigation.navigate('Product');
+    },
+    [navigation, dispatch],
+  );
 
   useEffect(() => {
-    if (nameRoom && dataProduct) {
-      setProductsRooms(prevProducts => {
-        const existingRoomIndex = prevProducts.findIndex(
-          room => room.nameRoom === nameRoom,
-        );
+    dispatch(checkUserAuth());
+  }, [dispatch]);
 
-        if (existingRoomIndex !== -1) {
-          const updatedRooms = [...prevProducts];
-          updatedRooms[existingRoomIndex].dataProduct = dataProduct;
-          return updatedRooms;
-        } else {
-          return [
-            ...prevProducts,
-            {
-              nameRoom: nameRoom,
-              dataProduct: dataProduct,
-            },
-          ];
-        }
-      });
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(
+        setOpenFormDataSize({
+          isOpen: false,
+          wallNumber: null,
+        }),
+      );
+      dispatch(getRoomsInitial());
+    }, [dispatch]),
+  );
+
+  useEffect(() => {
+    const {nameRoom, dataProduct} = route.params ?? {};
+
+    if (nameRoom && dataProduct && userId) {
+      dispatch(addOrUpdateRoom({nameRoom, dataProduct, owner: userId}));
     }
-  }, [route.params]);
+  }, [route.params, dispatch, userId]);
+
+  // мемоизируем список доступных изделий
+  const filteredRooms = useMemo(() => {
+    return (
+      roomData?.filter((data: {owner: string}) => data?.owner === userId) ?? []
+    );
+  }, [roomData, userId]);
+
+  if (loading) return <Text>Загрузка изделий...</Text>;
+
   return (
     <HeaderScreen>
       <MainScreen mainTitle={`№ ${'заявки'}`}>
@@ -99,18 +130,20 @@ function UnwrappedProductScreen({
             <ButtonAddProduct onClickAddProduct={onClickAddProduct} />
           </View>
           <View style={styles.boxTitle}>
-            {productsRooms?.map((productRoom: IProductRoom, index: number) => {
-              return (
-                <Pressable
-                  key={index}
-                  onPress={() => onClickLinkProduct(productRoom)}>
-                  <Text style={styles.textProduct}>
-                    {index + 1}
-                    {productRoom.nameRoom}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {userId && filteredRooms?.length > 0 ? (
+              filteredRooms.map((productRoom: IProductRoom, index: number) => {
+                return (
+                  <ProductItem
+                    key={productRoom._id}
+                    room={productRoom}
+                    index={index}
+                    onClick={onClickLinkProduct}
+                  />
+                );
+              })
+            ) : (
+              <Text style={styles.text}>Нет доступных изделий</Text>
+            )}
           </View>
         </View>
         <View style={styles.boxTitle}>
