@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 interface IUserToken {
   userId: string;
   token: string;
-  createdAt: number;
+  createdAt: Date;
 }
 
 const userTokenSchema = new mongoose.Schema({

@@ -23,7 +23,7 @@ const DrawingCanvas = () => {
   );
 
   // Пороговое значение расстояния для автоматической привязки точек.
-  const DISTANCE_THRESHOLD = 100; // Порог для автоматического соединения
+  const DISTANCE_THRESHOLD = 40; // Порог для автоматического соединения
   // Функция вычисляет длину линии между двумя точками по формуле расстояния.
   const calculateLength = useCallback((p1: IPoint, p2: IPoint) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));

@@ -120,6 +120,7 @@ export interface IProductRoom {
   dataProduct: any;
   nameRoom: string;
   owner: mongoose.Types.ObjectId;
+  createdAt: Date;
 }
 
 const PointSchema = new mongoose.Schema(
@@ -220,6 +221,7 @@ const productSchema = new mongoose.Schema({
   nameRoom: { type: String, required: true },
   dataProduct: [DataProductSchema],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.model<IProductRoom>("product", productSchema);
