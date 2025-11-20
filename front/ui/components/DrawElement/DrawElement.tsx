@@ -1,7 +1,7 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import {Dimensions, Pressable, StyleSheet} from 'react-native';
 import Svg, {G} from 'react-native-svg';
-import {Colors, Fonts} from '../../../shared/tokens';
+import {Colors, Fonts, Radius} from '../../../shared/tokens';
 import {
   DasharrayStrokeValue,
   IDrawingData,
@@ -19,6 +19,7 @@ interface IDrawElement {
   numberWallIndex: number;
   setCountWallDraw: (length: number) => void;
 }
+const {width, height} = Dimensions.get('window');
 
 export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
   const dispatch = useDispatch();
@@ -75,11 +76,6 @@ export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
             stroke={stateColorLineDraw(idx)}
             strokeWidth={4}
             strokeDasharray={
-              // strokeDasharrays && typeof strokeDasharrays[idx] === 'string'
-              //   ? strokeDasharrays[idx]
-              //   : isStyleLine && typeof DasharrayStrokeValue.Dotted === 'string'
-              //   ? DasharrayStrokeValue.Dotted
-              //   : ''
               strokeDasharrays?.[idx] ??
               (isStyleLine ? DasharrayStrokeValue.Dotted : '')
             }
@@ -105,16 +101,22 @@ export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
 
   return (
     <Pressable style={styles.container}>
-      <Svg style={{flex: 1}}>{renderedLines}</Svg>
+      <Svg style={styles.svgStyle}>{renderedLines}</Svg>
     </Pressable>
   );
 }
 const styles = StyleSheet.create({
   container: {
+    // flex: 1,
     width: '100%',
     height: 400,
+    backgroundColor: Colors.almostWhite,
+    borderColor: Colors.darkGray,
+    borderRadius: Radius.r20,
+    borderWidth: 6,
+    marginBottom: 20,
+  },
+  svgStyle: {
     flex: 1,
-    borderColor: Colors.red,
-    borderWidth: 3,
   },
 });

@@ -1,6 +1,8 @@
 import {Pressable, View, Text, StyleSheet} from 'react-native';
 import {StateElement, TStateElement} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
+import Close from '../../../assets/images/icon/iconFunc/CloseIcon';
+import {useCallback} from 'react';
 interface IBlockStateElements {
   nameElement: string;
   stateElement: TStateElement | string;
@@ -15,44 +17,52 @@ export default function BlockStateElements({
   ...props
 }: IBlockStateElements) {
   return (
-    <Pressable onPress={onPressVisible}>
-      <View style={{flexDirection: 'row', gap: 10}}>
-        <Text>
-          {position + 1} {nameElement}
-        </Text>
-        {stateElement === StateElement.Ventilation && (
-          <View style={styles.elementVentilation}></View>
-        )}
-        {stateElement === StateElement.Door && (
-          <View style={styles.elementDoor}></View>
-        )}
-        {stateElement === StateElement.Window && (
-          <View
-            style={{
-              ...styles.elementWindow,
-              backgroundColor: Colors.green,
-            }}></View>
-        )}
-        {stateElement === StateElement.Socket && (
-          <View
-            style={{
-              ...styles.elementWindow,
-              backgroundColor: Colors.red,
-            }}></View>
-        )}
-        {stateElement === StateElement.Battery && (
-          <View
-            style={{
-              ...styles.elementWindow,
-              backgroundColor: Colors.lightGray,
-            }}></View>
-        )}
-      </View>
-    </Pressable>
+    <>
+      <Pressable onPress={onPressVisible}>
+        <View style={styles.containerBlockState}>
+          <Text>
+            {position + 1} {nameElement}
+          </Text>
+          {stateElement === StateElement.Ventilation && (
+            <View style={styles.elementVentilation}></View>
+          )}
+          {stateElement === StateElement.Door && (
+            <View style={styles.elementDoor}></View>
+          )}
+          {stateElement === StateElement.Window && (
+            <View
+              style={{
+                ...styles.elementWindow,
+                backgroundColor: Colors.green,
+              }}></View>
+          )}
+          {stateElement === StateElement.Socket && (
+            <View
+              style={{
+                ...styles.elementWindow,
+                backgroundColor: Colors.red,
+              }}></View>
+          )}
+          {stateElement === StateElement.Battery && (
+            <View
+              style={{
+                ...styles.elementWindow,
+                backgroundColor: Colors.lightGray,
+              }}></View>
+          )}
+        </View>
+      </Pressable>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  containerBlockState: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   elementVentilation: {
     width: 30,
     height: 30,

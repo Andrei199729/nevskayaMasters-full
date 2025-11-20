@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   View,
   TextInput,
@@ -25,7 +25,7 @@ interface IInputProps {
   setSearchText?: (text: string) => void;
 }
 
-export function Input({
+export const Input = React.memo(function Input({
   inputModeText,
   textPlaceholder,
   isPassword,
@@ -46,15 +46,26 @@ export function Input({
       setSearchText?.('');
     }
   };
+  const inputStyle = useMemo(() => {
+    return [
+      styles.input,
+      !isSelectActive && styles.selectActive,
+      {color: errorState ? Colors.red : Colors.black},
+    ];
+  }, [isSelectActive, errorState]);
+
+  const PasswordIcon = useMemo(() => {
+    return isPasswordVisible ? <EyeOpen /> : <EyeClosed />;
+  }, [isPasswordVisible]);
+
+  const SearchIcon = useMemo(() => {
+    return !isDimmed ? <CloseInputIcon /> : <ArrowIcon />;
+  }, [isDimmed]);
 
   return (
     <View style={styles.inputContainer}>
       <TextInput
-        style={{
-          ...styles.input,
-          color: errorState ? Colors.red : Colors.black,
-          ...(!isSelectActive && styles.selectActive),
-        }}
+        style={inputStyle}
         {...props}
         inputMode={inputModeText}
         placeholderTextColor={'rgba(0, 0, 0, 0.5)'}
@@ -67,17 +78,17 @@ export function Input({
         <Pressable
           style={styles.eyeIcon}
           onPress={() => setIsPasswordVisible(state => !state)}>
-          {isPasswordVisible ? <EyeOpen /> : <EyeClosed />}
+          {PasswordIcon}
         </Pressable>
       )}
       {isSearch && (
         <Pressable onPress={onClickClear} style={styles.arrowIcon}>
-          {!isDimmed ? <CloseInputIcon /> : <ArrowIcon />}
+          {SearchIcon}
         </Pressable>
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   input: {

@@ -8,9 +8,12 @@ import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   setElementModalVisible,
   setElementsWallModalVisible,
+  setModalVisible,
 } from '../../../services/actions/modalOpen';
 import {setDataObj} from '../../../services/actions/room';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
+import Close from '../../../assets/images/icon/iconFunc/CloseIcon';
+import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
 
 interface IModalElementsWall {
   numberWall: number;
@@ -52,7 +55,16 @@ export default function ModalElementsWall({
     },
     [dispatch, wallIndex],
   );
-
+  const handleClose = useCallback(() => {
+    // dispatch(setModalVisible({isVisible: false, wallNumber: null}));
+    dispatch(
+      setElementModalVisible({
+        isVisible: false,
+        wallNumber: null,
+        wallNumberElement: null,
+      }),
+    );
+  }, [dispatch]);
   const renderedElements = arrDataElementsWall.map((data, index) => (
     <BlockStateElements
       nameElement={data.nameElement}
@@ -89,7 +101,13 @@ export default function ModalElementsWall({
               setElementsWallModalVisible({isVisible: false, wallNumber: null}),
             );
           }}>
-          <View style={styles.elementsWallContainer}>{renderedElements}</View>
+          <View style={styles.elementsWallContainer}>
+            <ButtonClose
+              handleClose={handleClose}
+              styleClose={styles.btnClosePopup}
+            />
+            {renderedElements}
+          </View>
         </Pressable>
       </View>
     </Modal>
@@ -98,12 +116,24 @@ export default function ModalElementsWall({
 
 const styles = StyleSheet.create({
   elementsWallContainer: {
-    maxWidth: '100%',
-    width: '100%',
+    width: '24%',
+    padding: 20,
     backgroundColor: Colors.white,
     position: 'absolute',
-    top: 630,
-    borderColor: Colors.black,
-    borderWidth: 1,
+    top: 30,
+    left: 0,
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    elevation: 20,
+  },
+  btnClosePopup: {
+    top: 10,
+    right: 10,
   },
 });

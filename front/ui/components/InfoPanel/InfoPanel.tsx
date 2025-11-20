@@ -24,13 +24,7 @@ const InfoPanel = () => {
       </View>
     ));
   }, [paths, points, angles]);
-  return <View style={styles.infoContainer}>{renderInfoLines}</View>;
+  return <View>{renderInfoLines}</View>;
 };
-
-const styles = StyleSheet.create({
-  infoContainer: {
-    marginTop: 20,
-  },
-});
 
 export default InfoPanel;

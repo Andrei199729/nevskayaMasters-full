@@ -2,6 +2,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -14,6 +15,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {addRoom} from '../../services/actions/room';
+import {Colors, Fonts} from '../../shared/tokens';
 
 export default function FormDataAddProductScreen() {
   const navigation =
@@ -43,39 +45,41 @@ export default function FormDataAddProductScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
       <ScrollView
         horizontal={false}
         showsHorizontalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        // contentContainerStyle={{paddingBottom: 50}}
-        contentContainerStyle={{flexGrow: 1}}>
-        <View
-          style={{flex: 1, justifyContent: 'space-between', paddingBottom: 16}}>
-          <View>
-            <Text>Введите название комнаты</Text>
+        keyboardShouldPersistTaps="handled">
+        <View style={styles.blockNameRoom}>
+          <View style={styles.blockInput}>
+            <Text style={styles.textName}>Введите название комнаты</Text>
             <Input onChangeText={nameRoom.onChangeText} />
           </View>
-          <View>
-            {/* <Text>Выберите количество стен</Text>
-            <SelectCustom
-              isSelect
-              options={arrCountWall}
-              textDefaultSelect={selectedTextDefault.defaultCount}
-              isActiveBtnState={(item: boolean) => setIsActiveBtn(item)}
-              onSelectedReset={() => {}}
-              countWallText={(item: string) => setCountWall(item)}
-            /> */}
-            <View>
-              <Draw />
-            </View>
-          </View>
-
+          <Draw />
           <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  blockNameRoom: {
+    flex: 1,
+
+    paddingHorizontal: 16,
+    paddingBottom: 50,
+  },
+  blockInput: {
+    gap: 10,
+  },
+  textName: {
+    color: Colors.black,
+    fontSize: Fonts.f24,
+  },
+});

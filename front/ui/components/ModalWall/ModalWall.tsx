@@ -21,6 +21,7 @@ import {
   setActiveElementId,
   setVisibleElements,
 } from '../../../services/actions/room';
+import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
 interface IModalWall {
   numberWall: number;
   wallIndex: number;
@@ -42,6 +43,7 @@ export default function ModalWall({
   const {modalVisible} = useSelector(state => state.modalOpen);
   const isCurrentWallModalVisible =
     modalVisible.isVisible && modalVisible.wallNumber === wallIndex;
+  console.log(wallsData, 'wallsData');
 
   const size = useMemo(() => {
     return wallsData?.[wallIndex]?.size;
@@ -112,19 +114,23 @@ export default function ModalWall({
         onRequestClose={handleClose}>
         <TouchableWithoutFeedback onPress={handleClose}>
           <View style={styles.centeredView}>
+            <Text style={[styles.textDimensions, styles.textPosition]}>
+              Стена №{numberWall}
+            </Text>
+            <ButtonClose
+              handleClose={handleClose}
+              styleClose={styles.btnClosePopup}
+            />
             <View style={styles.modalView}>
-              <View
-                style={{
-                  position: 'absolute',
-                  top: '10%',
-                  left: '10%',
-                  zIndex: 4,
-                }}>
+              <View style={styles.renderElements}>
                 {elementsToRender.length > 0 && renderElements}
               </View>
+
               <Pressable onPress={onClickElementModal}>
-                <View style={{backgroundColor: Colors.white}}>
-                  <Text style={styles.textDimensions}>Стена №{numberWall}</Text>
+                <View
+                  style={{
+                    backgroundColor: Colors.white,
+                  }}>
                   <View
                     style={[
                       styles.wallBlock,
@@ -180,73 +186,69 @@ export default function ModalWall({
                 </View>
               </Pressable>
             </View>
+            <ModalElementsWall
+              numberWall={numberWall}
+              wallIndex={wallIndex}
+              mode={mode}
+            />
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      <ModalElementsWall
-        numberWall={numberWall}
-        wallIndex={wallIndex}
-        mode={mode}
-      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
   centeredView: {
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
-    height: 500,
-    zIndex: 1,
   },
   modalView: {
-    margin: 30,
-    backgroundColor: 'white',
-    padding: 20,
-    shadowColor: Colors.green,
+    backgroundColor: Colors.white,
+    borderRadius: 20,
+    width: 600,
+    margin: 20,
+    maxHeight: '100%',
+    overflow: 'hidden',
+    shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.25,
-    elevation: 10,
+    elevation: 20,
   },
   wallBlock: {
-    width: '100%',
-    backgroundColor: Colors.white,
+    borderRadius: 20,
   },
   addedWall: {
     position: 'relative',
-    width: '100%',
-    borderWidth: 2,
-    borderColor: Colors.black,
-    borderStyle: 'solid',
   },
   addedWallModal: {
-    width: 400,
-    height: '100%',
+    width: 600,
+    height: 600,
   },
   sizeWall: {
     position: 'absolute',
   },
   widthTop: {
     left: '50%',
-    top: 0,
+    top: '5%',
+    transform: [{translateX: -10}],
   },
   wallRight: {
-    right: 0,
+    right: '5%',
     top: '50%',
     transform: [{translateY: -10}],
   },
   wallBottom: {
-    bottom: 0,
+    bottom: '5%',
     left: '50%',
+    transform: [{translateX: -10}],
   },
   wallLeft: {
     top: '50%',
-    left: 0,
+    left: '5%',
     transform: [{translateY: -10}],
   },
   borderLineAngle: {
@@ -264,6 +266,22 @@ const styles = StyleSheet.create({
 
   textDimensions: {
     color: Colors.black,
-    fontSize: Fonts.f12,
+    fontSize: Fonts.f16,
+  },
+  textPosition: {
+    fontFamily: Fonts.bold,
+    fontWeight: 700,
+    fontSize: Fonts.f24,
+  },
+  btnClosePopup: {
+    top: 70,
+    right: '28%',
+    zIndex: 2,
+  },
+  renderElements: {
+    position: 'absolute',
+    top: '10%',
+    left: '10%',
+    zIndex: 4,
   },
 });

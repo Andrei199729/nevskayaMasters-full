@@ -1,7 +1,12 @@
-import {Modal, View, Text, StyleSheet} from 'react-native';
+import {Modal, View, Text, StyleSheet, Pressable} from 'react-native';
 import {useCallback, useEffect} from 'react';
-import {IElementData, IProductRoom, Mode} from '../../../shared/types';
-import {Colors} from '../../../shared/tokens';
+import {
+  IElementData,
+  IProductRoom,
+  Mode,
+  StatusButton,
+} from '../../../shared/types';
+import {Colors, Fonts} from '../../../shared/tokens';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import useInput from '../../../hooks/useInput';
@@ -19,6 +24,7 @@ import {
   setUpdateSizeWalls,
 } from '../../../services/actions/room';
 import {isValidArray} from '../../../utils/validators';
+import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
 
 interface IModalFormElement {
   nameElementWall: string;
@@ -122,7 +128,6 @@ export default function ModalFormElement({
       heightRight: heightRight.value,
       radiusElement: radiusElement.value,
     };
-
     if (dataEditElement) {
       // редактирование существующего элемента
       onSaveEditedElement(updatedDataObjectSizeElement, activeElementId);
@@ -192,6 +197,28 @@ export default function ModalFormElement({
     ? isVisibleEditModal.isVisible
     : elementModal.isVisible;
 
+  const handleClose = useCallback(() => {
+    if (clickButtonEdit) {
+      // закрыть модалку РЕДАКТИРОВАНИЯ
+      dispatch(
+        setIsVisibleEditModal({
+          isVisible: false,
+          wallNumber: null,
+          wallNumberElement: null,
+        }),
+      );
+    } else {
+      // закрыть модалку ДОБАВЛЕНИЯ
+      dispatch(
+        setElementModalVisible({
+          isVisible: false,
+          wallNumber: null,
+          wallNumberElement: null,
+        }),
+      );
+    }
+  }, [dispatch, clickButtonEdit]);
+
   useEffect(() => {
     if (dataEditElement) {
       locationElementTop.onChangeText(dataEditElement.locationElementTop || '');
@@ -237,92 +264,150 @@ export default function ModalFormElement({
           }),
         )
       }>
-      <View
-        style={{
-          backgroundColor: Colors.white,
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: Colors.black,
-        }}>
-        <Text>
-          {numberWall} {nameElementWall}
+      <View style={styles.containerPopupFormElement}>
+        <ButtonClose
+          handleClose={handleClose}
+          styleClose={styles.btnClosePopup}
+        />
+        <Text style={styles.textNameElement}>
+          {numberWall}. {nameElementWall}
         </Text>
-        <View>
-          <Text>1 расположение сверху</Text>
-          <Input
-            value={locationElementTop.value}
-            onChangeText={locationElementTop.onChangeText}
-            inputModeText={'numeric'}
-          />
+        <View style={styles.blockForm}>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>1. Расположение сверху</Text>
+            <Input
+              value={locationElementTop.value}
+              onChangeText={locationElementTop.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>2. Расположение справа</Text>
+            <Input
+              value={locationElementRight.value}
+              onChangeText={locationElementRight.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>3. Расположение снизу</Text>
+            <Input
+              value={locationElementBottom.value}
+              onChangeText={locationElementBottom.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>4. Расположение слева</Text>
+            <Input
+              value={locationElementLeft.value}
+              onChangeText={locationElementLeft.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>
+              5. Размер элемента сверху
+            </Text>
+            <Input
+              value={widthTop.value}
+              onChangeText={widthTop.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>
+              6. Размер элемента справа
+            </Text>
+            <Input
+              value={heightRight.value}
+              onChangeText={heightRight.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>7. Размер элемента снизу</Text>
+            <Input
+              value={widthBottom.value}
+              onChangeText={widthBottom.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>8. Размер элемента слева</Text>
+            <Input
+              value={heightLeft.value}
+              onChangeText={heightLeft.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
+          <View style={styles.blockInput}>
+            <Text style={styles.textFormElement}>9. Радиус элемента</Text>
+            <Input
+              value={radiusElement.value}
+              onChangeText={radiusElement.onChangeText}
+              inputModeText={'numeric'}
+            />
+          </View>
         </View>
-        <View>
-          <Text>2 расположение справа</Text>
-          <Input
-            value={locationElementRight.value}
-            onChangeText={locationElementRight.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>3 расположение снизу</Text>
-          <Input
-            value={locationElementBottom.value}
-            onChangeText={locationElementBottom.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>4 расположение слева</Text>
-          <Input
-            value={locationElementLeft.value}
-            onChangeText={locationElementLeft.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>5 размер элемента сверху</Text>
-          <Input
-            value={widthTop.value}
-            onChangeText={widthTop.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>6 размер элемента справа</Text>
-          <Input
-            value={heightRight.value}
-            onChangeText={heightRight.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>7 размер элемента снизу</Text>
-          <Input
-            value={widthBottom.value}
-            onChangeText={widthBottom.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>8 размер элемента слева</Text>
-          <Input
-            value={heightLeft.value}
-            onChangeText={heightLeft.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <View>
-          <Text>9 радиус элемента</Text>
-          <Input
-            value={radiusElement.value}
-            onChangeText={radiusElement.onChangeText}
-            inputModeText={'numeric'}
-          />
-        </View>
-        <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataElement} />
+        <ButtonCustom
+          textBtn="Сохранить данные"
+          onPress={onSaveDataElement}
+          disabledState={
+            !locationElementTop.value ||
+            !locationElementBottom.value ||
+            !locationElementLeft.value ||
+            !locationElementRight.value
+          }
+          statusButton={StatusButton.DisabledButton}
+        />
       </View>
     </Modal>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  containerPopupFormElement: {
+    width: '50%',
+    padding: 20,
+    backgroundColor: Colors.white,
+    borderStyle: 'solid',
+    borderColor: Colors.black,
+    borderRadius: 20,
+    margin: 'auto',
+
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    elevation: 20,
+  },
+
+  textNameElement: {
+    fontSize: Fonts.f24,
+    color: Colors.black,
+    fontWeight: '700',
+  },
+  blockForm: {
+    marginTop: 10,
+    marginBottom: 20,
+    gap: 5,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  textFormElement: {
+    marginBottom: 5,
+    fontSize: Fonts.f16,
+    color: Colors.black,
+  },
+  blockInput: {
+    width: '48%',
+  },
+  btnClosePopup: {
+    top: 10,
+    right: 10,
+  },
+});

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Svg, {Path} from 'react-native-svg';
-const Close = () => (
-  <Svg width={12} height={12} fill="none">
+const Close = ({size = 12}) => (
+  <Svg width={size} height={size} viewBox="0 0 12 12" fill="none">
     <Path
       stroke="#373737"
       strokeLinecap="round"
