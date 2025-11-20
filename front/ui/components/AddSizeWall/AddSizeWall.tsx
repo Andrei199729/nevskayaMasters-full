@@ -16,6 +16,7 @@ import {
 } from '../../../services/actions/draw';
 import useInput from '../../../hooks/useInput';
 import {IElementWallRoom, IWallSize} from '../../../shared/types';
+import {Colors, Fonts} from '../../../shared/tokens';
 interface IWallSizeInput {
   id: number;
   heightRight?: {value?: string};
@@ -160,51 +161,51 @@ export default function AddSizeWall() {
   return (
     <>
       {viewInput && (
-        <View>
-          <Text>Стена №{numberCurrentWall}</Text>
+        <View style={styles.blockAddSizeWall}>
+          <Text style={styles.textNumb}>Стена №{numberCurrentWall + 1}</Text>
           <View style={styles.wallBlock}>
-            <View>
-              <Text>ширина верхней стены</Text>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Ширина верхней стены</Text>
               <Input
                 value={widthTop.value}
                 onChangeText={widthTop.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
-            <View>
-              <Text>высота правой стены</Text>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Высота правой стены</Text>
               <Input
                 value={heightRight.value}
                 onChangeText={heightRight.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
-            <View>
-              <Text>ширина нижней стены</Text>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Ширина нижней стены</Text>
               <Input
                 value={widthBottom.value}
                 onChangeText={widthBottom.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
-            <View>
-              <Text>высота левой стены</Text>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Высота левой стены</Text>
               <Input
                 value={heightLeft.value}
                 onChangeText={heightLeft.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
-            <View>
-              <Text>радиус дуги стены</Text>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Радиус дуги стены</Text>
               <Input
                 value={radiusWall.value}
                 onChangeText={radiusWall.onChangeText}
                 inputModeText={'numeric'}
               />
             </View>
-            <View>
-              <Text>градус угла стены</Text>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Градус угла стены</Text>
               <Input
                 value={wallAngleDegree.value}
                 onChangeText={wallAngleDegree.onChangeText}
@@ -212,25 +213,27 @@ export default function AddSizeWall() {
               />
             </View>
             <View style={styles.container}>
-              <Text style={styles.label}>Выберите тип угла:</Text>
-              <View style={{padding: 20}}>
+              <Text style={[styles.label, styles.wallBlockText]}>
+                Выберите тип угла:
+              </Text>
+              <View style={styles.blockRadio}>
                 <RadioButton.Group
                   onValueChange={newValue => valueDegree.onChangeText(newValue)}
                   value={valueDegree.value}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View style={styles.blockRadioButton}>
                     <RadioButton value="interior" />
-                    <Text>Внутренний угол</Text>
+                    <Text style={styles.wallBlockText}>Внутренний угол</Text>
                   </View>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View style={styles.blockRadioButton}>
                     <RadioButton value="external" />
-                    <Text>Внешний угол</Text>
+                    <Text style={styles.wallBlockText}>Внешний угол</Text>
                   </View>
                 </RadioButton.Group>
               </View>
             </View>
           </View>
           <ButtonCustom
-            textBtn="Сохранить данные"
+            textBtn="Сохранить данные комнаты"
             disabledState={
               !heightRight.value ||
               !widthTop.value ||
@@ -255,22 +258,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  blockAddSizeWall: {
+    marginBottom: 10,
+  },
   wallBlock: {
     maxWidth: '100%',
     width: '100%',
+    flexDirection: 'column',
+    gap: 10,
+  },
+  wallBlockInput: {
+    gap: 10,
   },
 
-  checkboxContainer: {
-    flexDirection: 'column',
-    gap: 8,
+  wallBlockText: {
+    fontFamily: Fonts.regular,
+    fontSize: Fonts.f16,
+    color: Colors.black,
   },
-  checkbox: {
-    alignSelf: 'center',
-  },
+
   label: {
     margin: 8,
   },
-  checkboxRow: {
+
+  textNumb: {
+    fontSize: Fonts.f16,
+    color: Colors.black,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  blockRadio: {
+    padding: 20,
+  },
+  blockRadioButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },

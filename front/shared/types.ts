@@ -67,6 +67,11 @@ export enum Mode {
   View = 'view',
 }
 
+export enum StatusButton {
+  SaveButton = 'savebutton',
+  DisabledButton = 'disabledbutton',
+}
+
 export type TClickButtonBlockDimensions =
   | ClickButtonBlockDimensions.Width
   | ClickButtonBlockDimensions.Height

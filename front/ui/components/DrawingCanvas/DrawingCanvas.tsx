@@ -1,12 +1,12 @@
 import React, {useCallback, useMemo} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Dimensions, StyleSheet, View} from 'react-native';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from 'react-native-gesture-handler';
 import Svg, {Circle, Path} from 'react-native-svg';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
-import {Colors, Fonts} from '../../../shared/tokens';
+import {Colors, Fonts, Radius} from '../../../shared/tokens';
 import {DasharrayStrokeValue, IPoint} from '../../../shared/types';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
@@ -15,6 +15,7 @@ import {
   setPaths,
   setPoints,
 } from '../../../services/actions/room';
+const {width, height} = Dimensions.get('window');
 
 const DrawingCanvas = () => {
   const dispatch = useDispatch();
@@ -221,13 +222,14 @@ const styles = StyleSheet.create({
   drawingArea: {
     flex: 1,
     width: '100%',
-    height: 400,
-    backgroundColor: '#f0f0f0',
+    height: height - 230,
+    backgroundColor: Colors.almostWhite,
   },
   drawingContainer: {
     flex: 1,
-    borderColor: 'red',
-    borderWidth: 3,
+    borderColor: Colors.darkGray,
+    borderRadius: Radius.r20,
+    borderWidth: 6,
   },
 });
 

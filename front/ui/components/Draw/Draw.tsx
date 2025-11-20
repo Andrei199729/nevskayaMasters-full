@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 import DrawElement from '../DrawElement/DrawElement';
 import AddSizeWall from '../AddSizeWall/AddSizeWall';
 import AddBlockDimensions from '../AddBlockDimensions/AddBlockDimensions';
-import {IDrawing, IPoint, Mode} from '../../../shared/types';
+import {IDrawing, IPoint, Mode, StatusButton} from '../../../shared/types';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   clearPaths,
@@ -21,9 +21,12 @@ import {
 } from '../../../services/actions/room';
 import DrawingCanvas from '../DrawingCanvas/DrawingCanvas';
 import InfoPanel from '../InfoPanel/InfoPanel';
+import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
+import {Colors, Fonts} from '../../../shared/tokens';
 
 export default function Draw() {
   const dispatch = useDispatch();
+  const [stateViewArea, setStateViewArea] = useState(true);
   // Хранит текущий путь, который пользователь рисует. currentPath
   // который будет хранить все AddBlockDimensions wallsData
   // Хранит массив объектов, каждый из которых представляет путь (path) и его длину. paths
@@ -64,6 +67,7 @@ export default function Draw() {
 
     dispatch(setCountWallDraw(countWallDraw));
     // Очистка путей после сохранения
+    setStateViewArea(false);
     dispatch(clearPaths());
     dispatch(clearPoints());
   }, [dispatch, points, wallsData, countWallDraw]);
@@ -98,8 +102,8 @@ export default function Draw() {
       const currentWall = index === numberCurrentWall;
 
       return (
-        <View style={{flexDirection: 'column', gap: 5}}>
-          {wallsData[index] && <Text>Редактировать стену №{index + 1}</Text>}
+        <View style={styles.blockWalls}>
+          {/* {wallsData[index] && <Text>Редактировать стену №{index + 1}</Text>} */}
           <AddBlockDimensions
             key={index}
             index={index}
@@ -110,7 +114,7 @@ export default function Draw() {
         </View>
       );
     },
-    [numberCurrentWall, wallsData],
+    [numberCurrentWall],
   );
 
   const savedDrawingsElements = useMemo(
@@ -132,23 +136,32 @@ export default function Draw() {
 
   return (
     <View style={styles.container}>
-      <Button title="Сохранить рисунок" onPress={saveDrawing} />
-      <DrawingCanvas />
+      <ButtonCustom
+        textBtn={stateViewArea ? 'Сохранить рисунок' : 'Рисунок сохранён'}
+        style={styles.buttonSave}
+        fontsSize={Fonts.f18}
+        onPress={saveDrawing}
+        statusButton={StatusButton.SaveButton}
+        bgStyleState={stateViewArea}
+      />
+      {stateViewArea ? <DrawingCanvas /> : null}
       <InfoPanel />
+
       {/* Отображение сохраненных фигур ниже */}
       <View style={styles.savedDrawingsContainer}>
-        <Text>Сохраненные рисунки:</Text>
+        <Text style={styles.saveText}>Сохраненные стены:</Text>
 
         {Array.isArray(sizeWalls) && sizeWalls.length > 0 ? (
           savedDrawingsElements
         ) : (
-          <Text>Стен не существует</Text> // Если массив пуст
+          <Text style={styles.saveText}>Добавьте стены</Text> // Если массив пуст
         )}
         <FlatList
           horizontal
           data={wallIndexes}
           keyExtractor={item => item.toString()}
           renderItem={renderWallItem}
+          ItemSeparatorComponent={() => <View style={styles.flatListStyle} />}
         />
         {openFormDataSize.isOpen && <AddSizeWall />}
       </View>
@@ -161,10 +174,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+  },
+  blockWalls: {
+    marginBottom: 10,
   },
   savedDrawingsContainer: {
-    marginTop: 20,
     width: '100%',
+  },
+  buttonSave: {
+    width: 300,
+    marginVertical: 20,
+  },
+  saveText: {
+    marginVertical: 10,
+    color: Colors.black,
+    fontSize: Fonts.f24,
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+  },
+  flatListStyle: {
+    width: 10,
   },
 });

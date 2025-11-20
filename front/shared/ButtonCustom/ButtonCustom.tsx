@@ -6,28 +6,48 @@ import {
   PressableProps,
 } from 'react-native';
 import {Colors, Fonts, Radius} from '../tokens';
+import {StatusButton} from '../types';
 
 function ButtonCustom({
   textBtn,
   disabledState,
+  fontsSize,
+  bgStyleState,
+  statusButton,
   ...props
 }: PressableProps & {
   textBtn: string;
   disabledState?: boolean;
+  fontsSize?: number;
+  bgStyleState?: boolean;
+  bgColor?: string;
+  statusButton?: StatusButton;
 }) {
+  const stateBg = (statusButton?: StatusButton) => {
+    switch (statusButton) {
+      case StatusButton.DisabledButton: {
+        return disabledState ? Colors.lightGrayTwo : Colors.goldenYellow;
+      }
+      case StatusButton.SaveButton: {
+        return bgStyleState ? Colors.goldenYellow : Colors.green;
+      }
+      default: {
+        return Colors.goldenYellow;
+      }
+    }
+  };
   return (
-    <Pressable {...props}>
+    <Pressable {...props} disabled={disabledState}>
       <Animated.View
         style={{
           ...styles.button,
-          backgroundColor: disabledState
-            ? Colors.lightGrayTwo
-            : Colors.goldenYellow,
+          backgroundColor: stateBg(statusButton),
         }}>
         <Text
           style={{
             ...styles.buttonText,
             color: Colors.black,
+            fontSize: fontsSize ?? Fonts.f14,
           }}>
           {textBtn}
         </Text>
@@ -49,7 +69,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.black,
     fontFamily: Fonts.medium,
-    fontSize: Fonts.f14,
     lineHeight: 21.6,
   },
 });

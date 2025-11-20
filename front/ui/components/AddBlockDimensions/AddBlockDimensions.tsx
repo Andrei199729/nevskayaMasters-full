@@ -1,6 +1,6 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React, {useCallback, useMemo} from 'react';
-import {Colors, Fonts} from '../../../shared/tokens';
+import {Colors, Fonts, Radius} from '../../../shared/tokens';
 import {
   ClickButtonBlockDimensions,
   ClickSelection,
@@ -144,79 +144,58 @@ export default function AddBlockDimensions({
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.centeredView}>
-        <ModalWall
-          numberWall={numberWall}
-          externalData={externalData}
-          wallIndex={wallIndex}
-          currentWall={currentWall}
-          mode={mode}
-          elementsToRender={elementsToRender}
-        />
+      <ModalWall
+        numberWall={numberWall}
+        externalData={externalData}
+        wallIndex={wallIndex}
+        currentWall={currentWall}
+        mode={mode}
+        elementsToRender={elementsToRender}
+      />
 
-        <Pressable
-          onPress={() =>
-            onClickWallIncrease(
-              externalData || size,
-              wallIndex,
-              ClickSelection.Wall,
-            )
-          }>
-          <View>
-            <Text style={styles.textDimensions}>Стена №{numberWall + 1}</Text>
-            <View
-              style={[
-                styles.wallBlock,
-                {
-                  ...styles.addedWall,
-                  borderColor:
-                    modalVisibleBacklight && currentWall
-                      ? Colors.green
-                      : Colors.black,
-                },
-              ]}>
-              {
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    gap: 5,
-                    margin: 5,
-                  }}>
-                  <Pressable
-                    onPress={() =>
-                      onClickDataWall(
-                        !clickDataWall.width,
-                        ClickButtonBlockDimensions.Width,
-                      )
-                    }>
-                    <View
-                      style={{
-                        borderBlockColor: 'black',
-                        borderWidth: 1,
-                        borderStyle: 'solid',
-                      }}>
-                      <Text>Ширина стены</Text>
+      <Pressable
+        style={styles.blockWall}
+        onPress={() =>
+          onClickWallIncrease(
+            externalData || size,
+            wallIndex,
+            ClickSelection.Wall,
+          )
+        }>
+        <View style={styles.blockContainerWall}>
+          <Text style={styles.textDimensions}>Стена №{numberWall}</Text>
+          <View style={[styles.wallBlock, styles.addedWall]}>
+            {
+              <View style={styles.dataWall}>
+                <Pressable
+                  onPress={() =>
+                    onClickDataWall(
+                      !clickDataWall.width,
+                      ClickButtonBlockDimensions.Width,
+                    )
+                  }>
+                  <View style={styles.blockView}>
+                    <View style={styles.blockViewData}>
+                      <Text style={[styles.viewDataText, styles.tc]}>
+                        Ширина стены
+                      </Text>
                     </View>
                     {clickDataWall.width && (
-                      <View
-                        style={{
-                          borderBlockColor: 'black',
-                          borderWidth: 1,
-                          borderStyle: 'solid',
-                          marginTop: 10,
-                          flexDirection: 'column',
-                          gap: 10,
-                        }}>
-                        <View style={{flexDirection: 'column', gap: 5}}>
-                          <Text>Ширина сверху:</Text>
-                          <Text>{widthTop}</Text>
+                      <View style={styles.blockViewData}>
+                        <View>
+                          <Text style={styles.viewDataText}>
+                            Ширина сверху:
+                          </Text>
+                          <Text style={styles.viewDataText}>{widthTop}</Text>
                         </View>
-                        <View style={{flexDirection: 'column', gap: 5}}>
-                          <Text>Ширина снизу:</Text>
-                          <Text>{widthBottom}</Text>
+                        <View>
+                          <Text style={styles.viewDataText}>Ширина снизу:</Text>
+                          <Text style={styles.viewDataText}>{widthBottom}</Text>
                         </View>
-                        <View style={{flexDirection: 'column', gap: 5}}>
-                          <Text>Радиус внутренней стены:</Text>
+                        <View>
+                          <Text style={styles.viewDataText}>
+                            Внутренний радиус:
+                          </Text>
                           {radiusWall ? (
                             <>
                               <View
@@ -226,84 +205,75 @@ export default function AddBlockDimensions({
                                 ]}></View>
                               <View
                                 style={[styles.sizeWall, styles.radiusWall]}>
-                                <Text>{radiusWall}</Text>
+                                <Text style={styles.viewDataText}>
+                                  {radiusWall}
+                                </Text>
                               </View>
                             </>
                           ) : (
-                            <Text>Нет</Text>
+                            <Text style={styles.viewDataText}>Нет</Text>
                           )}
                         </View>
                       </View>
                     )}
-                  </Pressable>
-                  <Pressable
-                    onPress={() =>
-                      onClickDataWall(
-                        !clickDataWall.height,
-                        ClickButtonBlockDimensions.Height,
-                      )
-                    }>
-                    <View
-                      style={{
-                        borderBlockColor: 'black',
-                        borderWidth: 1,
-                        borderStyle: 'solid',
-                      }}>
-                      <Text>Высота стены</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() =>
+                    onClickDataWall(
+                      !clickDataWall.height,
+                      ClickButtonBlockDimensions.Height,
+                    )
+                  }>
+                  <View style={styles.blockView}>
+                    <View style={styles.blockViewData}>
+                      <Text style={[styles.viewDataText, styles.tc]}>
+                        Высота стены
+                      </Text>
                     </View>
                     {clickDataWall.height && (
-                      <View
-                        style={{
-                          borderBlockColor: 'black',
-                          borderWidth: 1,
-                          borderStyle: 'solid',
-                          marginTop: 10,
-                          flexDirection: 'column',
-                          gap: 10,
-                        }}>
-                        <View style={{flexDirection: 'column', gap: 5}}>
-                          <Text>Высота справа:</Text>
-                          <Text>{heightRight}</Text>
+                      <View style={styles.blockViewData}>
+                        <View>
+                          <Text style={styles.viewDataText}>
+                            Высота справа:
+                          </Text>
+                          <Text style={styles.viewDataText}>{heightRight}</Text>
                         </View>
-                        <View style={{flexDirection: 'column', gap: 5}}>
-                          <Text>Высота слева:</Text>
-                          <Text>{heightLeft}</Text>
+                        <View>
+                          <Text style={styles.viewDataText}>Высота слева:</Text>
+                          <Text style={styles.viewDataText}>{heightLeft}</Text>
                         </View>
-                        <View style={{flexDirection: 'column', gap: 5}}>
-                          <Text>Градус угла стены:</Text>
+                        <View>
+                          <Text style={styles.viewDataText}>
+                            Градус угла стены:
+                          </Text>
                           <View>
                             {wallAngleDegree ? (
-                              <Text>{wallAngleDegree}</Text>
+                              <Text style={styles.viewDataText}>
+                                {wallAngleDegree}
+                              </Text>
                             ) : null}
                           </View>
                         </View>
                       </View>
                     )}
-                  </Pressable>
-                  <Pressable
-                    onPress={() =>
-                      onClickDataWall(
-                        !clickDataWall.elements,
-                        ClickButtonBlockDimensions.Elements,
-                      )
-                    }>
-                    <View
-                      style={{
-                        borderBlockColor: 'black',
-                        borderWidth: 1,
-                        borderStyle: 'solid',
-                        padding: 5,
-                      }}>
-                      <Text>Элементы стены</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() =>
+                    onClickDataWall(
+                      !clickDataWall.elements,
+                      ClickButtonBlockDimensions.Elements,
+                    )
+                  }>
+                  <View style={styles.blockView}>
+                    <View style={styles.blockViewData}>
+                      <Text style={[styles.viewDataText, styles.tc]}>
+                        Элементы стены
+                      </Text>
                     </View>
                     {clickDataWall.elements && (
-                      <View
-                        style={{
-                          borderBlockColor: 'black',
-                          borderWidth: 1,
-                          borderStyle: 'solid',
-                          marginTop: 10,
-                        }}>
+                      <View style={styles.blockViewData}>
                         {elementsToRender.length > 0 ? (
                           elementsToRender.map(
                             (element: IElementWallRoom, index: number) => {
@@ -324,101 +294,122 @@ export default function AddBlockDimensions({
                             },
                           )
                         ) : (
-                          <Text>Добавьте элементы</Text>
+                          <Text style={styles.viewDataText}>
+                            Добавьте элементы
+                          </Text>
                         )}
                       </View>
                     )}
-                  </Pressable>
-                </View>
-              }
-              <SizeWallText wallPosition={styles.wallTop} dataText={widthTop} />
-              <SizeWallText
-                wallPosition={styles.wallRight}
-                dataText={heightRight}
-              />
-              <SizeWallText
-                wallPosition={styles.wallBottom}
-                dataText={widthBottom}
-              />
-              <SizeWallText
-                wallPosition={styles.wallLeft}
-                dataText={heightLeft}
-              />
-              {radiusWall && (
-                <>
-                  <View
-                    style={[styles.sizeWall, styles.borderLineAngle]}></View>
-                  <SizeWallText
-                    wallPosition={styles.radiusWall}
-                    dataText={radiusWall}
-                  />
-                </>
-              )}
-            </View>
-            <View>
-              {wallAngleDegree ? <Text>{wallAngleDegree}</Text> : null}
-            </View>
-          </View>
-        </Pressable>
-        {
-          <ButtonCustom
-            textBtn="Редактировать стену"
-            onPress={() =>
-              onClickWallIncrease(
-                roomRanderSize,
-                wallIndex,
-                ClickSelection.Button,
-              )
+                  </View>
+                </Pressable>
+              </View>
             }
-          />
+            <SizeWallText wallPosition={styles.wallTop} dataText={widthTop} />
+            <SizeWallText
+              wallPosition={styles.wallRight}
+              dataText={heightRight}
+            />
+            <SizeWallText
+              wallPosition={styles.wallBottom}
+              dataText={widthBottom}
+            />
+            <SizeWallText
+              wallPosition={styles.wallLeft}
+              dataText={heightLeft}
+            />
+            {radiusWall && (
+              <>
+                <View style={[styles.sizeWall, styles.borderLineAngle]}></View>
+                <SizeWallText
+                  wallPosition={styles.radiusWall}
+                  dataText={radiusWall}
+                />
+              </>
+            )}
+          </View>
+          <View>
+            {wallAngleDegree ? (
+              <Text style={styles.viewDataText}>{wallAngleDegree}</Text>
+            ) : null}
+          </View>
+        </View>
+      </Pressable>
+      <ButtonCustom
+        textBtn="Редактировать стену"
+        onPress={() =>
+          onClickWallIncrease(roomRanderSize, wallIndex, ClickSelection.Button)
         }
-      </SafeAreaView>
+      />
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  centeredView: {
-    width: '100%',
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 30,
-  },
   wallBlock: {
     width: '100%',
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.lightGray,
+    borderRadius: Radius.r10,
   },
   addedWall: {
     position: 'relative',
-    width: 350,
+    width: 510,
     flex: 1,
+    height: 400,
+  },
+
+  dataWall: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+
+  viewDataText: {
+    color: Colors.black,
+    fontSize: Fonts.f14,
+  },
+
+  tc: {
+    textAlign: 'center',
+  },
+
+  blockView: {
+    margin: 15,
+    gap: 10,
+  },
+
+  blockViewData: {
+    width: 138,
+    padding: 5,
+    borderBlockColor: Colors.black,
     borderWidth: 2,
-    borderColor: Colors.black,
-    borderStyle: 'solid',
-    height: 300,
+    borderRadius: 3,
+    backgroundColor: Colors.white,
   },
 
   sizeWall: {
     position: 'absolute',
   },
+
   wallTop: {
     left: '50%',
-    top: 0,
+    top: '15%',
+    zIndex: -1,
   },
   wallRight: {
-    right: 0,
+    right: '5%',
     top: '50%',
     transform: [{translateY: -10}],
+    zIndex: -1,
   },
   wallBottom: {
-    bottom: 0,
+    bottom: '5%',
     left: '50%',
+    zIndex: -1,
   },
   wallLeft: {
     top: '50%',
-    left: 0,
+    left: '5%',
     transform: [{translateY: -10}],
+    zIndex: -1,
   },
   borderLineAngle: {
     borderBottomWidth: 1,
@@ -435,6 +426,17 @@ const styles = StyleSheet.create({
 
   textDimensions: {
     color: Colors.black,
-    fontSize: Fonts.f12,
+    fontSize: Fonts.f16,
+    textAlign: 'center',
+    fontFamily: Fonts.medium,
+    fontWeight: '700',
+  },
+
+  blockWall: {
+    flex: 1,
+  },
+
+  blockContainerWall: {
+    gap: 10,
   },
 });

@@ -19,7 +19,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   textDimensions: {
+    fontFamily: Fonts.regular,
     color: Colors.black,
-    fontSize: Fonts.f12,
+    fontSize: Fonts.f16,
   },
 });
