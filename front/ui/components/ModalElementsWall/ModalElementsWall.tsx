@@ -8,12 +8,15 @@ import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   setElementModalVisible,
   setElementsWallModalVisible,
-  setModalVisible,
 } from '../../../services/actions/modalOpen';
 import {setDataObj} from '../../../services/actions/room';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
-import Close from '../../../assets/images/icon/iconFunc/CloseIcon';
+
 import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
+import {
+  getModalElements,
+  getModalElementsPositionTop,
+} from '../../../features/features';
 
 interface IModalElementsWall {
   numberWall: number;
@@ -57,13 +60,7 @@ export default function ModalElementsWall({
   );
   const handleClose = useCallback(() => {
     // dispatch(setModalVisible({isVisible: false, wallNumber: null}));
-    dispatch(
-      setElementModalVisible({
-        isVisible: false,
-        wallNumber: null,
-        wallNumberElement: null,
-      }),
-    );
+    dispatch(setElementsWallModalVisible({isVisible: false, wallNumber: null}));
   }, [dispatch]);
   const renderedElements = arrDataElementsWall.map((data, index) => (
     <BlockStateElements
@@ -116,11 +113,11 @@ export default function ModalElementsWall({
 
 const styles = StyleSheet.create({
   elementsWallContainer: {
-    width: '24%',
+    width: getModalElements(),
     padding: 20,
     backgroundColor: Colors.white,
     position: 'absolute',
-    top: 30,
+    top: getModalElementsPositionTop(),
     left: 0,
     borderRadius: 20,
     margin: 20,
@@ -133,7 +130,8 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   btnClosePopup: {
-    top: 10,
-    right: 10,
+    top: 15,
+    right: 15,
+    zIndex: 2,
   },
 });

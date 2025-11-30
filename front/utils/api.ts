@@ -72,6 +72,7 @@ class Api {
 const api = new Api({
   // address: 'http://10.207.190.140:3000',
   address: 'http://10.0.2.2:3000',
+  // address: 'https://zamerprog.ru/api/back',
   token: '',
 });
 

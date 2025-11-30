@@ -22,6 +22,10 @@ import {
   setVisibleElements,
 } from '../../../services/actions/room';
 import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
+import {
+  getBlockHeightModalWall,
+  getBlockWidthModalWall,
+} from '../../../features/features';
 interface IModalWall {
   numberWall: number;
   wallIndex: number;
@@ -36,14 +40,12 @@ export default function ModalWall({
   externalData,
   mode,
   elementsToRender,
-  ...props
 }: IModalWall) {
   const dispatch = useDispatch();
   const {wallsData} = useSelector(state => state.room);
   const {modalVisible} = useSelector(state => state.modalOpen);
   const isCurrentWallModalVisible =
     modalVisible.isVisible && modalVisible.wallNumber === wallIndex;
-  console.log(wallsData, 'wallsData');
 
   const size = useMemo(() => {
     return wallsData?.[wallIndex]?.size;
@@ -117,15 +119,15 @@ export default function ModalWall({
             <Text style={[styles.textDimensions, styles.textPosition]}>
               Стена №{numberWall}
             </Text>
-            <ButtonClose
-              handleClose={handleClose}
-              styleClose={styles.btnClosePopup}
-            />
+
             <View style={styles.modalView}>
               <View style={styles.renderElements}>
                 {elementsToRender.length > 0 && renderElements}
               </View>
-
+              <ButtonClose
+                handleClose={handleClose}
+                styleClose={styles.btnClosePopup}
+              />
               <Pressable onPress={onClickElementModal}>
                 <View
                   style={{
@@ -204,11 +206,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
+    position: 'relative',
     backgroundColor: Colors.white,
     borderRadius: 20,
-    width: 600,
+    width: getBlockWidthModalWall(),
     margin: 20,
     maxHeight: '100%',
+    height: getBlockHeightModalWall(),
     overflow: 'hidden',
     shadowColor: Colors.black,
     shadowOffset: {
@@ -225,8 +229,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   addedWallModal: {
-    width: 600,
-    height: 600,
+    width: '100%',
+    height: '100%',
   },
   sizeWall: {
     position: 'absolute',
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.black,
     borderStyle: 'dashed',
-    top: '70%',
+    top: '60%',
     width: '100%',
   },
   radiusWall: {
@@ -274,8 +278,8 @@ const styles = StyleSheet.create({
     fontSize: Fonts.f24,
   },
   btnClosePopup: {
-    top: 70,
-    right: '28%',
+    top: 15,
+    right: 15,
     zIndex: 2,
   },
   renderElements: {
