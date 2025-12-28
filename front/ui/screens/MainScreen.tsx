@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Colors} from '../../shared/tokens';
 import Tomorrow from '../../assets/images/icon/iconFunc/tomorrow';
@@ -7,8 +7,11 @@ import CreateTask from '../../assets/images/icon/iconFunc/createTask';
 import ButtonMenuBottom from '../../shared/ButtonMenuBottom/ButtonMenuBottom';
 import {IMainScreen} from '../../shared/types';
 import MainContent from '../components/MainContent/MainContent';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {useDispatch} from '../../services/hooks';
+import {resetFormApplication} from '../../services/actions/apartment';
+import {resetRooms} from '../../services/actions/room';
 
 interface IMenuBottomState {
   icon: JSX.Element;
@@ -18,12 +21,14 @@ interface IMenuBottomState {
 }
 
 type RootStackParamList = {
-  CreateProject: undefined;
+  UnwrappedProduct: undefined;
 };
 
 type MenuBottomNavigationProp = StackNavigationProp<RootStackParamList>;
 
 function MainScreen({children, ...props}: IMainScreen) {
+  const dispatch = useDispatch();
+
   const navigation = useNavigation<MenuBottomNavigationProp>();
   //  мемоизируем массив иконок
   const initialButtons = useMemo<IMenuBottomState[]>(
@@ -35,7 +40,7 @@ function MainScreen({children, ...props}: IMainScreen) {
         btn: null,
       },
       {icon: <Tomorrow />, state: false, text: 'На завтра', btn: null},
-      {icon: <CreateTask />, state: false, text: null, btn: 'CreateProject'},
+      {icon: <CreateTask />, state: false, text: null, btn: 'UnwrappedProduct'},
       {
         icon: <NotProcessed />,
         state: false,
@@ -53,11 +58,15 @@ function MainScreen({children, ...props}: IMainScreen) {
       state: i === index ? !active.state : false,
     }));
     setButtonActive(newActiveButtons);
+
     const screenNameMenuBtn = newActiveButtons[index].btn;
-    if (screenNameMenuBtn === 'CreateProject') {
-      navigation.navigate('CreateProject');
+    if (screenNameMenuBtn === 'UnwrappedProduct') {
+      dispatch(resetRooms());
+      dispatch(resetFormApplication());
+      navigation.navigate('UnwrappedProduct');
     }
   };
+
   return (
     <View style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent}>

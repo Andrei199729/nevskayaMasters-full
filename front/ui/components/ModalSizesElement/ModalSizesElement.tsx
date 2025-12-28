@@ -1,7 +1,7 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
-import {IElementWallRoom, IProductRoom, Mode} from '../../../shared/types';
+import {IElementWallRoom, Mode} from '../../../shared/types';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {useDispatch, useSelector} from '../../../services/hooks';
@@ -26,14 +26,12 @@ export default function ModalSizesElement({
   element,
   wallIndex,
   mode,
-  ...props
 }: IModalSizesElement) {
   const dispatch = useDispatch();
   const {
     sizeWalls,
     numberCurrentWall,
     visibleElements,
-    roomData,
     currentRoomId,
     activeElementId,
   } = useSelector(state => state.room);
@@ -43,23 +41,11 @@ export default function ModalSizesElement({
     dispatch(setVisibleElements({index: position, isVisible: false}));
   }, [dispatch, position]);
 
-  const room = useMemo(() => {
-    return roomData.find((r: IProductRoom) => r._id === currentRoomId);
-  }, [roomData, currentRoomId]);
-
-  const wall = useMemo(() => {
-    return room?.dataProduct[0]?.drawingData?.walls?.[numberCurrentWall];
-  }, [room, numberCurrentWall]);
-
-  const elementData = useMemo(() => {
-    return wall?.size?.arrElements?.elements?.[position]?.data;
-  }, [wall, position]);
-
   const onClickEdit = useCallback(() => {
     if (!element.data) return;
     // Здесь вам нужно найти элемент в массиве element, соответствующий текущей позиции
 
-    if (elementData) {
+    if (element.data) {
       setClickButtonEdit(true);
       dispatch(
         setIsVisibleEditModal({
@@ -69,14 +55,7 @@ export default function ModalSizesElement({
         }),
       );
     }
-  }, [
-    element,
-    setClickButtonEdit,
-    dispatch,
-    wallIndex,
-    activeElementId,
-    elementData,
-  ]);
+  }, [element, setClickButtonEdit, dispatch, wallIndex, activeElementId]);
 
   const onDeleteElement = useCallback(
     (
@@ -92,6 +71,12 @@ export default function ModalSizesElement({
     [dispatch, sizeWalls],
   );
 
+  useEffect(() => {
+    console.log('elementsSizeData');
+    // console.log(elementData, 'elementData');
+    console.log(element.data, 'element');
+  }, [element]);
+
   return (
     <Modal
       animationType="slide"
@@ -101,7 +86,7 @@ export default function ModalSizesElement({
       <ModalFormElement
         numberWall={position + 1}
         nameElementWall={nameElement}
-        dataEditElement={elementData}
+        dataEditElement={element.data}
         clickButtonEdit={clickButtonEdit}
         mode={mode}
       />
@@ -110,64 +95,66 @@ export default function ModalSizesElement({
           {position + 1}. {nameElement}
         </Text>
         <View style={styles.blockData}>
-          {elementData?.locationElementTop !== '' && (
+          {element?.data.locationElementTop !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>1. Расположение сверху</Text>
-              <Text style={styles.text}>{elementData?.locationElementTop}</Text>
+              <Text style={styles.text}>
+                {element?.data.locationElementTop}
+              </Text>
             </View>
           )}
-          {elementData?.locationElementBottom !== '' && (
+          {element?.data.locationElementBottom !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>2. Расположение снизу</Text>
               <Text style={styles.text}>
-                {elementData?.locationElementBottom}
+                {element?.data.locationElementBottom}
               </Text>
             </View>
           )}
-          {elementData?.locationElementRight !== '' && (
+          {element?.data.locationElementRight !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>3. Расположение справа</Text>
               <Text style={styles.text}>
-                {elementData?.locationElementRight}
+                {element?.data.locationElementRight}
               </Text>
             </View>
           )}
-          {elementData?.locationElementLeft !== '' && (
+          {element?.data.locationElementLeft !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>4. Расположение слева</Text>
               <Text style={styles.text}>
-                {elementData?.locationElementLeft}
+                {element?.data.locationElementLeft}
               </Text>
             </View>
           )}
-          {elementData?.widthTop !== '' && (
+          {element?.data.widthTop !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>5. Размер стены сверху</Text>
-              <Text style={styles.text}>{elementData?.widthTop}</Text>
+              <Text style={styles.text}>{element?.data.widthTop}</Text>
             </View>
           )}
-          {elementData?.widthBottom !== '' && (
+          {element?.data.widthBottom !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>6. Размер стены снизу</Text>
-              <Text style={styles.text}>{elementData?.widthBottom}</Text>
+              <Text style={styles.text}>{element?.data.widthBottom}</Text>
             </View>
           )}
-          {elementData?.heightRight !== '' && (
+          {element?.data.heightRight !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>7. Размер стены справа</Text>
-              <Text style={styles.text}>{elementData?.heightRight}</Text>
+              <Text style={styles.text}>{element?.data.heightRight}</Text>
             </View>
           )}
-          {elementData?.heightLeft !== '' && (
+          {element?.data.heightLeft !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>8. Размер стены слева</Text>
-              <Text style={styles.text}>{elementData?.heightLeft}</Text>
+              <Text style={styles.text}>{element?.data.heightLeft}</Text>
             </View>
           )}
-          {elementData?.radiusElement !== '' && (
+          {element?.data.radiusElement !== '' && (
             <View style={styles.blockText}>
               <Text style={styles.text}>9. Радиус стены</Text>
-              <Text style={styles.text}>{elementData?.radiusElement}</Text>
+              <Text style={styles.text}>{element?.data.radiusElement}</Text>
             </View>
           )}
         </View>

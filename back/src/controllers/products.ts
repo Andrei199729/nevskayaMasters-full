@@ -6,16 +6,17 @@ import { AuthenticatedRequest } from "../middlewares/auth";
 import BadRequestError from "../errors/BadRequestError";
 import ErrorNotFound from "../errors/ErrorNotFound";
 import Forbidden from "../errors/Forbidden";
+import Apartament from "../models/apartament";
 
 export const getProducts = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const { apartamentId } = req.params;
   try {
-    Product.find({})
-      .then((product) => res.send({ product }))
-      .catch((err) => next(err));
+    const products = await Product.find({ apartament: apartamentId });
+    res.send({ products });
   } catch (err) {
     return next(err);
   }
@@ -26,10 +27,18 @@ export const getProduct = async (
   res: Response,
   next: NextFunction
 ) => {
+  const { cardId, apartamentId } = req.params;
   try {
-    Product.findById(req?.params?.cardId)
-      .then((product) => res.send({ product }))
-      .catch((err) => next(err));
+    const product = await Product.findOne({
+      cardId,
+      apartament: apartamentId,
+    });
+
+    if (!product) {
+      return next(new ErrorNotFound({ message: "Комната не найдена" }));
+    }
+
+    res.send({ product });
   } catch (err) {
     return next(err);
   }
@@ -42,15 +51,26 @@ export const createProduct = async (
 ) => {
   const { nameRoom, dataProduct } = req.body;
   const ownerId = req?.user?._id;
-
+  const { apartamentId } = req.params;
+  if (!ownerId || !apartamentId) {
+    return next({ message: "Нужны owner и apartamentId", statusCode: 400 });
+  }
   try {
     const product = await Product.create({
       nameRoom,
       dataProduct,
       owner: ownerId,
+      apartament: apartamentId,
     });
 
-    if (!product) {
+    // 2️⃣ Добавляем комнату в массив rooms апартамента
+    const apartament = await Apartament.findByIdAndUpdate(
+      apartamentId,
+      { $push: { rooms: product._id } },
+      { new: true }
+    );
+
+    if (!apartament) {
       return next(
         new BadRequestError({ message: "Переданы некорректные данные" })
       );
@@ -58,6 +78,7 @@ export const createProduct = async (
 
     res.status(201).send(product);
   } catch (err) {
+    console.error("Ошибка создания комнаты:", err);
     return next(
       new BadRequestError({ message: "Переданы некорректные данные" })
     );
@@ -69,10 +90,10 @@ export function updateProduct(
   res: Response,
   next: NextFunction
 ) {
-  const cardId = req?.params?.cardId;
+  const { cardId, apartamentId } = req.params;
 
-  Product.findByIdAndUpdate(
-    cardId,
+  Product.findOneAndUpdate(
+    { cardId, apartament: apartamentId },
     { dataProduct: req.body.dataProduct },
     {
       new: true,
@@ -102,11 +123,11 @@ export function updateRoomSize(
   res: Response,
   next: NextFunction
 ) {
-  const { cardId, sizeId } = req.params; // id комнаты и id размера стены
+  const { cardId, sizeId, apartamentId } = req.params; // id комнаты и id размера стены
   const updateData = req.body; // сюда приходят новые height/width и т.п.
 
   Product.findOneAndUpdate(
-    { _id: cardId },
+    { _id: cardId, apartament: apartamentId },
     { $set: { "dataProduct.drawingData.walls.$[wall].size": updateData } },
     {
       new: true,
@@ -138,16 +159,18 @@ export function deleteProductElement(
   res: Response,
   next: NextFunction
 ) {
-  const { cardId, sizeId, elementId } = req.params;
+  const { cardId, sizeId, elementId, apartamentId } = req.params;
 
-  Product.findById(cardId)
+  Product.findById({ _id: cardId, apartament: apartamentId })
     .then((product: any) => {
       if (!product) {
         next(new ErrorNotFound("Карточка не найдена"));
       }
 
-      if (product?.owner.toString() !== req.user?._id) {
-        next(new Forbidden("Вы не можете удалять элементы из этой карточки"));
+      if (product.owner.toString() !== req.user?._id.toString()) {
+        return next(
+          new Forbidden("Вы не можете удалять элементы из этой карточки")
+        );
       }
 
       const dp = product?.dataProduct[0];

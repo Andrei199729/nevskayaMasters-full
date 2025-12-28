@@ -10,6 +10,7 @@ interface ProductItemProps {
 
 export const ProductItem = memo(({room, index, onClick}: ProductItemProps) => {
   const handlePress = useCallback(() => {
+    if (!room._id) return;
     onClick(room._id);
   }, [room._id, onClick]);
 

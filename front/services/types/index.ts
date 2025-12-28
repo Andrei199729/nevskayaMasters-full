@@ -5,12 +5,14 @@ import {ThunkAction, ThunkDispatch} from 'redux-thunk';
 import {TRoomAction} from '../actions/room';
 import {TModalOpenAction} from '../actions/modalOpen';
 import {TDrawAction} from '../actions/draw';
+import {TApartmentAction} from '../actions/apartment';
 
 type TApplicationActions =
   | TUserAction
   | TRoomAction
   | TModalOpenAction
-  | TDrawAction;
+  | TDrawAction
+  | TApartmentAction;
 //   | TWsConnectionAction
 //   | TWsConnectionProfileAction;
 

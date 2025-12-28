@@ -44,6 +44,7 @@ import {
   PATCH_ROOM_FAILED,
   SET_ACTIVE_ELEMENT_ID,
   ADD_ELEMENT_ROOM,
+  RESET_ROOMS,
 } from '../constants/constants';
 
 interface IRoomState {
@@ -124,9 +125,7 @@ export const roomReducer = (
     case SET_ROOM_DATA:
       return {
         ...state,
-        roomData: Array.isArray(action.payload)
-          ? action.payload
-          : [action.payload], // создаём новый массив
+        roomData: Array.isArray(action.payload) ? [...action.payload] : [], // создаём новый массив
         loading: false,
       };
 
@@ -581,6 +580,12 @@ export const roomReducer = (
       return {
         ...state,
         activeElementId: action.payload,
+      };
+    case RESET_ROOMS:
+      return {
+        ...state,
+        roomData: [],
+        loading: false,
       };
     default:
       return state;

@@ -26,15 +26,16 @@ export default function FormDataAddProductScreen() {
   const {sizeWalls, wallsData, countWallDraw} = useSelector(
     state => state.room,
   );
+  const {applicationId} = useSelector(state => state.apartment);
   const nameRoom = useInput('');
-  console.log(wallsData, 'wallsData');
 
   const onSaveDataWall = useCallback(() => {
     if (!sizeWalls.length) {
       console.warn('⚠️ Нет данных для сохранения!');
       return;
     }
-    dispatch(addRoom(nameRoom.value, sizeWalls))
+
+    dispatch(addRoom(nameRoom.value, sizeWalls, applicationId?._id))
       .then(result => {
         if (!result) return;
         const {dataProduct, name} = result;
@@ -44,7 +45,7 @@ export default function FormDataAddProductScreen() {
         });
       })
       .catch(err => console.log(err));
-  }, [sizeWalls, dispatch, nameRoom.value, navigation]);
+  }, [sizeWalls, applicationId, nameRoom, dispatch, navigation]);
   return (
     <KeyboardAvoidingView
       style={styles.container}

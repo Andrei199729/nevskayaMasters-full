@@ -49,6 +49,7 @@ import {
   PATCH_ROOM_FAILED,
   SET_ACTIVE_ELEMENT_ID,
   ADD_ELEMENT_ROOM,
+  RESET_ROOMS,
 } from '../constants/constants';
 import {AppDispatch} from '../types';
 import {ISetAuthLoggedInAction, setAuthloggedIn} from './user';
@@ -103,7 +104,7 @@ export interface IPatchEditRoomFailedAction {
 
 export interface ISetRoomRequestAction {
   readonly type: typeof SET_ROOM_DATA;
-  readonly payload: IProductRoom;
+  readonly payload: IProductRoom[];
 }
 
 export interface IAddOrUpdateRoomAction {
@@ -270,6 +271,10 @@ export interface ISetActiveElementId {
   readonly payload: number | null;
 }
 
+export interface IResetRoomsAction {
+  readonly type: typeof RESET_ROOMS;
+}
+
 // Объединяем в Union
 
 export type TRoomAction =
@@ -309,7 +314,8 @@ export type TRoomAction =
   | IPatchEditRoomFailedAction
   | IPatchEditRoomRequestAction
   | IPatchEditRoomSuccessAction
-  | ISetActiveElementId;
+  | ISetActiveElementId
+  | IResetRoomsAction;
 // генераторы экшенов
 export const getRoomRequestAction = (): IGetRoomRequestAction => ({
   type: GET_ROOM_REQUEST,
@@ -343,7 +349,9 @@ export const postAddRoomFailedAction = (
   error,
 });
 
-export const setRoomData = (roomData: IProductRoom): ISetRoomRequestAction => ({
+export const setRoomData = (
+  roomData: IProductRoom[],
+): ISetRoomRequestAction => ({
   type: SET_ROOM_DATA,
   payload: roomData,
 });
@@ -562,9 +570,20 @@ export const setActiveElementId = (id: number | null): ISetActiveElementId => ({
   payload: id,
 });
 
-export function getRoomsInitial() {
+export const resetRooms = (): IResetRoomsAction => ({
+  type: RESET_ROOMS,
+});
+
+export function getRoomsInitial(apartamentId: any) {
   return async function (dispatch: AppDispatch) {
+    // if (skipLoad) {
+    //   return; // 🔥 ничего не грузим
+    // }
+    console.log(apartamentId);
+
+    dispatch(resetRooms());
     dispatch(getRoomRequestAction());
+    if (!apartamentId) return;
     try {
       const accessToken = await getKeychain('accessToken');
 
@@ -573,13 +592,15 @@ export function getRoomsInitial() {
       }
 
       api.setToken(accessToken); // ✅ установить токен в API перед запросом
-      const data = await api.getInitialProducts();
+      const data = await api.getInitialProducts(apartamentId);
       dispatch(setAuthloggedIn(true));
+      console.log(data.products, 'data');
 
-      if (data?.product && data?.product && Array.isArray(data?.product)) {
-        dispatch(setRoomData(data?.product));
+      if (data?.products && data?.products && Array.isArray(data?.products)) {
+        dispatch(setRoomData(data?.products));
       } else {
         console.warn('Некорректный формат данных от API');
+        dispatch(setRoomData([]));
         dispatch(getRoomFailedAction('Некорректный формат данных'));
       }
     } catch (error: any) {
@@ -588,14 +609,21 @@ export function getRoomsInitial() {
   };
 }
 
-export function addRoom(name: string, sizeWalls: IDrawing[]) {
+export function addRoom(
+  name: string,
+  sizeWalls: IDrawing[],
+  apartamentId: any,
+) {
   return async function (dispatch: AppDispatch) {
     dispatch(postAddRoomRequestAction());
     try {
       const {dataProduct, name: nameRoom} = await api.addProduct(
         name,
         sizeWalls,
+        apartamentId,
       );
+      console.log(apartamentId, 'apartamentId');
+
       dispatch(postAddRoomSuccessAction({name, dataProduct}));
       return {dataProduct, name: nameRoom};
     } catch (error: any) {
@@ -609,12 +637,13 @@ export function editRoom(
   dataId: string,
   numberCurrentWall: number | null,
   activeId: number | null,
+  apartamentId: any,
 ) {
   return async function (dispatch: AppDispatch) {
     dispatch(patchEditRoomRequestAction());
 
     try {
-      const response = await api.editRoom(dataProduct, dataId);
+      const response = await api.editRoom(dataProduct, dataId, apartamentId);
       // логируем для проверки
 
       dispatch(

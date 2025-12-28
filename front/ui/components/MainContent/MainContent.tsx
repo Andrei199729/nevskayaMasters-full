@@ -1,6 +1,7 @@
 import {StyleSheet, View} from 'react-native';
 import Title from '../../../shared/Title/Title';
 import {IMainScreen} from '../../../shared/types';
+import {Colors} from '../../../shared/tokens';
 
 export default function MainContent({children, mainTitle, path}: IMainScreen) {
   return (
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     width: '100%',
     height: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.white,
     paddingHorizontal: 16,
     paddingVertical: 24,
   },

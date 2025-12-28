@@ -200,7 +200,7 @@ const WallSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const DrawingDataSchema = new mongoose.Schema(
+export const DrawingDataSchema = new mongoose.Schema(
   {
     numberWall: Number,
     countWallDraw: Number,
@@ -221,6 +221,11 @@ const productSchema = new mongoose.Schema({
   nameRoom: { type: String, required: true },
   dataProduct: [DataProductSchema],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  apartament: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Apartament",
+    required: true,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -32,6 +32,8 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
     state.room.roomData.find((r: IProductRoom) => r._id === currentRoomId),
   );
 
+  const {applicationId} = useSelector(state => state.apartment);
+
   const {openFormDataSize} = useSelector(state => state.modalOpen);
   const navigation =
     useNavigation<
@@ -83,7 +85,13 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
     );
 
     dispatch(
-      editRoom(updatedDataProduct, currentRoomId, numberCurrentWall, activeId),
+      editRoom(
+        updatedDataProduct,
+        currentRoomId,
+        numberCurrentWall,
+        activeId,
+        applicationId?._id,
+      ),
     );
 
     navigation.navigate('UnwrappedProduct');
@@ -94,6 +102,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
     numberCurrentWall,
     dispatch,
     navigation,
+    applicationId,
   ]);
 
   const productsArray = useMemo(() => {

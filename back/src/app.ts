@@ -13,8 +13,8 @@ const { PORT = 3000, DB_URL = "mongodb://127.0.0.1:27017/nevskayamasters" } =
 const app = express();
 app.use(requestLogger);
 app.use(helmet());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 mongoose.connect(DB_URL);
 app.disable("x-powered-by");
 app.use(routerErrorWay);

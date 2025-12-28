@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { register, login } from "../controllers/users";
 import userRoute from "./users";
-import productRoute from "./products";
+import apartamentRoute from "./apartaments";
 import auth from "../middlewares/auth";
 import {
   loginValid,
@@ -19,7 +19,7 @@ router.use("/logout", refreshTokenBodyValidation, refreshTokenRoutes);
 router.use(auth);
 
 router.use("/users", userRoute);
-router.use("/products", productRoute);
+router.use("/apartaments", apartamentRoute);
 
 router.use((req, res, next) => {
   return next(new ErrorNotFound({ message: "Данный путь не найден" }));

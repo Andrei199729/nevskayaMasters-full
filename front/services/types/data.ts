@@ -22,3 +22,8 @@ export type TUserWrapper = {
 };
 
 export type TLogout = {success: boolean; message: string};
+export interface IApartment {
+  id: number;
+  createdAt: Date;
+  formApplication: any;
+}

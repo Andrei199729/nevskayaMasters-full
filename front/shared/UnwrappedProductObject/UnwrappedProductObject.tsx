@@ -1,12 +1,31 @@
 import {StyleSheet, Text, View} from 'react-native';
 import {Colors, Fonts, Gaps, Radius} from '../tokens';
 import {ObjectStatus} from '../types';
+import {useSelector} from '../../services/hooks';
 
+interface IformApplication {
+  id: number;
+  addressApplication: string;
+  nameCompany: string;
+  telSalon: string;
+  telManager: string;
+  telClient: string;
+  telForeman: string;
+  dateRegistration: string;
+  nameClient: string;
+  price: string;
+}
 interface IObjectApplication {
   status: ObjectStatus;
 }
 
-function UnwrappedProductObject({status, ...props}: IObjectApplication) {
+function UnwrappedProductObject({status}: IObjectApplication) {
+  const {applicationId, formApplication} = useSelector(
+    state => state.apartment,
+  );
+  console.log(formApplication, 'formApplication');
+  const applicationData = applicationId?.dataApplication ?? formApplication;
+  if (!applicationData) return null;
   return (
     <View style={styles.objectApplicationContainer}>
       <View style={styles.blockApplication}>
@@ -14,7 +33,7 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
           <View style={styles.boxPencilApplication}>
             <Text
               style={[styles.textApplication, styles.textOpacityApplication]}>
-              01.01.2024 в 18:00
+              {applicationData?.dateRegistration}
             </Text>
           </View>
         </View>
@@ -23,9 +42,9 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
         </View>
       </View>
       <Text style={[styles.textApplication, styles.addressApplication]}>
-        Санкт-Петербург, ул. 8 марта, 50, кв 19, 8 этаж
+        {applicationData?.addressApplication}
       </Text>
-      <Text style={styles.textApplication}>Компания ООО “Замеры”</Text>
+      <Text style={styles.textApplication}>{applicationData?.nameCompany}</Text>
       <View style={styles.contactCallApplication}>
         <Text style={[styles.textApplication, styles.textOpacityApplication]}>
           Оплата с салона
@@ -34,7 +53,7 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          +7 (920) 006-84-00
+          {applicationData?.telSalon}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -45,7 +64,7 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          +7 (926) 876-86-20
+          {applicationData?.telManager}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -56,7 +75,7 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          +7 (912) 008-98-10
+          {applicationData?.telClient}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -67,7 +86,7 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          +7 (912) 008-98-10
+          {applicationData?.telForeman}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -78,15 +97,15 @@ function UnwrappedProductObject({status, ...props}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          01.01.2024
+          {applicationData?.dateRegistration}
         </Text>
       </View>
       <View style={styles.boxCompanyApplication}>
         <Text style={[styles.textApplication, styles.addressApplication]}>
-          Алексей
+          {applicationData?.nameClient}
         </Text>
         <Text style={[styles.textApplication, styles.addressApplication]}>
-          100 000 руб.
+          {`${applicationData?.price} руб.`}
         </Text>
       </View>
     </View>
