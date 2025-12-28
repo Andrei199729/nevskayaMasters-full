@@ -13,7 +13,7 @@ const generateTokens = async (user: any) => {
 
   try {
     const payload = { _id: user._id, roles: user.roles };
-    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "14m" });
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
     const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
       expiresIn: "30d",
     });

@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts, Gaps} from '../../shared/tokens';
-import {useCallback, useEffect, useMemo} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import HeaderScreen from './HeaderScreen';
 import {
   IProductRoom,
@@ -20,12 +20,19 @@ import {
   addOrUpdateRoom,
   getRoomsInitial,
   resetCurrentDrawing,
+  resetRooms,
   setCurrentRoomId,
 } from '../../services/actions/room';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {setResetLinedasharrays} from '../../services/actions/draw';
 import {setOpenFormDataSize} from '../../services/actions/modalOpen';
 import {ProductItem} from '../../shared/RoomItem/RoomItem';
+import FormsApplication from '../components/FormsApplication/FormsApplication';
+import {
+  addApartment,
+  resetFormApplication,
+  setApplicationId,
+} from '../../services/actions/apartment';
 
 // type TUnwrappedProductScreenRouteProp = RouteProp<
 //   {
@@ -43,14 +50,15 @@ interface IUnwrappedProductScreen {
   route: any;
 }
 
-function UnwrappedProductScreen({
-  navigation,
-  route,
-  ...props
-}: IUnwrappedProductScreen) {
+function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
   const dispatch = useDispatch();
+
   const {userData} = useSelector(state => state.user);
   const {roomData, loading} = useSelector(state => state.room);
+  const {formApplication, applicationId} = useSelector(
+    state => state.apartment,
+  );
+
   const userId = userData?.data?._id;
 
   const onClickAddProduct = useCallback(() => {
@@ -72,10 +80,11 @@ function UnwrappedProductScreen({
     },
     [navigation, dispatch],
   );
+  const onHandleSaveObject = useCallback(() => {
+    dispatch(addApartment(formApplication));
 
-  useEffect(() => {
-    dispatch(checkUserAuth());
-  }, [dispatch]);
+    navigation.navigate('Main');
+  }, [dispatch, formApplication, navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -85,8 +94,17 @@ function UnwrappedProductScreen({
           wallNumber: null,
         }),
       );
-      dispatch(getRoomsInitial());
-    }, [dispatch]),
+
+      // Если создаем новую квартиру, сбрасываем комнаты
+      if (!applicationId?._id) {
+        dispatch(resetRooms());
+        // Не трогаем formApplication, чтобы форма осталась
+        return;
+      }
+
+      // Если есть просмотр заявки, подгружаем комнаты
+      dispatch(getRoomsInitial(applicationId._id));
+    }, [applicationId, dispatch]),
   );
 
   useEffect(() => {
@@ -104,12 +122,12 @@ function UnwrappedProductScreen({
     );
   }, [roomData, userId]);
 
-  if (loading) return <Text>Загрузка изделий...</Text>;
+  if (loading) return <Text>Загрузка помещений...</Text>;
 
   return (
     <HeaderScreen>
       <MainScreen mainTitle={`№ ${'заявки'}`}>
-        <UnwrappedProductObject status={ObjectStatus.Created} />
+        <FormsApplication />
         <View style={styles.boxTitle}>
           <Title title="Название вида объекта" />
           <Text style={styles.subTitle}>4 этаж</Text>
@@ -126,7 +144,7 @@ function UnwrappedProductScreen({
         </Text>
         <View style={styles.boxTitle}>
           <View style={styles.boxAdd}>
-            <Title title="Изделия" />
+            <Title title="Помещения" />
             <ButtonAddProduct onClickAddProduct={onClickAddProduct} />
           </View>
           <View style={styles.boxTitle}>
@@ -142,7 +160,7 @@ function UnwrappedProductScreen({
                 );
               })
             ) : (
-              <Text style={styles.text}>Нет доступных изделий</Text>
+              <Text style={styles.text}>Нет доступных помещений</Text>
             )}
           </View>
         </View>
@@ -160,6 +178,10 @@ function UnwrappedProductScreen({
             #изделие.2
           </Text>
           <ButtonCustom textBtn="Добавить комментарий" disabledState={false} />
+          <ButtonCustom
+            textBtn="Сохранить объект"
+            onPress={onHandleSaveObject}
+          />
         </View>
       </MainScreen>
     </HeaderScreen>
@@ -180,12 +202,7 @@ const styles = StyleSheet.create({
     fontSize: Fonts.f12,
     color: Colors.black,
   },
-  textProduct: {
-    fontFamily: Fonts.regular,
-    fontSize: Fonts.f14,
-    color: Colors.black,
-    paddingVertical: 6,
-  },
+
   boxAdd: {
     flexDirection: 'row',
     alignItems: 'center',

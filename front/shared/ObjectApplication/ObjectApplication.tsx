@@ -1,13 +1,33 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {Colors, Fonts, Gaps, Radius} from '../tokens';
 import PencilIcon from '../../assets/images/icon/iconFunc/pencil';
-import {ObjectStatus} from '../types';
+import {ObjectStatus, RootStackParamList} from '../types';
+import {useCallback} from 'react';
+import {
+  NavigationProp,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
+import {useDispatch, useSelector} from '../../services/hooks';
+import {
+  setApplicationId,
+  setViewApplicationForm,
+} from '../../services/actions/apartment';
+import {resetRooms} from '../../services/actions/room';
 
 interface IObjectApplication {
-  status: ObjectStatus;
+  status?: ObjectStatus;
+  item: any;
 }
 
-function ObjectApplication({status, ...props}: IObjectApplication) {
+function ObjectApplication({item, status, ...props}: IObjectApplication) {
+  const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const {apartments} = useSelector(state => state.apartment);
+
+  const applicationId = apartments.find((i: any) => i._id === item._id);
+  // console.log(applicationId?.formApplication, 'applicationId');
+
   const statusState = (status: string) => {
     switch (status) {
       case ObjectStatus.Created:
@@ -22,13 +42,21 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
   };
   const opacityText = status === ObjectStatus.Completed ? 0.2 : 1;
   const opacity = status === ObjectStatus.Completed ? 1 : 0.5;
+  const handlePress = useCallback(() => {
+    if (!applicationId?._id) return;
+    dispatch(setApplicationId(applicationId));
+    dispatch(resetRooms());
+    dispatch(setViewApplicationForm(false));
+    navigation.navigate('UnwrappedProduct');
+  }, [applicationId, dispatch, navigation]);
 
   return (
-    <View
+    <Pressable
       style={{
         ...styles.objectApplicationContainer,
-        backgroundColor: statusState(status),
-      }}>
+        // backgroundColor: statusState(status),
+      }}
+      onPress={handlePress}>
       <View style={styles.blockApplication}>
         <View style={styles.boxApplication}>
           <Text
@@ -36,7 +64,7 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
               ...styles.textApplication,
               opacity: opacityText,
             }}>
-            № заявки
+            {`${applicationId?.dataApplication?.numberApplication} № заявки`}
           </Text>
           <View style={styles.boxPencilApplication}>
             <Text
@@ -45,7 +73,7 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
                 styles.textOpacityApplication,
                 {opacity: opacity},
               ]}>
-              01.01.2024 в 18:00
+              {applicationId?.createdAt?.toLocaleString()}
             </Text>
             {status === ObjectStatus.Completed && <PencilIcon />}
           </View>
@@ -61,7 +89,7 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
           styles.addressApplication,
           {opacity: opacityText},
         ]}>
-        Санкт-Петербург, ул. 8 марта, 50, кв 19, 8 этаж
+        {applicationId?.dataApplication?.addressApplication}
       </Text>
       <View style={styles.contactCallApplication}>
         <Text
@@ -73,14 +101,14 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
                 status === ObjectStatus.Completed ? opacityText : opacity,
             },
           ]}>
-          Контакт для связи:
+          Контакт для связи
         </Text>
         <Text
           style={{
             ...styles.textApplication,
             opacity: opacityText,
           }}>
-          +7 (920) 006-84-00
+          {applicationId?.dataApplication?.telSalon}
         </Text>
       </View>
       <View style={styles.boxCompanyApplication}>
@@ -89,7 +117,7 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
             ...styles.textApplication,
             opacity: opacityText,
           }}>
-          Компания ООО “Замеры”
+          {applicationId?.dataApplication?.nameCompany}
         </Text>
         <View style={styles.boxProductsCountApplication}>
           <Text
@@ -112,11 +140,11 @@ function ObjectApplication({status, ...props}: IObjectApplication) {
                   status === ObjectStatus.Completed ? opacityText : opacity,
               },
             ]}>
-            (10)
+            ({applicationId?.rooms?.length || ''})
           </Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

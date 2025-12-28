@@ -17,8 +17,14 @@ class Api {
     });
   }
 
-  async getInitialProducts() {
-    const res = await this.client.get('/products');
+  async getInitialApartaments() {
+    const res = await this.client.get('/apartaments');
+    return res.data.apartament;
+  }
+
+  async getInitialProducts(apartamentId: any) {
+    const res = await this.client.get(`/apartaments/${apartamentId}/products`);
+
     return res.data;
   }
 
@@ -28,12 +34,20 @@ class Api {
     return res.data;
   }
 
-  async addProduct(nameRoom: string, dataProduct: IDrawing[]) {
+  async addProduct(
+    nameRoom: string,
+    dataProduct: IDrawing[],
+    apartamentId: any,
+  ) {
+    console.log({nameRoom, dataProduct, apartamentId});
     try {
-      const response = await this.client.post('/products', {
-        nameRoom,
-        dataProduct,
-      });
+      const response = await this.client.post(
+        `/apartaments/${apartamentId}/products`,
+        {
+          nameRoom,
+          dataProduct,
+        },
+      );
 
       return response.data;
     } catch (err: any) {
@@ -47,11 +61,33 @@ class Api {
     }
   }
 
-  async editRoom(dataProduct: IDrawing[], dataId: string) {
+  async addApartament(dataApplication: any) {
     try {
-      const response = await this.client.patch(`/products/${dataId}`, {
-        dataProduct,
+      const response = await this.client.post('/apartaments', {
+        dataApplication,
       });
+      console.log(dataApplication, 'apartament-api');
+      console.log(response.data, 'response.data-api');
+      return response.data;
+    } catch (err: any) {
+      console.log(err, 'err');
+
+      console.error(
+        'Ошибка при создании помещения:',
+        err.response?.data || err.message,
+      );
+      throw err;
+    }
+  }
+
+  async editRoom(dataProduct: IDrawing[], dataId: string, apartamentId: any) {
+    try {
+      const response = await this.client.patch(
+        `/apartaments/${apartamentId}/products/${dataId}`,
+        {
+          dataProduct,
+        },
+      );
       return response.data;
     } catch (err: any) {
       console.log(err, 'err');
@@ -71,7 +107,8 @@ class Api {
 
 const api = new Api({
   // address: 'http://10.207.190.140:3000',
-  address: 'http://10.0.2.2:3000',
+  address: 'http://10.0.2.2:3000', //основной
+  // address: 'https://zamerprog.ru/api/back',
   token: '',
 });
 

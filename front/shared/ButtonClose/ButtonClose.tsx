@@ -15,6 +15,7 @@ function ButtonClose({handleClose, styleClose}: ButtonCloseProps) {
 }
 const styles = StyleSheet.create({
   btnClosePopup: {
+    padding: 10,
     position: 'absolute',
   },
 });

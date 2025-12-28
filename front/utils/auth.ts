@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {TOKEN_PATH} from './constants';
 import {getKeychain, setKeychain} from './keychain';
-const BASE_URL = 'http://10.0.2.2:3000';
+const BASE_URL = 'http://10.0.2.2:3000'; //основной
+// const BASE_URL = 'https://zamerprog.ru/api/back';
 // export const BASE_URL = 'http://10.207.190.140:3000';
 
 const HEADERS = {

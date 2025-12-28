@@ -1,4 +1,4 @@
-import {Modal, View, Text, StyleSheet, Pressable} from 'react-native';
+import {Modal, View, Text, StyleSheet} from 'react-native';
 import {useCallback, useEffect} from 'react';
 import {
   IElementData,
@@ -25,6 +25,7 @@ import {
 } from '../../../services/actions/room';
 import {isValidArray} from '../../../utils/validators';
 import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
+import {getModalWidthFormElements} from '../../../features/features';
 
 interface IModalFormElement {
   nameElementWall: string;
@@ -40,7 +41,6 @@ export default function ModalFormElement({
   dataEditElement,
   clickButtonEdit,
   mode,
-  ...props
 }: IModalFormElement) {
   const dispatch = useDispatch();
   const {isVisibleEditModal, elementModal} = useSelector(
@@ -368,8 +368,8 @@ export default function ModalFormElement({
 
 const styles = StyleSheet.create({
   containerPopupFormElement: {
-    width: '50%',
-    padding: 20,
+    width: getModalWidthFormElements(),
+    padding: 15,
     backgroundColor: Colors.white,
     borderStyle: 'solid',
     borderColor: Colors.black,
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
   blockForm: {
     marginTop: 10,
     marginBottom: 20,
-    gap: 5,
+    gap: 10,
     flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -409,5 +409,6 @@ const styles = StyleSheet.create({
   btnClosePopup: {
     top: 10,
     right: 10,
+    zIndex: 2,
   },
 });

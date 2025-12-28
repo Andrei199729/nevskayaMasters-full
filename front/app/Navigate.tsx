@@ -35,11 +35,6 @@ function Navigate() {
             name="Register"
             component={RegisterScreen}
           />
-          {/* <Stack.Screen
-          options={{headerShown: false}}
-          name="Login"
-          component={LoginScreen}
-        /> */}
           <Stack.Screen name="Login" options={{headerShown: false}}>
             {props => <LoginScreen {...props} />}
           </Stack.Screen>
@@ -64,7 +59,7 @@ function Navigate() {
           component={Main}
         /> */}
           <Stack.Screen name="Main" options={{headerShown: false}}>
-            {props => <Main {...props} />}
+            {() => <Main />}
           </Stack.Screen>
           <Stack.Screen
             options={{headerShown: false}}

@@ -9,7 +9,7 @@ import {
 import {Input} from '../../shared/Input/Input';
 import {useCallback} from 'react';
 import useInput from '../../hooks/useInput';
-import {PathScreen, RootStackParamList} from '../../shared/types';
+import {PathScreen, RootStackParamList, StatusButton} from '../../shared/types';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
@@ -23,7 +23,10 @@ export default function FormDataAddProductScreen() {
       NavigationProp<RootStackParamList, PathScreen.UnwrappedProduct>
     >();
   const dispatch = useDispatch();
-  const {sizeWalls} = useSelector(state => state.room);
+  const {sizeWalls, wallsData, countWallDraw} = useSelector(
+    state => state.room,
+  );
+  const {applicationId} = useSelector(state => state.apartment);
   const nameRoom = useInput('');
 
   const onSaveDataWall = useCallback(() => {
@@ -31,7 +34,8 @@ export default function FormDataAddProductScreen() {
       console.warn('⚠️ Нет данных для сохранения!');
       return;
     }
-    dispatch(addRoom(nameRoom.value, sizeWalls))
+
+    dispatch(addRoom(nameRoom.value, sizeWalls, applicationId?._id))
       .then(result => {
         if (!result) return;
         const {dataProduct, name} = result;
@@ -41,8 +45,7 @@ export default function FormDataAddProductScreen() {
         });
       })
       .catch(err => console.log(err));
-  }, [sizeWalls, dispatch, nameRoom.value, navigation]);
-
+  }, [sizeWalls, applicationId, nameRoom, dispatch, navigation]);
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -58,7 +61,14 @@ export default function FormDataAddProductScreen() {
             <Input onChangeText={nameRoom.onChangeText} />
           </View>
           <Draw />
-          <ButtonCustom textBtn="Сохранить данные" onPress={onSaveDataWall} />
+          <ButtonCustom
+            textBtn="Сохранить данные"
+            onPress={onSaveDataWall}
+            disabledState={
+              wallsData.length !== countWallDraw || !nameRoom.value
+            }
+            statusButton={StatusButton.DisabledButton}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

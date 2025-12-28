@@ -84,6 +84,7 @@ export interface IMainScreen {
   navigation?: string;
   textBtn?: string;
   pathLink?: string;
+  setArrObjectApplication?: any;
 }
 
 export interface ISelectOption {
@@ -108,6 +109,7 @@ export type RootStackParamList = {
   UnwrappedProduct?: {
     dataProduct?: IDrawing[];
     nameRoom?: string;
+    isNewObject?: boolean;
   };
   Product: undefined;
 };
@@ -232,4 +234,6 @@ export interface IProductRoom {
   nameRoom: string;
   _id?: string;
   owner: string;
+  apartament?: any;
+  createdAt?: any;
 }

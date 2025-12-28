@@ -14,7 +14,7 @@ import {useDispatch, useSelector} from '../../services/hooks';
 function LoginScreen({navigation}: any) {
   const dispatch = useDispatch();
   const {accessToken} = useSelector(state => state.user);
-  const emailInput = useInput('19972910mana@gmail.com');
+  const emailInput = useInput('123456789@mail.ru');
   const passwordInput = useInput('123456789');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
   const [emailError, setEmailError] = useState<boolean>(true);

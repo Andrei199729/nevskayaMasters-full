@@ -15,7 +15,7 @@ import {
   setUpdateStrokeDasharrays,
 } from '../../../services/actions/draw';
 import useInput from '../../../hooks/useInput';
-import {IElementWallRoom, IWallSize} from '../../../shared/types';
+import {IElementWallRoom, IWallSize, StatusButton} from '../../../shared/types';
 import {Colors, Fonts} from '../../../shared/tokens';
 interface IWallSizeInput {
   id: number;
@@ -94,8 +94,8 @@ export default function AddSizeWall() {
     const validHeightLeft = validateNumber(heightLeft.value);
     const validWidthTop = validateNumber(widthTop.value);
     const validWidthBottom = validateNumber(widthBottom.value);
-    const validWallAngleDegree = validateNumber(wallAngleDegree.value);
-    const validRadiusWall = validateNumber(radiusWall.value);
+    // const validWallAngleDegree = validateNumber(wallAngleDegree.value);
+    // const validRadiusWall = validateNumber(radiusWall.value);
 
     if (
       validHeightRight &&
@@ -245,6 +245,7 @@ export default function AddSizeWall() {
               !validateNumber(widthBottom.value)
             }
             onPress={handleSubmit}
+            statusButton={StatusButton.DisabledButton}
           />
         </View>
       )}

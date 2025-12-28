@@ -1,39 +1,56 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import MainScreen from '../../screens/MainScreen';
-import ObjectApplication from '../../../shared/ObjectApplication/ObjectApplication';
-import {ObjectStatus} from '../../../shared/types';
 import HeaderScreen from '../../screens/HeaderScreen';
 import ButtonLink from '../../../shared/ButtonLink/ButtonLink';
-import {useNavigation, useNavigationState} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useCallback, useEffect, useState} from 'react';
+import ObjectApplication from '../../../shared/ObjectApplication/ObjectApplication';
+import {checkUserAuth} from '../../../services/actions/user';
+import {useDispatch, useSelector} from '../../../services/hooks';
+import {getApartmentsInitial} from '../../../services/actions/apartment';
 
 function Main() {
   const navigation = useNavigation();
-  const currentRouteName = useNavigationState(
-    state => state.routes[state.index].name,
+  const dispatch = useDispatch();
+  const {apartments} = useSelector(state => state.apartment);
+
+  // const currentRouteName = useNavigationState(
+  //   state => state.routes[state.index].name,
+  // );
+  // const arrObjectApplication = [
+  //   {status: ObjectStatus.Created},
+  //   {status: ObjectStatus.Created},
+  //   {status: ObjectStatus.Running},
+  //   {status: ObjectStatus.Completed},
+  //   {status: ObjectStatus.Created},
+  // ];
+  useEffect(() => {
+    dispatch(checkUserAuth());
+  }, [dispatch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getApartmentsInitial());
+    }, [dispatch]),
   );
-  const arrObjectApplication = [
-    {status: ObjectStatus.Created},
-    {status: ObjectStatus.Created},
-    {status: ObjectStatus.Running},
-    {status: ObjectStatus.Completed},
-    {status: ObjectStatus.Created},
-  ];
+  // console.log(JSON.stringify(apartments, null, 2).length, 'apartments apartments');
 
   return (
     <HeaderScreen>
       <MainScreen mainTitle="Объекты" path="main" pathLink="Politics">
-        {arrObjectApplication.map((item, index) => {
-          return <ObjectApplication key={index} status={item.status} />;
+        {apartments?.map((item: any, index: number) => {
+          return (
+            // <View key={index}>
+            //   <Text>{item.id}</Text>
+            //   <Text>{item.createdAt.toLocaleDateString()}</Text>
+            // </View>
+            <ObjectApplication key={index} item={item} />
+          );
         })}
         <ButtonLink
           navigationPath={navigation}
           textBtn="Политика кофиденциальности"
           path={'Policy'}
-        />
-        <ButtonLink
-          navigationPath={navigation}
-          textBtn="Развернутый объект"
-          path={'UnwrappedProduct'}
         />
       </MainScreen>
     </HeaderScreen>

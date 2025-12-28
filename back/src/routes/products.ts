@@ -11,7 +11,7 @@ import {
 //   createCardValid,
 //   parameterIdValid,
 // } from "../middlewares/validationJoi";
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get("/", getProducts);
 router.get("/:cardId", getProduct);

@@ -20,7 +20,7 @@ export default function ButtonMenuBottom({
       opacity: isActive ? 0.5 : 1,
       justifyContent: 'center' as const,
     },
-    btn === 'CreateProject' && {
+    btn === 'UnwrappedProduct' && {
       backgroundColor: Colors.lightGrayThree,
       borderRadius: Radius.rC,
       width: 36,
@@ -31,7 +31,7 @@ export default function ButtonMenuBottom({
   return (
     <Pressable style={getButtonStyle(btn, isActive)} onPress={onPressClick}>
       {icon}
-      {btn !== 'CreateProject' && (
+      {btn !== 'UnwrappedProduct' && (
         <Text style={styles.textMenuBottom}>{text}</Text>
       )}
     </Pressable>
