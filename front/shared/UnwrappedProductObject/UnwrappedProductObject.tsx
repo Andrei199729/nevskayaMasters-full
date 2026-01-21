@@ -20,11 +20,15 @@ interface IObjectApplication {
 }
 
 function UnwrappedProductObject({status}: IObjectApplication) {
-  const {applicationId, formApplication} = useSelector(
+  const {applicationId, formApplication, apartments} = useSelector(
     state => state.apartment,
   );
-  console.log(formApplication, 'formApplication');
-  const applicationData = applicationId?.dataApplication ?? formApplication;
+  console.log(formApplication.addressApplication, 'formApplication');
+
+  const applicationData = apartments.find(
+    (apartment: any) => apartment._id === applicationId,
+  );
+
   if (!applicationData) return null;
   return (
     <View style={styles.objectApplicationContainer}>
@@ -33,7 +37,8 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           <View style={styles.boxPencilApplication}>
             <Text
               style={[styles.textApplication, styles.textOpacityApplication]}>
-              {applicationData?.dateRegistration}
+              {applicationData?.dataApplication?.dateRegistration ??
+                formApplication?.dateRegistration}
             </Text>
           </View>
         </View>
@@ -42,9 +47,12 @@ function UnwrappedProductObject({status}: IObjectApplication) {
         </View>
       </View>
       <Text style={[styles.textApplication, styles.addressApplication]}>
-        {applicationData?.addressApplication}
+        {applicationData?.dataApplication?.addressApplication ??
+          formApplication?.addressApplication}
       </Text>
-      <Text style={styles.textApplication}>{applicationData?.nameCompany}</Text>
+      <Text style={styles.textApplication}>
+        {applicationData?.dataApplication?.nameCompany}
+      </Text>
       <View style={styles.contactCallApplication}>
         <Text style={[styles.textApplication, styles.textOpacityApplication]}>
           Оплата с салона
@@ -53,7 +61,7 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.telSalon}
+          {applicationData?.dataApplication?.telSalon}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -64,7 +72,7 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.telManager}
+          {applicationData?.dataApplication?.telManager}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -75,7 +83,7 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.telClient}
+          {applicationData?.dataApplication?.telClient}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -86,7 +94,7 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.telForeman}
+          {applicationData?.dataApplication?.telForeman}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -97,15 +105,15 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.dateRegistration}
+          {applicationData?.dataApplication?.dateRegistration}
         </Text>
       </View>
       <View style={styles.boxCompanyApplication}>
         <Text style={[styles.textApplication, styles.addressApplication]}>
-          {applicationData?.nameClient}
+          {applicationData?.dataApplication?.nameClient}
         </Text>
         <Text style={[styles.textApplication, styles.addressApplication]}>
-          {`${applicationData?.price} руб.`}
+          {`${applicationData?.dataApplication?.price} руб.`}
         </Text>
       </View>
     </View>
@@ -119,6 +127,7 @@ const styles = StyleSheet.create({
     padding: 18,
     flexDirection: 'column',
     gap: Gaps.g12,
+    marginBottom: 20,
   },
   blockApplication: {
     flexDirection: 'row',

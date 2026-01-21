@@ -1,7 +1,6 @@
 import {Dimensions} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
-console.log(typeof width);
 
 const vw = (percentage: number) => (width * percentage) / 100;
 const vh = (percentage: number) => (height * percentage) / 100;

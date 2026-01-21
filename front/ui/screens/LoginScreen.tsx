@@ -16,6 +16,8 @@ function LoginScreen({navigation}: any) {
   const {accessToken} = useSelector(state => state.user);
   const emailInput = useInput('123456789@mail.ru');
   const passwordInput = useInput('123456789');
+  // const emailInput = useInput('');
+  // const passwordInput = useInput('');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
   const [emailError, setEmailError] = useState<boolean>(true);
   const [localError, setLocalError] = useState<string | undefined>(

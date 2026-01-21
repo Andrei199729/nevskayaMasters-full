@@ -1,4 +1,4 @@
-import {useCallback, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Colors} from '../../shared/tokens';
 import Tomorrow from '../../assets/images/icon/iconFunc/tomorrow';
@@ -7,10 +7,13 @@ import CreateTask from '../../assets/images/icon/iconFunc/createTask';
 import ButtonMenuBottom from '../../shared/ButtonMenuBottom/ButtonMenuBottom';
 import {IMainScreen} from '../../shared/types';
 import MainContent from '../components/MainContent/MainContent';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useDispatch} from '../../services/hooks';
-import {resetFormApplication} from '../../services/actions/apartment';
+import {
+  addApplication,
+  resetFormApplication,
+} from '../../services/actions/apartment';
 import {resetRooms} from '../../services/actions/room';
 
 interface IMenuBottomState {
@@ -25,10 +28,8 @@ type RootStackParamList = {
 };
 
 type MenuBottomNavigationProp = StackNavigationProp<RootStackParamList>;
-
 function MainScreen({children, ...props}: IMainScreen) {
   const dispatch = useDispatch();
-
   const navigation = useNavigation<MenuBottomNavigationProp>();
   //  мемоизируем массив иконок
   const initialButtons = useMemo<IMenuBottomState[]>(
@@ -63,6 +64,7 @@ function MainScreen({children, ...props}: IMainScreen) {
     if (screenNameMenuBtn === 'UnwrappedProduct') {
       dispatch(resetRooms());
       dispatch(resetFormApplication());
+      dispatch(addApplication());
       navigation.navigate('UnwrappedProduct');
     }
   };

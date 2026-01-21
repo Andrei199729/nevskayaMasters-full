@@ -11,7 +11,7 @@ import Apartament from "../models/apartament";
 export const getProducts = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { apartamentId } = req.params;
   try {
@@ -25,7 +25,7 @@ export const getProducts = async (
 export const getProduct = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { cardId, apartamentId } = req.params;
   try {
@@ -47,7 +47,7 @@ export const getProduct = async (
 export const createProduct = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { nameRoom, dataProduct } = req.body;
   const ownerId = req?.user?._id;
@@ -67,12 +67,12 @@ export const createProduct = async (
     const apartament = await Apartament.findByIdAndUpdate(
       apartamentId,
       { $push: { rooms: product._id } },
-      { new: true }
+      { new: true },
     );
 
     if (!apartament) {
       return next(
-        new BadRequestError({ message: "Переданы некорректные данные" })
+        new BadRequestError({ message: "Переданы некорректные данные" }),
       );
     }
 
@@ -80,7 +80,7 @@ export const createProduct = async (
   } catch (err) {
     console.error("Ошибка создания комнаты:", err);
     return next(
-      new BadRequestError({ message: "Переданы некорректные данные" })
+      new BadRequestError({ message: "Переданы некорректные данные" }),
     );
   }
 };
@@ -88,7 +88,7 @@ export const createProduct = async (
 export function updateProduct(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { cardId, apartamentId } = req.params;
 
@@ -98,12 +98,12 @@ export function updateProduct(
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((product) => {
       if (!product) {
         return next(
-          new ErrorNotFound({ message: "Переданы некорректные данные" })
+          new ErrorNotFound({ message: "Переданы некорректные данные" }),
         );
       }
       return res.send(product);
@@ -111,7 +111,7 @@ export function updateProduct(
     .catch((err) => {
       if (err.name === "ValidationError") {
         return next(
-          new ErrorNotFound({ message: "Переданы некорректные данные" })
+          new ErrorNotFound({ message: "Переданы некорректные данные" }),
         );
       }
       return next(err);
@@ -121,7 +121,7 @@ export function updateProduct(
 export function updateRoomSize(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { cardId, sizeId, apartamentId } = req.params; // id комнаты и id размера стены
   const updateData = req.body; // сюда приходят новые height/width и т.п.
@@ -133,12 +133,12 @@ export function updateRoomSize(
       new: true,
       runValidators: true,
       arrayFilters: [{ "wall.id": sizeId }], // или wall._id если в БД _id
-    }
+    },
   )
     .then((product) => {
       if (!product) {
         return next(
-          new ErrorNotFound({ message: "Комната или стена не найдены" })
+          new ErrorNotFound({ message: "Комната или стена не найдены" }),
         );
       }
 
@@ -147,7 +147,7 @@ export function updateRoomSize(
     .catch((err) => {
       if (err.name === "ValidationError") {
         return next(
-          new ErrorNotFound({ message: "Переданы некорректные данные" })
+          new ErrorNotFound({ message: "Переданы некорректные данные" }),
         );
       }
       return next(err);
@@ -157,7 +157,7 @@ export function updateRoomSize(
 export function deleteProductElement(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { cardId, sizeId, elementId, apartamentId } = req.params;
 
@@ -169,7 +169,7 @@ export function deleteProductElement(
 
       if (product.owner.toString() !== req.user?._id.toString()) {
         return next(
-          new Forbidden("Вы не можете удалять элементы из этой карточки")
+          new Forbidden("Вы не можете удалять элементы из этой карточки"),
         );
       }
 
@@ -179,7 +179,7 @@ export function deleteProductElement(
       }
 
       const wall = dp.drawingData.walls.find(
-        (wall: { size: { id: number } }) => wall.size.id === Number(sizeId)
+        (wall: { size: { id: number } }) => wall.size.id === Number(sizeId),
       );
 
       if (!wall) {

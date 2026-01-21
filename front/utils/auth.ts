@@ -29,8 +29,6 @@ const postRefreshToken = async (refreshToken?: string) => {
 };
 
 export const fetchWithRefresh = async (url: string, options: any) => {
-  console.log(options, 'options');
-
   try {
     const res = await fetch(url, options);
     return await getJson(res);

@@ -8,8 +8,12 @@ import {
   SET_VIEW_APPLICATION_ID,
   SET_VIEW_APPLICATION_FORM,
   RESET_FORM_APPLICATION,
+  POST_ADD_APPLICATION_SUCCESS,
+  PATCH_APARTMENT_SUCCESS,
+  CURRENT_APPLICATION_ID,
+  RESET_CURRENT_APPLICATION,
+  UPDATE_APARTMENT_APPLICATION,
 } from '../constants/constants';
-import {IApartment} from '../types/data';
 
 interface IApartmentState {
   apartments: any;
@@ -19,6 +23,7 @@ interface IApartmentState {
   formApplication: any;
   applicationId: any;
   isVisible: boolean;
+  currentIdApplication: string | null;
 }
 
 const initialState: IApartmentState = {
@@ -29,6 +34,7 @@ const initialState: IApartmentState = {
   formApplication: {},
   applicationId: {},
   isVisible: true,
+  currentIdApplication: null,
 };
 
 export const apartmentReducer = (
@@ -56,17 +62,35 @@ export const apartmentReducer = (
         error: action.error,
         loading: false,
       };
+    case POST_ADD_APPLICATION_SUCCESS:
+      return {
+        ...state,
+        apartments: [action.payload, ...state.apartments],
+        isVisible: true,
+      };
     case ADD_APARTMENT:
       return {
         ...state,
         apartments: action.payload,
         isVisible: true,
       };
+    case PATCH_APARTMENT_SUCCESS:
+      return {
+        ...state,
+        apartments: state.apartments.map((item: {_id: string}) =>
+          item._id === action.payload._id ? action.payload : item,
+        ),
+      };
     case RESET_FORM_APPLICATION:
       return {
         ...state,
         formApplication: {},
         isVisible: true,
+      };
+    case CURRENT_APPLICATION_ID:
+      return {
+        ...state,
+        currentIdApplication: action.payload,
       };
     // case PATCH_APARTMENT_REQUEST:
     // // return {...state, loading: true};
@@ -90,6 +114,26 @@ export const apartmentReducer = (
         ...state,
         isVisible: action.isVisible,
       };
+    case RESET_CURRENT_APPLICATION:
+      return {
+        ...state,
+        currentIdApplication: null,
+      };
+    case UPDATE_APARTMENT_APPLICATION: {
+      const {applicationId, dataApplication} = action.payload;
+
+      return {
+        ...state,
+        apartments: state.apartments.map((apartment: any) =>
+          apartment._id === applicationId
+            ? {
+                ...apartment,
+                dataApplication,
+              }
+            : apartment,
+        ),
+      };
+    }
     default:
       return state;
   }
