@@ -3,13 +3,10 @@ import {Colors, Fonts, Gaps, Radius} from '../tokens';
 import PencilIcon from '../../assets/images/icon/iconFunc/pencil';
 import {ObjectStatus, RootStackParamList} from '../types';
 import {useCallback} from 'react';
-import {
-  NavigationProp,
-  useFocusEffect,
-  useNavigation,
-} from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from '../../services/hooks';
 import {
+  currentApplicationId,
   setApplicationId,
   setViewApplicationForm,
 } from '../../services/actions/apartment';
@@ -20,13 +17,12 @@ interface IObjectApplication {
   item: any;
 }
 
-function ObjectApplication({item, status, ...props}: IObjectApplication) {
+function ObjectApplication({item, status}: IObjectApplication) {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {apartments} = useSelector(state => state.apartment);
 
   const applicationId = apartments.find((i: any) => i._id === item._id);
-  // console.log(applicationId?.formApplication, 'applicationId');
 
   const statusState = (status: string) => {
     switch (status) {
@@ -44,7 +40,8 @@ function ObjectApplication({item, status, ...props}: IObjectApplication) {
   const opacity = status === ObjectStatus.Completed ? 1 : 0.5;
   const handlePress = useCallback(() => {
     if (!applicationId?._id) return;
-    dispatch(setApplicationId(applicationId));
+    dispatch(setApplicationId(applicationId?._id));
+    dispatch(currentApplicationId(applicationId?._id));
     dispatch(resetRooms());
     dispatch(setViewApplicationForm(false));
     navigation.navigate('UnwrappedProduct');

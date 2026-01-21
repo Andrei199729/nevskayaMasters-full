@@ -1,7 +1,7 @@
 import {Modal, View, Text, StyleSheet} from 'react-native';
 import {IElementWallRoom, Mode} from '../../../shared/types';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import ModalFormElement from '../ModalFormElement/ModalFormElement';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {useDispatch, useSelector} from '../../../services/hooks';
@@ -70,12 +70,6 @@ export default function ModalSizesElement({
     },
     [dispatch, sizeWalls],
   );
-
-  useEffect(() => {
-    console.log('elementsSizeData');
-    // console.log(elementData, 'elementData');
-    console.log(element.data, 'element');
-  }, [element]);
 
   return (
     <Modal

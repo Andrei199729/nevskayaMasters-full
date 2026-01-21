@@ -579,7 +579,6 @@ export function getRoomsInitial(apartamentId: any) {
     // if (skipLoad) {
     //   return; // 🔥 ничего не грузим
     // }
-    console.log(apartamentId);
 
     dispatch(resetRooms());
     dispatch(getRoomRequestAction());
@@ -594,7 +593,6 @@ export function getRoomsInitial(apartamentId: any) {
       api.setToken(accessToken); // ✅ установить токен в API перед запросом
       const data = await api.getInitialProducts(apartamentId);
       dispatch(setAuthloggedIn(true));
-      console.log(data.products, 'data');
 
       if (data?.products && data?.products && Array.isArray(data?.products)) {
         dispatch(setRoomData(data?.products));
@@ -612,9 +610,13 @@ export function getRoomsInitial(apartamentId: any) {
 export function addRoom(
   name: string,
   sizeWalls: IDrawing[],
-  apartamentId: any,
+  apartamentId: string | null,
 ) {
   return async function (dispatch: AppDispatch) {
+    if (!apartamentId) {
+      console.error('Id квартиры не найден');
+      return;
+    }
     dispatch(postAddRoomRequestAction());
     try {
       const {dataProduct, name: nameRoom} = await api.addProduct(
@@ -622,7 +624,6 @@ export function addRoom(
         sizeWalls,
         apartamentId,
       );
-      console.log(apartamentId, 'apartamentId');
 
       dispatch(postAddRoomSuccessAction({name, dataProduct}));
       return {dataProduct, name: nameRoom};

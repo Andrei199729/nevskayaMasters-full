@@ -1,8 +1,6 @@
 import {Pressable, View, Text, StyleSheet} from 'react-native';
 import {StateElement, TStateElement} from '../../../shared/types';
 import {Colors} from '../../../shared/tokens';
-import Close from '../../../assets/images/icon/iconFunc/CloseIcon';
-import {useCallback} from 'react';
 interface IBlockStateElements {
   nameElement: string;
   stateElement: TStateElement | string;

@@ -14,8 +14,9 @@ import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
 import {useDispatch, useSelector} from '../../services/hooks';
-import {addRoom} from '../../services/actions/room';
+// import {addRoom} from '../../services/actions/room';
 import {Colors, Fonts} from '../../shared/tokens';
+import {addRoom} from '../../services/actions/room';
 
 export default function FormDataAddProductScreen() {
   const navigation =
@@ -26,7 +27,7 @@ export default function FormDataAddProductScreen() {
   const {sizeWalls, wallsData, countWallDraw} = useSelector(
     state => state.room,
   );
-  const {applicationId} = useSelector(state => state.apartment);
+  const {currentIdApplication} = useSelector(state => state.apartment);
   const nameRoom = useInput('');
 
   const onSaveDataWall = useCallback(() => {
@@ -35,7 +36,7 @@ export default function FormDataAddProductScreen() {
       return;
     }
 
-    dispatch(addRoom(nameRoom.value, sizeWalls, applicationId?._id))
+    dispatch(addRoom(nameRoom.value, sizeWalls, currentIdApplication))
       .then(result => {
         if (!result) return;
         const {dataProduct, name} = result;
@@ -45,7 +46,7 @@ export default function FormDataAddProductScreen() {
         });
       })
       .catch(err => console.log(err));
-  }, [sizeWalls, applicationId, nameRoom, dispatch, navigation]);
+  }, [sizeWalls, dispatch, nameRoom.value, currentIdApplication, navigation]);
   return (
     <KeyboardAvoidingView
       style={styles.container}

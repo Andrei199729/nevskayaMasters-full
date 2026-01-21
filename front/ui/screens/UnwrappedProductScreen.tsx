@@ -1,21 +1,14 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {BackHandler, StyleSheet, Text, View} from 'react-native';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {Colors, Fonts, Gaps} from '../../shared/tokens';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo} from 'react';
 import HeaderScreen from './HeaderScreen';
-import {
-  IProductRoom,
-  ObjectStatus,
-  PathScreen,
-  RootStackParamList,
-} from '../../shared/types';
+import {IProductRoom, PathScreen, RootStackParamList} from '../../shared/types';
 import MainScreen from './MainScreen';
-import UnwrappedProductObject from '../../shared/UnwrappedProductObject/UnwrappedProductObject';
 import Title from '../../shared/Title/Title';
 import ButtonDownload from '../../shared/ButtonDownload/ButtonDownload';
 import ButtonAddProduct from '../../shared/ButtonAddProduct/ButtonAddProduct';
 import {NavigationProp, useFocusEffect} from '@react-navigation/native';
-import {checkUserAuth} from '../../services/actions/user';
 import {
   addOrUpdateRoom,
   getRoomsInitial,
@@ -29,9 +22,9 @@ import {setOpenFormDataSize} from '../../services/actions/modalOpen';
 import {ProductItem} from '../../shared/RoomItem/RoomItem';
 import FormsApplication from '../components/FormsApplication/FormsApplication';
 import {
-  addApartment,
-  resetFormApplication,
-  setApplicationId,
+  currentApplicationId,
+  deleteApplication,
+  updateApartment,
 } from '../../services/actions/apartment';
 
 // type TUnwrappedProductScreenRouteProp = RouteProp<
@@ -55,7 +48,7 @@ function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
 
   const {userData} = useSelector(state => state.user);
   const {roomData, loading} = useSelector(state => state.room);
-  const {formApplication, applicationId} = useSelector(
+  const {formApplication, currentIdApplication} = useSelector(
     state => state.apartment,
   );
 
@@ -81,10 +74,14 @@ function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
     [navigation, dispatch],
   );
   const onHandleSaveObject = useCallback(() => {
-    dispatch(addApartment(formApplication));
-
+    if (currentIdApplication) {
+      dispatch(updateApartment(currentIdApplication, formApplication));
+    } else {
+      console.error('Квартира не создана, нельзя обновлять');
+    }
+    dispatch(currentApplicationId(null));
     navigation.navigate('Main');
-  }, [dispatch, formApplication, navigation]);
+  }, [currentIdApplication, dispatch, formApplication, navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -96,15 +93,15 @@ function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
       );
 
       // Если создаем новую квартиру, сбрасываем комнаты
-      if (!applicationId?._id) {
+      if (!currentIdApplication) {
         dispatch(resetRooms());
         // Не трогаем formApplication, чтобы форма осталась
         return;
       }
 
       // Если есть просмотр заявки, подгружаем комнаты
-      dispatch(getRoomsInitial(applicationId._id));
-    }, [applicationId, dispatch]),
+      dispatch(getRoomsInitial(currentIdApplication));
+    }, [currentIdApplication, dispatch]),
   );
 
   useEffect(() => {
@@ -114,6 +111,25 @@ function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
       dispatch(addOrUpdateRoom({nameRoom, dataProduct, owner: userId}));
     }
   }, [route.params, dispatch, userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (currentIdApplication) {
+          dispatch(deleteApplication(currentIdApplication));
+        }
+
+        navigation.goBack();
+
+        return true; // ⛔ блокируем стандартный back
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [currentIdApplication, dispatch, navigation]),
+  );
 
   // мемоизируем список доступных изделий
   const filteredRooms = useMemo(() => {

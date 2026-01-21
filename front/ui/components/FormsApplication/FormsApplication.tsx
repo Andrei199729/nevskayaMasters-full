@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 // import {useDispatch, useSelector} from '../../../services/hooks';
 import useInput from '../../../hooks/useInput';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -12,22 +12,39 @@ import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   setFormApplication,
   setViewApplicationForm,
+  updateApartmentApplication,
 } from '../../../services/actions/apartment';
 
-export default function FormsApplication({}) {
+export default function FormsApplication() {
+  const [isInitialized, setIsInitialized] = useState(false);
   const dispatch = useDispatch();
-  const {isVisible} = useSelector(state => state.apartment);
-
-  const addressApplication = useInput('');
-  const nameCompany = useInput('');
-  const telSalon = useInput('');
-  const telManager = useInput('');
-  const telClient = useInput('');
-  const telForeman = useInput('');
-  const dateRegistration = useInput('');
-  const nameClient = useInput('');
-  const price = useInput('');
-  // const [viewInput, setViewInput] = useState<boolean>(true);
+  const {isVisible, apartments, applicationId, formApplication} = useSelector(
+    state => state.apartment,
+  );
+  const applicationData =
+    apartments.find((apartment: any) => apartment._id === applicationId) ??
+    formApplication;
+  const addressApplication = useInput(
+    applicationData?.dataApplication?.addressApplication || '',
+  );
+  const nameCompany = useInput(
+    applicationData?.dataApplication?.nameCompany || '',
+  );
+  const telSalon = useInput(applicationData?.dataApplication?.telSalon || '');
+  const telManager = useInput(
+    applicationData?.dataApplication?.telManager || '',
+  );
+  const telClient = useInput(applicationData?.dataApplication?.telClient || '');
+  const telForeman = useInput(
+    applicationData?.dataApplication?.telForeman || '',
+  );
+  const dateRegistration = useInput(
+    applicationData?.dataApplication?.dateRegistration || '',
+  );
+  const nameClient = useInput(
+    applicationData?.dataApplication?.nameClient || '',
+  );
+  const price = useInput(applicationData?.dataApplication?.price || '');
   const onSaveDataApplication = useCallback(() => {
     //     // Убедимся, что все поля имеют строковые значения
     const normalizedSize = {
@@ -46,6 +63,8 @@ export default function FormsApplication({}) {
     };
     dispatch(setFormApplication(normalizedSize));
     dispatch(setViewApplicationForm(false));
+    dispatch(updateApartmentApplication(applicationId, normalizedSize));
+    setIsInitialized(false);
   }, [
     addressApplication?.value,
     dateRegistration?.value,
@@ -59,27 +78,49 @@ export default function FormsApplication({}) {
     telSalon?.value,
   ]);
 
-  //   useEffect(() => {
-  //     if (dataWall.dataEditWall) {
-  //       heightRight.onChangeText(dataWall.dataEditWall.heightRight || '');
-  //       widthTop.onChangeText(dataWall.dataEditWall.widthTop || '');
-  //       heightLeft.onChangeText(dataWall.dataEditWall.heightLeft || '');
-  //       widthBottom.onChangeText(dataWall.dataEditWall.widthBottom || '');
-  //       radiusWall.onChangeText(dataWall.dataEditWall.radiusWall || '');
-  //       wallAngleDegree.onChangeText(dataWall.dataEditWall.wallAngleDegree || '');
-  //       valueDegree.onChangeText(dataWall.dataEditWall.valueDegree || '');
-  //     }
-  //   }, [
-  //     dataWall.dataEditWall,
-  //     heightLeft,
-  //     heightRight,
-  //     radiusWall,
-  //     valueDegree,
-  //     wallAngleDegree,
-  //     widthBottom,
-  //     widthTop,
-  //   ]);
-  console.log(isVisible, 'isVisible');
+  const onEditDataApplication = () => {
+    dispatch(setViewApplicationForm(true));
+  };
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    if (applicationData?.dataApplication) {
+      addressApplication.onChangeText(
+        applicationData?.dataApplication?.addressApplication || '',
+      );
+      dateRegistration.onChangeText(
+        applicationData?.dataApplication?.dateRegistration || '',
+      );
+      nameClient.onChangeText(
+        applicationData?.dataApplication?.nameClient || '',
+      );
+      nameCompany.onChangeText(
+        applicationData?.dataApplication?.nameCompany || '',
+      );
+      price.onChangeText(applicationData?.dataApplication?.price || '');
+      telClient.onChangeText(applicationData?.dataApplication?.telClient || '');
+      telForeman.onChangeText(
+        applicationData?.dataApplication?.telForeman || '',
+      );
+      telManager.onChangeText(
+        applicationData?.dataApplication?.telManager || '',
+      );
+      telSalon.onChangeText(applicationData?.dataApplication?.telSalon || '');
+      setIsInitialized(true);
+    }
+  }, [
+    addressApplication,
+    applicationData?.dataApplication,
+    dateRegistration,
+    isInitialized,
+    nameClient,
+    nameCompany,
+    price,
+    telClient,
+    telForeman,
+    telManager,
+    telSalon,
+  ]);
 
   return (
     <>
@@ -147,23 +188,21 @@ export default function FormsApplication({}) {
                 inputModeText={'numeric'}
               />
             </View>
-            <View>
-              <View style={styles.wallBlockInput}>
-                <Text style={styles.wallBlockText}>Имя</Text>
-                <Input
-                  value={nameClient.value}
-                  onChangeText={nameClient.onChangeText}
-                  inputModeText={'text'}
-                />
-              </View>
-              <View style={styles.wallBlockInput}>
-                <Text style={styles.wallBlockText}>Стоимость</Text>
-                <Input
-                  value={price.value}
-                  onChangeText={price.onChangeText}
-                  inputModeText={'text'}
-                />
-              </View>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Имя</Text>
+              <Input
+                value={nameClient.value}
+                onChangeText={nameClient.onChangeText}
+                inputModeText={'text'}
+              />
+            </View>
+            <View style={styles.wallBlockInput}>
+              <Text style={styles.wallBlockText}>Стоимость</Text>
+              <Input
+                value={price.value}
+                onChangeText={price.onChangeText}
+                inputModeText={'text'}
+              />
             </View>
           </View>
 
@@ -190,7 +229,7 @@ export default function FormsApplication({}) {
           <UnwrappedProductObject status={ObjectStatus.Created} />
           <ButtonCustom
             textBtn="Редактировать данные заявки"
-            onPress={onSaveDataApplication}
+            onPress={onEditDataApplication}
           />
         </View>
       )}
@@ -208,6 +247,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
     gap: 10,
+    marginBottom: 20,
   },
   wallBlockInput: {
     gap: 10,
@@ -219,21 +259,10 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
 
-  label: {
-    margin: 8,
-  },
-
   textNumb: {
     fontSize: Fonts.f16,
     color: Colors.black,
     fontWeight: '600',
     marginBottom: 10,
-  },
-  blockRadio: {
-    padding: 20,
-  },
-  blockRadioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });

@@ -37,9 +37,8 @@ class Api {
   async addProduct(
     nameRoom: string,
     dataProduct: IDrawing[],
-    apartamentId: any,
+    apartamentId: string | null,
   ) {
-    console.log({nameRoom, dataProduct, apartamentId});
     try {
       const response = await this.client.post(
         `/apartaments/${apartamentId}/products`,
@@ -51,8 +50,6 @@ class Api {
 
       return response.data;
     } catch (err: any) {
-      console.log(err, 'err');
-
       console.error(
         'Ошибка при создании продукта:',
         err.response?.data || err.message,
@@ -61,19 +58,33 @@ class Api {
     }
   }
 
-  async addApartament(dataApplication: any) {
+  async addApplication() {
     try {
-      const response = await this.client.post('/apartaments', {
-        dataApplication,
-      });
-      console.log(dataApplication, 'apartament-api');
-      console.log(response.data, 'response.data-api');
+      const response = await this.client.post('/apartaments');
       return response.data;
     } catch (err: any) {
-      console.log(err, 'err');
-
       console.error(
         'Ошибка при создании помещения:',
+        err.response?.data || err.message,
+      );
+      throw err;
+    }
+  }
+
+  async addApartament(apartamentId: string | null, dataApplication: any) {
+    if (!apartamentId) {
+      console.error('addApartament: apartamentId не найден');
+      throw new Error('Id квартиры не найден');
+    }
+    try {
+      const response = await this.client.patch(`/apartaments/${apartamentId}`, {
+        apartamentId,
+        dataApplication,
+      });
+      return response.data;
+    } catch (err: any) {
+      console.error(
+        'Ошибка при создании заявки:',
         err.response?.data || err.message,
       );
       throw err;
@@ -90,10 +101,25 @@ class Api {
       );
       return response.data;
     } catch (err: any) {
-      console.log(err, 'err');
-
       console.error(
         'Ошибка при редактировании продукта:',
+        err.response?.data || err.message,
+      );
+      throw err;
+    }
+  }
+
+  async deleteApplication(apartamentId: string | null) {
+    if (!apartamentId) {
+      console.warn('apartamentId не передан');
+      return;
+    }
+    try {
+      const response = await this.client.delete(`/apartaments/${apartamentId}`);
+      return response.data;
+    } catch (err: any) {
+      console.error(
+        'Ошибка при удалении заявки:',
         err.response?.data || err.message,
       );
       throw err;

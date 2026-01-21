@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { updateProduct } from "../controllers/products";
 
 const ApplicationSchema = new mongoose.Schema(
   {
@@ -33,6 +32,10 @@ const apartamentSchema = new mongoose.Schema(
     ],
     // status: ["draft", "active", "completed", "archived"],
     // default: "draft",
+    isDraft: {
+      type: Boolean,
+      default: true, // по умолчанию шаблонная заявка
+    },
   },
   { timestamps: true }
 );
