@@ -14,7 +14,6 @@ import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Draw from '../components/Draw/Draw';
 import {useDispatch, useSelector} from '../../services/hooks';
-// import {addRoom} from '../../services/actions/room';
 import {Colors, Fonts} from '../../shared/tokens';
 import {addRoom} from '../../services/actions/room';
 

@@ -6,23 +6,33 @@ import {
   getProducts,
   updateProduct,
 } from "../controllers/products";
+import { ROOMID, SIZEID, ELEMENTID } from "../sharedPath/apiPaths";
+import auth from "../middlewares/auth";
+import {
+  createProductValid,
+  parameterIdsValid,
+  parameterIdValid,
+  updateProductValid,
+} from "../middlewares/validationJoi";
 
-// import {
-//   createCardValid,
-//   parameterIdValid,
-// } from "../middlewares/validationJoi";
 const router = Router({ mergeParams: true });
 
-router.get("/", getProducts);
-router.get("/:cardId", getProduct);
-router.post("/", createProduct);
+router.get("/", auth, getProducts);
+router.get(ROOMID, auth, parameterIdValid("cardId"), getProduct);
+router.post("/", auth, createProductValid, createProduct);
 
-router.patch("/:cardId", updateProduct);
-// router.patch("/:cardId/:sizeId", updateRoomSize);
-router.delete("/:cardId/:sizeId/:elementId", deleteProductElement);
-// router.patch("/:cardId/:sizeId/:elementId", updateProductElement);
-// router.delete("/:cardId", parameterIdValid("cardId"), deleteCardId);
-// router.put("/:cardId/likes", parameterIdValid("cardId"), likeCard);
-// router.delete("/:cardId/likes", parameterIdValid("cardId"), dislikeCard);
+router.patch(
+  ROOMID,
+  auth,
+  parameterIdsValid("cardId", "apartmentId"),
+  updateProductValid,
+  updateProduct,
+);
+router.delete(
+  `${ROOMID}${SIZEID}${ELEMENTID}`,
+  auth,
+  parameterIdsValid("cardId", "elementId", "sizeId", "apartmentId"),
+  deleteProductElement,
+);
 
 export default router;

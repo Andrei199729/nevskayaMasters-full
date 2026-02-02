@@ -19,6 +19,8 @@ export enum PathScreenAuth {
   RestorePassword = 'RestorePassword',
   Success = 'Success',
   NewPassword = 'NewPassword',
+  Splash = 'Splash',
+  Policy = 'Policy',
 }
 
 export enum PathScreen {
@@ -37,6 +39,12 @@ export enum StateElement {
 export enum ChoiceRights {
   Supervisor = 'supervisor',
   Manager = 'manager',
+  default = '',
+}
+
+export enum ChoiceRightsText {
+  Supervisor = 'Руководитель',
+  Manager = 'Менеджер',
 }
 
 export type TStateElement =
@@ -84,7 +92,6 @@ export interface IMainScreen {
   navigation?: string;
   textBtn?: string;
   pathLink?: string;
-  setArrObjectApplication?: any;
 }
 
 export interface ISelectOption {
@@ -98,10 +105,11 @@ export interface IDataItem {
 }
 
 export type RootStackParamList = {
+  Splash: undefined;
   Login: undefined;
   NewPassword: undefined;
-  RegisterScreen: undefined;
-  RestorePasswordScreen: undefined;
+  Register: undefined;
+  RestorePassword: undefined;
   Success: undefined;
   SuccessScreen: undefined;
   FormDataAddProduct: undefined;
@@ -112,6 +120,11 @@ export type RootStackParamList = {
     isNewObject?: boolean;
   };
   Product: undefined;
+  Policy: undefined;
+  Filter: undefined;
+  Search: undefined;
+  CreateProject: undefined;
+  Loader: undefined;
 };
 
 export interface IWallSize {
@@ -234,6 +247,44 @@ export interface IProductRoom {
   nameRoom: string;
   _id?: string;
   owner: string;
-  apartament?: any;
-  createdAt?: any;
+  apartment?: string;
+  createdAt?: string;
+}
+
+export interface INormalizedSize {
+  addressApplication: string;
+  id: number;
+  numberApplication: number;
+  nameCompany: string;
+  telSalon: string;
+  telManager: string;
+  telClient: string;
+  telForeman: string;
+  dateRegistration?: string;
+  nameClient: string;
+  price: string;
+  status: string;
+}
+
+export interface IApartments {
+  _id: string;
+  dataApplication: INormalizedSize;
+  owner: string;
+  rooms: string[];
+  isDraft: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IUserData {
+  email: string;
+  password: string;
+  roles: ChoiceRights;
+  _id: string;
+}
+
+export interface IUserDataRegister {
+  _id: string;
+  email: string;
+  roles: ChoiceRights;
 }

@@ -1,3 +1,4 @@
+import {IApartments, INormalizedSize} from '../../shared/types';
 import {TApartmentAction} from '../actions/apartment';
 import {
   ADD_APARTMENT,
@@ -13,15 +14,17 @@ import {
   CURRENT_APPLICATION_ID,
   RESET_CURRENT_APPLICATION,
   UPDATE_APARTMENT_APPLICATION,
+  RESET_VIEW_APPLICATION_ID,
+  SET_LOADING_APARTMENTS,
 } from '../constants/constants';
 
 interface IApartmentState {
-  apartments: any;
+  apartments: IApartments[];
   isAuthloggedIn: boolean;
   loading: boolean;
   error: string;
-  formApplication: any;
-  applicationId: any;
+  formApplication: INormalizedSize | null;
+  applicationId: string | null;
   isVisible: boolean;
   currentIdApplication: string | null;
 }
@@ -31,8 +34,8 @@ const initialState: IApartmentState = {
   isAuthloggedIn: false,
   loading: false,
   error: '',
-  formApplication: {},
-  applicationId: {},
+  formApplication: null,
+  applicationId: null,
   isVisible: true,
   currentIdApplication: null,
 };
@@ -42,6 +45,11 @@ export const apartmentReducer = (
   action: TApartmentAction,
 ): IApartmentState => {
   switch (action.type) {
+    case SET_LOADING_APARTMENTS:
+      return {
+        ...state,
+        loading: action.payload,
+      };
     case SET_AUTH_LOGGED_IN:
       return {
         ...state,
@@ -53,7 +61,6 @@ export const apartmentReducer = (
     case GET_APARTMENT_REQUEST:
       return {
         ...state,
-        loading: true,
       };
 
     case GET_APARTMENT_FAILED:
@@ -67,6 +74,9 @@ export const apartmentReducer = (
         ...state,
         apartments: [action.payload, ...state.apartments],
         isVisible: true,
+        applicationId: null,
+        formApplication: null,
+        currentIdApplication: null,
       };
     case ADD_APARTMENT:
       return {
@@ -74,17 +84,22 @@ export const apartmentReducer = (
         apartments: action.payload,
         isVisible: true,
       };
-    case PATCH_APARTMENT_SUCCESS:
+    case PATCH_APARTMENT_SUCCESS: {
+      // создаём новый массив с обновлённой квартирой
+      const updatedApartments = state.apartments.map(item => {
+        return item._id === action.id ? action.updateApartment : item;
+      });
+
       return {
         ...state,
-        apartments: state.apartments.map((item: {_id: string}) =>
-          item._id === action.payload._id ? action.payload : item,
-        ),
+        apartments: updatedApartments,
       };
+    }
+
     case RESET_FORM_APPLICATION:
       return {
         ...state,
-        formApplication: {},
+        formApplication: null,
         isVisible: true,
       };
     case CURRENT_APPLICATION_ID:
@@ -92,18 +107,7 @@ export const apartmentReducer = (
         ...state,
         currentIdApplication: action.payload,
       };
-    // case PATCH_APARTMENT_REQUEST:
-    // // return {...state, loading: true};
 
-    // case PATCH_APARTMENT_SUCCESS:
-    //   return {};
-
-    // case PATCH_APARTMENT_FAILED:
-    //   return {
-    //     // ...state,
-    //     // loading: false,
-    //     // error: action.error,
-    //   };
     case SET_VIEW_APPLICATION_ID:
       return {
         ...state,
@@ -124,7 +128,7 @@ export const apartmentReducer = (
 
       return {
         ...state,
-        apartments: state.apartments.map((apartment: any) =>
+        apartments: state.apartments.map((apartment: IApartments) =>
           apartment._id === applicationId
             ? {
                 ...apartment,
@@ -132,8 +136,14 @@ export const apartmentReducer = (
               }
             : apartment,
         ),
+        applicationId: null,
       };
     }
+    case RESET_VIEW_APPLICATION_ID:
+      return {
+        ...state,
+        applicationId: null,
+      };
     default:
       return state;
   }

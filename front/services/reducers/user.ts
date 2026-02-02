@@ -1,3 +1,4 @@
+import {IUserDataRegister} from '../../shared/types';
 import {TUserAction} from '../actions/user';
 import {
   POST_REGISTER_SUCCESS,
@@ -16,6 +17,7 @@ import {TUser, TUserWrapper} from '../types/data';
 
 type TUserState = {
   userData: TUserWrapper | null;
+  userDataRegister: IUserDataRegister | null;
   user: TUser | null;
   password: string;
   accessToken: string | undefined;
@@ -23,10 +25,12 @@ type TUserState = {
   isAuthloggedIn: boolean;
   success: boolean;
   error: string;
+  loading: boolean;
 };
 
 const initialState: TUserState = {
   userData: null,
+  userDataRegister: null,
   user: null,
   password: '',
   accessToken: undefined,
@@ -34,6 +38,7 @@ const initialState: TUserState = {
   isAuthloggedIn: false,
   success: false,
   error: '',
+  loading: false,
 };
 
 export const authReducer = (
@@ -41,11 +46,17 @@ export const authReducer = (
   action: TUserAction,
 ): TUserState => {
   switch (action.type) {
+    case 'SET_LOADING':
+      return {
+        ...state,
+        loading: action.payload,
+      };
     case SET_AUTH_LOGGED_IN:
       return {
         ...state,
         isAuthloggedIn: action.authloggedIn,
       };
+
     case POST_REGISTER_REQUEST:
       return {
         ...state,
@@ -53,7 +64,7 @@ export const authReducer = (
     case POST_REGISTER_SUCCESS:
       return {
         ...state,
-        userData: action.userData,
+        userDataRegister: action.userDataRegister,
         error: '',
         success: true,
       };
@@ -67,19 +78,22 @@ export const authReducer = (
     case SET_USER_DATA:
       return {
         ...state,
-        userData: action.userData,
-        accessToken: action.accessToken ?? state.accessToken,
+        userData: action.payload.userData,
+        accessToken: action.payload.accessToken ?? state.accessToken,
+        refreshToken: action.payload.refreshToken ?? state.refreshToken,
       };
 
     case POST_LOGIN_FAILED:
       return {
         ...state,
         error: action.error,
+        loading: false,
       };
 
     case GET_ABOUT_USER_REQUEST:
       return {
         ...state,
+        loading: true,
       };
 
     case GET_ABOUT_USER_FAILED:
@@ -101,16 +115,18 @@ export const authReducer = (
     //       return {
     //         ...state,
     //       };
-
     case POST_LOGOUT_REQUEST:
       return {
         ...state,
       };
+
     case POST_LOGOUT_SUCCESS:
       return {
         ...state,
         accessToken: undefined,
         userData: null,
+        userDataRegister: null,
+        loading: false,
       };
     case POST_LOGOUT_FAILED:
       return {

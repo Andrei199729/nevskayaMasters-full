@@ -12,7 +12,6 @@ export default function BlockStateElements({
   stateElement,
   position,
   onPressVisible,
-  ...props
 }: IBlockStateElements) {
   return (
     <>

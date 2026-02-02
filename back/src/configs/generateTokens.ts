@@ -2,15 +2,22 @@ import jwt from "jsonwebtoken";
 import UserToken from "../models/userToken";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from ".";
 import { log } from "console";
+import { Types } from "mongoose";
 
 export enum ChoiceRights {
   Supervisor = "supervisor",
   Manager = "manager",
 }
 
-const generateTokens = async (user: any) => {
-  console.log(user, "user");
+export interface IUser {
+  _id: Types.ObjectId;
+  email: string;
+  password: string;
+  roles: string;
+  __v?: number;
+}
 
+const generateTokens = async (user: IUser) => {
   try {
     const payload = { _id: user._id, roles: user.roles };
     const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });

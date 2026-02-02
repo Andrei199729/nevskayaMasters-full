@@ -1,4 +1,4 @@
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import ModalSizesElement from '../ModalSizesElement/ModalSizesElement';
 import {IElementWallRoom, Mode, TStateElement} from '../../../shared/types';
 import BlockStateElements from '../BlockStateElements/BlockStateElements';
@@ -23,10 +23,10 @@ export default function ElementWallAdd({
   element,
   wallIndex,
   mode,
-  ...props
 }: IElementWallAdd) {
+  const containerStyle = [addedElement ? styles.added : styles.notAdded];
   return (
-    <View style={{position: addedElement ? 'relative' : 'static'}}>
+    <View style={containerStyle}>
       <BlockStateElements
         nameElement={nameElement}
         stateElement={stateElement}
@@ -43,3 +43,12 @@ export default function ElementWallAdd({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  added: {
+    position: 'relative',
+  },
+  notAdded: {
+    position: 'static',
+  },
+});

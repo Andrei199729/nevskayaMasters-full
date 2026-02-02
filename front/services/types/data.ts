@@ -1,3 +1,5 @@
+import {IUserData} from '../../shared/types';
+
 export type TUser = {
   email: string;
   roles: string;
@@ -9,21 +11,8 @@ export type TUserUpdate = TUser & {
   password: string;
 };
 
-export type TUserData = {
-  success: boolean;
-  accessToken: string | undefined;
-  refreshToken: string | undefined;
-  user: TUser;
-  _id: string;
-};
-
 export type TUserWrapper = {
-  data: TUserData;
+  data: IUserData;
 };
 
 export type TLogout = {success: boolean; message: string};
-export interface IApartment {
-  id: number;
-  createdAt: Date;
-  formApplication: any;
-}

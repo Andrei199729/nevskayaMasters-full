@@ -13,6 +13,7 @@ import {useDispatch} from '../../services/hooks';
 import {
   addApplication,
   resetFormApplication,
+  resetViewApplicationId,
 } from '../../services/actions/apartment';
 import {resetRooms} from '../../services/actions/room';
 
@@ -65,6 +66,7 @@ function MainScreen({children, ...props}: IMainScreen) {
       dispatch(resetRooms());
       dispatch(resetFormApplication());
       dispatch(addApplication());
+      dispatch(resetViewApplicationId());
       navigation.navigate('UnwrappedProduct');
     }
   };

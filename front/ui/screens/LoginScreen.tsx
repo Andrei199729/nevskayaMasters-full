@@ -10,20 +10,24 @@ import HeaderScreen from './HeaderScreen';
 import useInput from '../../hooks/useInput';
 import {postLoginAuth} from '../../services/actions/user';
 import {useDispatch, useSelector} from '../../services/hooks';
+import {RootStackParamList} from '../../shared/types';
+import {StackScreenProps} from '@react-navigation/stack';
+type Props = StackScreenProps<RootStackParamList, 'Login'>;
 
-function LoginScreen({navigation}: any) {
+function LoginScreen({navigation}: Props) {
   const dispatch = useDispatch();
   const {accessToken} = useSelector(state => state.user);
-  const emailInput = useInput('123456789@mail.ru');
-  const passwordInput = useInput('123456789');
+
+  const emailInput = useInput('0987654321@mail.ru');
+  const passwordInput = useInput('11111111');
   // const emailInput = useInput('');
   // const passwordInput = useInput('');
   const [disabledLoginState, setDisabledLoginState] = useState<boolean>(true);
+
   const [emailError, setEmailError] = useState<boolean>(true);
   const [localError, setLocalError] = useState<string | undefined>(
     errorTextEmail,
   );
-
   // const [email, setEmail] = useState('');
 
   useEffect(() => {

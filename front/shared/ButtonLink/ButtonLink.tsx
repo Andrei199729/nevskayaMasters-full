@@ -1,15 +1,15 @@
 import {Text, Pressable, StyleSheet} from 'react-native';
 import {Colors, Fonts} from '../tokens';
+import {NavigationProp} from '@react-navigation/native';
+import {RootStackParamList} from '../types';
 
-function ButtonLink({
-  navigationPath,
-  textBtn,
-  path,
-}: {
-  navigationPath?: any;
+interface ButtonLinkProps {
+  navigationPath?: NavigationProp<RootStackParamList>;
   textBtn?: string;
-  path?: string;
-}) {
+  path?: any;
+}
+
+function ButtonLink({navigationPath, textBtn, path}: ButtonLinkProps) {
   const handlePress = () => {
     if (navigationPath && path) {
       navigationPath.navigate(path, {name: textBtn});

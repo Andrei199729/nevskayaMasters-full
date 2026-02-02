@@ -16,7 +16,8 @@ import FormDataAddProductScreen from '../ui/screens/FormDataAddProductScreen';
 import ProductScreen from '../ui/screens/ProductScreen';
 import SplashScreen from '../ui/components/SplashScreen/SplashScreen';
 import {StatusBar} from 'react-native';
-const Stack = createStackNavigator();
+import {RootStackParamList} from '../shared/types';
+const Stack = createStackNavigator<RootStackParamList>();
 
 function Navigate() {
   return (
@@ -26,7 +27,7 @@ function Navigate() {
         <Stack.Navigator>
           <Stack.Screen
             options={{headerShown: false}}
-            name="SplashScreen"
+            name="Splash"
             component={SplashScreen}
           />
 
@@ -54,10 +55,10 @@ function Navigate() {
             component={NewPasswordScreen}
           />
           {/* <Stack.Screen
-          options={{headerShown: false}}
-          name="Main"
-          component={Main}
-        /> */}
+            options={{headerShown: false}}
+            name="Loader"
+            component={Loader}
+          /> */}
           <Stack.Screen name="Main" options={{headerShown: false}}>
             {() => <Main />}
           </Stack.Screen>

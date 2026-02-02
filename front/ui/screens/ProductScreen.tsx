@@ -1,4 +1,4 @@
-import {FlatList, View} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 import HeaderScreen from './HeaderScreen';
 import MainScreen from './MainScreen';
 import AddBlockDimensions from '../components/AddBlockDimensions/AddBlockDimensions';
@@ -18,13 +18,7 @@ import {editRoom, setCountWallDraw} from '../../services/actions/room';
 import ButtonCustom from '../../shared/ButtonCustom/ButtonCustom';
 import {useCallback, useMemo} from 'react';
 
-interface IProductScreen {
-  applicationNumber?: string;
-  route: any;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function ProductScreen({route, ...props}: IProductScreen) {
+export default function ProductScreen() {
   const dispatch = useDispatch();
   const {wallsData, currentRoomId, numberCurrentWall, activeElementId} =
     useSelector(state => state.room);
@@ -90,7 +84,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
         currentRoomId,
         numberCurrentWall,
         activeId,
-        applicationId?._id,
+        applicationId,
       ),
     );
 
@@ -151,7 +145,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
             const isActiveWall = wall.wallIndex === index;
 
             return (
-              <View style={{flexDirection: 'column', marginHorizontal: 10}}>
+              <View style={styles.containerProduct}>
                 <AddBlockDimensions
                   numberWall={wall.wallIndex + 1}
                   externalData={wall.size || {}}
@@ -169,3 +163,7 @@ export default function ProductScreen({route, ...props}: IProductScreen) {
     </HeaderScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  containerProduct: {flexDirection: 'column', marginHorizontal: 10},
+});

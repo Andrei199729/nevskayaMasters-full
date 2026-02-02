@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, FlatList, ListRenderItem} from 'react-native';
 import DrawElement from '../DrawElement/DrawElement';
 import AddSizeWall from '../AddSizeWall/AddSizeWall';
 import AddBlockDimensions from '../AddBlockDimensions/AddBlockDimensions';
-import {IDrawing, IPoint, Mode, StatusButton} from '../../../shared/types';
+import {IDrawing, Mode, StatusButton} from '../../../shared/types';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
   clearPaths,
@@ -35,24 +35,24 @@ export default function Draw() {
 
   // Функция для вычисления угла между тремя точками
   // Вычисляет угол между тремя точками с использованием скалярного произведения.
-  const calculateAngle = useCallback((p1: IPoint, p2: IPoint, p3: IPoint) => {
-    if (!p1 || !p2 || !p3) {
-      return 0; // Возвращаем 0, если хотя бы одна точка отсутствует
-    }
-    const v1x = p2.x - p1.x;
-    const v1y = p2.y - p1.y;
-    const v2x = p3.x - p2.x;
-    const v2y = p3.y - p2.y;
+  // const calculateAngle = useCallback((p1: IPoint, p2: IPoint, p3: IPoint) => {
+  //   if (!p1 || !p2 || !p3) {
+  //     return 0; // Возвращаем 0, если хотя бы одна точка отсутствует
+  //   }
+  //   const v1x = p2.x - p1.x;
+  //   const v1y = p2.y - p1.y;
+  //   const v2x = p3.x - p2.x;
+  //   const v2y = p3.y - p2.y;
 
-    const dotProduct = v1x * v2x + v1y * v2y;
-    const magnitudeV1 = Math.sqrt(v1x * v1x + v1y * v1y);
-    const magnitudeV2 = Math.sqrt(v2x * v2x + v2y * v2y);
+  //   const dotProduct = v1x * v2x + v1y * v2y;
+  //   const magnitudeV1 = Math.sqrt(v1x * v1x + v1y * v1y);
+  //   const magnitudeV2 = Math.sqrt(v2x * v2x + v2y * v2y);
 
-    if (magnitudeV1 === 0 || magnitudeV2 === 0) return 0;
+  //   if (magnitudeV1 === 0 || magnitudeV2 === 0) return 0;
 
-    const angle = Math.acos(dotProduct / (magnitudeV1 * magnitudeV2));
-    return angle * (180 / Math.PI);
-  }, []);
+  //   const angle = Math.acos(dotProduct / (magnitudeV1 * magnitudeV2));
+  //   return angle * (180 / Math.PI);
+  // }, []);
 
   // Показывает уведомление о сохранении.
   const saveDrawing = useCallback(() => {

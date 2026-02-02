@@ -11,6 +11,7 @@ import {
   TClickButtonBlockDimensions,
 } from '../../shared/types';
 import api from '../../utils/api';
+import {getErrorMessage} from '../../utils/errorHandler';
 import {getKeychain} from '../../utils/keychain';
 import {
   ADD_OR_UPDATE_ROOM,
@@ -574,15 +575,11 @@ export const resetRooms = (): IResetRoomsAction => ({
   type: RESET_ROOMS,
 });
 
-export function getRoomsInitial(apartamentId: any) {
+export function getRoomsInitial(apartmentId: string | null) {
   return async function (dispatch: AppDispatch) {
-    // if (skipLoad) {
-    //   return; // 🔥 ничего не грузим
-    // }
-
     dispatch(resetRooms());
     dispatch(getRoomRequestAction());
-    if (!apartamentId) return;
+    if (!apartmentId) return;
     try {
       const accessToken = await getKeychain('accessToken');
 
@@ -591,7 +588,7 @@ export function getRoomsInitial(apartamentId: any) {
       }
 
       api.setToken(accessToken); // ✅ установить токен в API перед запросом
-      const data = await api.getInitialProducts(apartamentId);
+      const data = await api.getInitialProducts(apartmentId);
       dispatch(setAuthloggedIn(true));
 
       if (data?.products && data?.products && Array.isArray(data?.products)) {
@@ -601,8 +598,9 @@ export function getRoomsInitial(apartamentId: any) {
         dispatch(setRoomData([]));
         dispatch(getRoomFailedAction('Некорректный формат данных'));
       }
-    } catch (error: any) {
-      dispatch(getRoomFailedAction(error.message));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка загрузки комнат');
+      dispatch(getRoomFailedAction(errorMessage));
     }
   };
 }
@@ -610,10 +608,10 @@ export function getRoomsInitial(apartamentId: any) {
 export function addRoom(
   name: string,
   sizeWalls: IDrawing[],
-  apartamentId: string | null,
+  apartmentId: string | null,
 ) {
   return async function (dispatch: AppDispatch) {
-    if (!apartamentId) {
+    if (!apartmentId) {
       console.error('Id квартиры не найден');
       return;
     }
@@ -622,13 +620,14 @@ export function addRoom(
       const {dataProduct, name: nameRoom} = await api.addProduct(
         name,
         sizeWalls,
-        apartamentId,
+        apartmentId,
       );
 
       dispatch(postAddRoomSuccessAction({name, dataProduct}));
       return {dataProduct, name: nameRoom};
-    } catch (error: any) {
-      dispatch(postAddRoomFailedAction(error.message));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка добавления комнаты');
+      dispatch(postAddRoomFailedAction(errorMessage));
     }
   };
 }
@@ -638,13 +637,13 @@ export function editRoom(
   dataId: string,
   numberCurrentWall: number | null,
   activeId: number | null,
-  apartamentId: any,
+  apartmentId: string | null,
 ) {
   return async function (dispatch: AppDispatch) {
     dispatch(patchEditRoomRequestAction());
 
     try {
-      const response = await api.editRoom(dataProduct, dataId, apartamentId);
+      const response = await api.editRoom(dataProduct, dataId, apartmentId);
       // логируем для проверки
 
       dispatch(
@@ -657,8 +656,12 @@ export function editRoom(
           }, // можно response.data
         ),
       );
-    } catch (error: any) {
-      dispatch(patchEditRoomFailedAction(error));
+    } catch (error) {
+      const errorMessage = getErrorMessage(
+        error,
+        'Ошибка редактировния комнаты',
+      );
+      dispatch(patchEditRoomFailedAction(errorMessage));
     }
   };
 }

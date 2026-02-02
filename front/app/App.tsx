@@ -6,7 +6,7 @@ import {Provider} from 'react-redux';
 import store from '../services/store';
 import {Colors} from '../shared/tokens';
 import * as eva from '@eva-design/eva';
-import {ApplicationProvider, Layout, Text} from '@ui-kitten/components';
+import {ApplicationProvider} from '@ui-kitten/components';
 import {default as theme} from '../assets/theme.json';
 function App(): React.JSX.Element {
   return (

@@ -19,9 +19,9 @@ import {
   PathScreenAuth,
 } from '../../shared/types';
 import useInput from '../../hooks/useInput';
-import {RadioButton} from 'react-native-paper';
 import {postRegisterAuth} from '../../services/actions/user';
 import {useDispatch, useSelector} from '../../services/hooks';
+import BlockTypeControl from '../components/BlockTypeControl/BlockTypeControl';
 
 function RegisterScreen({navigation}: INavigationScreenProps) {
   const dispatch = useDispatch();
@@ -30,7 +30,9 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
   const emailInput = useInput('');
   const passwordInput = useInput('');
   const repeatPassword = useInput('');
-  const [choiceRights, setChoiceRights] = useState('');
+  const [choiceRights, setChoiceRights] = useState<ChoiceRights>(
+    ChoiceRights.Manager,
+  );
   const [disabledState, setDisabledState] = useState<boolean>(true);
   const [inputError, setInputError] = useState<boolean>(false);
   const [localError, setLocalError] = useState<string | undefined>(
@@ -57,20 +59,20 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
     choiceRights,
   ]);
   useEffect(() => {
-    if (userData && userData.email === emailInput.value) {
+    if (userData && userData?.data?.email === emailInput.value) {
       navigation.navigate(PathScreenAuth.Login);
       emailInput.reset();
       passwordInput.reset();
       repeatPassword.reset();
-      setChoiceRights('');
+      setChoiceRights(ChoiceRights.default);
     }
   }, [
-    userData,
     emailInput.value,
     emailInput,
     navigation,
     passwordInput,
     repeatPassword,
+    userData,
   ]);
 
   const handleRegistration = (
@@ -79,6 +81,7 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
     roles: string,
   ) => {
     dispatch(postRegisterAuth(email, password, roles));
+    navigation.navigate('Login');
   };
 
   return (
@@ -94,22 +97,10 @@ function RegisterScreen({navigation}: INavigationScreenProps) {
           style={styles.inputs}>
           <View style={styles.container}>
             <Text style={styles.label}>Выберите тип управления:</Text>
-            <View style={{padding: 5}}>
-              <RadioButton.Group
-                onValueChange={newValue => setChoiceRights(newValue)}
-                value={choiceRights}>
-                <View style={styles.containerRadio}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <RadioButton value={ChoiceRights.Supervisor} />
-                    <Text>Руководитель</Text>
-                  </View>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <RadioButton value={ChoiceRights.Manager} />
-                    <Text>Менеджер</Text>
-                  </View>
-                </View>
-              </RadioButton.Group>
-            </View>
+            <BlockTypeControl
+              setChoiceRights={setChoiceRights}
+              choiceRights={choiceRights}
+            />
           </View>
           <Input
             textPlaceholder="Введите Email"
@@ -164,9 +155,6 @@ const styles = StyleSheet.create({
   },
   label: {
     margin: 8,
-  },
-  containerRadio: {
-    flexDirection: 'row',
   },
 });
 

@@ -1,7 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
 import routerErrorWay from "./routes";
-import path from "path";
 import errorHandler from "./middlewares/errorHandler";
 import { errorLoger, requestLogger } from "./middlewares/logger";
 import helmet from "helmet";

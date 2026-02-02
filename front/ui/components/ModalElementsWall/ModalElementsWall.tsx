@@ -28,7 +28,6 @@ export default function ModalElementsWall({
   numberWall,
   wallIndex,
   mode,
-  ...props
 }: IModalElementsWall) {
   const dispatch = useDispatch();
   const {elementsWallModalVisible} = useSelector(state => state.modalOpen);

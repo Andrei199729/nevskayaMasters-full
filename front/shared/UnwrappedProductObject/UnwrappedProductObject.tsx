@@ -1,35 +1,35 @@
 import {StyleSheet, Text, View} from 'react-native';
 import {Colors, Fonts, Gaps, Radius} from '../tokens';
-import {ObjectStatus} from '../types';
 import {useSelector} from '../../services/hooks';
+import {IApartments} from '../types';
 
-interface IformApplication {
-  id: number;
-  addressApplication: string;
-  nameCompany: string;
-  telSalon: string;
-  telManager: string;
-  telClient: string;
-  telForeman: string;
-  dateRegistration: string;
-  nameClient: string;
-  price: string;
-}
-interface IObjectApplication {
-  status: ObjectStatus;
-}
+// interface IformApplication {
+//   id: number;
+//   addressApplication: string;
+//   nameCompany: string;
+//   telSalon: string;
+//   telManager: string;
+//   telClient: string;
+//   telForeman: string;
+//   dateRegistration: string;
+//   nameClient: string;
+//   price: string;
+// }
+// interface IObjectApplication {
+//   status: ObjectStatus;
+// }
 
-function UnwrappedProductObject({status}: IObjectApplication) {
+function UnwrappedProductObject() {
   const {applicationId, formApplication, apartments} = useSelector(
     state => state.apartment,
   );
-  console.log(formApplication.addressApplication, 'formApplication');
 
   const applicationData = apartments.find(
-    (apartment: any) => apartment._id === applicationId,
+    (apartment: IApartments) => apartment._id === applicationId,
   );
 
-  if (!applicationData) return null;
+  // if (!applicationData) return null;
+
   return (
     <View style={styles.objectApplicationContainer}>
       <View style={styles.blockApplication}>
@@ -61,7 +61,8 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.dataApplication?.telSalon}
+          {applicationData?.dataApplication?.telSalon ??
+            formApplication?.telSalon}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -72,7 +73,8 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.dataApplication?.telManager}
+          {applicationData?.dataApplication?.telManager ??
+            formApplication?.telManager}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -83,7 +85,8 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.dataApplication?.telClient}
+          {applicationData?.dataApplication?.telClient ??
+            formApplication?.telClient}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -94,7 +97,8 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.dataApplication?.telForeman}
+          {applicationData?.dataApplication?.telForeman ??
+            formApplication?.telForeman}
         </Text>
       </View>
       <View style={styles.contactCallApplication}>
@@ -105,15 +109,19 @@ function UnwrappedProductObject({status}: IObjectApplication) {
           style={{
             ...styles.textApplication,
           }}>
-          {applicationData?.dataApplication?.dateRegistration}
+          {applicationData?.dataApplication?.dateRegistration ??
+            formApplication?.dateRegistration}
         </Text>
       </View>
       <View style={styles.boxCompanyApplication}>
         <Text style={[styles.textApplication, styles.addressApplication]}>
-          {applicationData?.dataApplication?.nameClient}
+          {applicationData?.dataApplication?.nameClient ??
+            formApplication?.nameClient}
         </Text>
         <Text style={[styles.textApplication, styles.addressApplication]}>
-          {`${applicationData?.dataApplication?.price} руб.`}
+          {`${
+            applicationData?.dataApplication?.price ?? formApplication?.price
+          } руб.`}
         </Text>
       </View>
     </View>

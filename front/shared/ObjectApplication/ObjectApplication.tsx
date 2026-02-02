@@ -1,7 +1,7 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {Colors, Fonts, Gaps, Radius} from '../tokens';
 import PencilIcon from '../../assets/images/icon/iconFunc/pencil';
-import {ObjectStatus, RootStackParamList} from '../types';
+import {IApartments, ObjectStatus, RootStackParamList} from '../types';
 import {useCallback} from 'react';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from '../../services/hooks';
@@ -14,7 +14,7 @@ import {resetRooms} from '../../services/actions/room';
 
 interface IObjectApplication {
   status?: ObjectStatus;
-  item: any;
+  item: IApartments;
 }
 
 function ObjectApplication({item, status}: IObjectApplication) {
@@ -22,20 +22,20 @@ function ObjectApplication({item, status}: IObjectApplication) {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {apartments} = useSelector(state => state.apartment);
 
-  const applicationId = apartments.find((i: any) => i._id === item._id);
+  const applicationId = apartments.find(i => i._id === item._id);
 
-  const statusState = (status: string) => {
-    switch (status) {
-      case ObjectStatus.Created:
-        return Colors.almostWhite;
-      case ObjectStatus.Running:
-        return Colors.goldenYellow;
-      case ObjectStatus.Completed:
-        return Colors.lightGrayFour;
-      default:
-        return 'Ошибка статуса';
-    }
-  };
+  // const statusState = (status: string) => {
+  //   switch (status) {
+  //     case ObjectStatus.Created:
+  //       return Colors.almostWhite;
+  //     case ObjectStatus.Running:
+  //       return Colors.goldenYellow;
+  //     case ObjectStatus.Completed:
+  //       return Colors.lightGrayFour;
+  //     default:
+  //       return 'Ошибка статуса';
+  //   }
+  // };
   const opacityText = status === ObjectStatus.Completed ? 0.2 : 1;
   const opacity = status === ObjectStatus.Completed ? 1 : 0.5;
   const handlePress = useCallback(() => {

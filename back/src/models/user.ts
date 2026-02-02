@@ -21,9 +21,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["manager", "supervisor"],
     required: true,
-    default: ["manager"],
+    default: "manager",
   },
 });
 
 // export default mongoose.model<IUser, UserModel>("user", userSchema);
-export default mongoose.model<IUser>("user", userSchema);
+export default mongoose.model<IUser>("User", userSchema, "users");

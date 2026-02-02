@@ -7,7 +7,6 @@ import {
   StatusButton,
 } from '../../../shared/types';
 import {Colors, Fonts} from '../../../shared/tokens';
-import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import useInput from '../../../hooks/useInput';
 import {useDispatch, useSelector} from '../../../services/hooks';
@@ -26,6 +25,7 @@ import {
 import {isValidArray} from '../../../utils/validators';
 import ButtonClose from '../../../shared/ButtonClose/ButtonClose';
 import {getModalWidthFormElements} from '../../../features/features';
+import BlockInputFormElement from '../BlockInputFormElement/BlockInputFormElement';
 
 interface IModalFormElement {
   nameElementWall: string;
@@ -273,82 +273,60 @@ export default function ModalFormElement({
           {numberWall}. {nameElementWall}
         </Text>
         <View style={styles.blockForm}>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>1. Расположение сверху</Text>
-            <Input
-              value={locationElementTop.value}
-              onChangeText={locationElementTop.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>2. Расположение справа</Text>
-            <Input
-              value={locationElementRight.value}
-              onChangeText={locationElementRight.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>3. Расположение снизу</Text>
-            <Input
-              value={locationElementBottom.value}
-              onChangeText={locationElementBottom.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>4. Расположение слева</Text>
-            <Input
-              value={locationElementLeft.value}
-              onChangeText={locationElementLeft.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>
-              5. Размер элемента сверху
-            </Text>
-            <Input
-              value={widthTop.value}
-              onChangeText={widthTop.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>
-              6. Размер элемента справа
-            </Text>
-            <Input
-              value={heightRight.value}
-              onChangeText={heightRight.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>7. Размер элемента снизу</Text>
-            <Input
-              value={widthBottom.value}
-              onChangeText={widthBottom.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>8. Размер элемента слева</Text>
-            <Input
-              value={heightLeft.value}
-              onChangeText={heightLeft.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
-          <View style={styles.blockInput}>
-            <Text style={styles.textFormElement}>9. Радиус элемента</Text>
-            <Input
-              value={radiusElement.value}
-              onChangeText={radiusElement.onChangeText}
-              inputModeText={'numeric'}
-            />
-          </View>
+          <BlockInputFormElement
+            namePosition="Расположение сверху"
+            numberPosition={1}
+            value={locationElementTop.value}
+            onChangeText={locationElementTop.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Расположение справа"
+            numberPosition={2}
+            value={locationElementRight.value}
+            onChangeText={locationElementRight.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Расположение снизу"
+            numberPosition={3}
+            value={locationElementBottom.value}
+            onChangeText={locationElementBottom.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Расположение слева"
+            numberPosition={4}
+            value={locationElementLeft.value}
+            onChangeText={locationElementLeft.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Размер элемента сверху"
+            numberPosition={5}
+            value={widthTop.value}
+            onChangeText={widthTop.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Размер элемента справа"
+            numberPosition={6}
+            value={heightRight.value}
+            onChangeText={heightRight.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Размер элемента снизу"
+            numberPosition={7}
+            value={widthBottom.value}
+            onChangeText={widthBottom.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Размер элемента слева"
+            numberPosition={8}
+            value={heightLeft.value}
+            onChangeText={heightLeft.onChangeText}
+          />
+          <BlockInputFormElement
+            namePosition="Радиус элемента"
+            numberPosition={9}
+            value={radiusElement.value}
+            onChangeText={radiusElement.onChangeText}
+          />
         </View>
         <ButtonCustom
           textBtn="Сохранить данные"
@@ -397,14 +375,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  textFormElement: {
-    marginBottom: 5,
-    fontSize: Fonts.f16,
-    color: Colors.black,
-  },
-  blockInput: {
-    width: '48%',
   },
   btnClosePopup: {
     top: 10,

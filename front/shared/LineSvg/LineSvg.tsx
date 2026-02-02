@@ -1,6 +1,5 @@
 import {Path, TextAnchor, Text as TextSvg} from 'react-native-svg';
 import {IPaths} from '../types';
-import {isLast} from '../../customFunc/customFunc';
 
 interface ILineSvg {
   d: string;
@@ -23,7 +22,6 @@ export default function LineSvg({
   strokeWidth,
   strokeDasharray,
   indexLast,
-  indexPaths,
   midX,
   midY,
   fontSize,

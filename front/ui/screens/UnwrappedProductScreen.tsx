@@ -8,7 +8,11 @@ import MainScreen from './MainScreen';
 import Title from '../../shared/Title/Title';
 import ButtonDownload from '../../shared/ButtonDownload/ButtonDownload';
 import ButtonAddProduct from '../../shared/ButtonAddProduct/ButtonAddProduct';
-import {NavigationProp, useFocusEffect} from '@react-navigation/native';
+import {
+  NavigationProp,
+  RouteProp,
+  useFocusEffect,
+} from '@react-navigation/native';
 import {
   addOrUpdateRoom,
   getRoomsInitial,
@@ -26,16 +30,9 @@ import {
   deleteApplication,
   updateApartment,
 } from '../../services/actions/apartment';
+import Loader from '../components/Loader/Loader';
 
-// type TUnwrappedProductScreenRouteProp = RouteProp<
-//   {
-//     UnwrappedProduct: {
-//       dataProduct: IDrawing[];
-//       nameRoom: string;
-//     };
-//   },
-//   'UnwrappedProduct'
-// >;
+// type ProductScreenRouteProp = RouteProp<RootStackParamList, PathScreen.Product>;
 
 interface IUnwrappedProductScreen {
   applicationNumber?: string;
@@ -53,7 +50,6 @@ function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
   );
 
   const userId = userData?.data?._id;
-
   const onClickAddProduct = useCallback(() => {
     navigation.navigate('FormDataAddProduct');
     dispatch(resetCurrentDrawing());
@@ -138,7 +134,7 @@ function UnwrappedProductScreen({navigation, route}: IUnwrappedProductScreen) {
     );
   }, [roomData, userId]);
 
-  if (loading) return <Text>Загрузка помещений...</Text>;
+  if (loading) return <Loader />;
 
   return (
     <HeaderScreen>

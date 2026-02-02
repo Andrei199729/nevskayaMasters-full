@@ -81,17 +81,13 @@ const styles = StyleSheet.create({
   calendarContainer: {
     marginTop: 20,
     borderWidth: 1,
-    borderColor: 'lightgray',
+    borderColor: Colors.lightGray,
     borderRadius: 10,
   },
-  selectedDateText: {
-    marginTop: 20,
-    fontSize: 16,
-    color: 'black',
-  },
+
   calendarComponent: {
     borderWidth: 1,
-    borderColor: 'lightgray',
+    borderColor: Colors.lightGray,
     borderRadius: 10,
     padding: 10,
   },

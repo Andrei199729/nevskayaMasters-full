@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
-import {Dimensions, Pressable, StyleSheet} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import Svg, {G} from 'react-native-svg';
 import {Colors, Fonts, Radius} from '../../../shared/tokens';
 import {
@@ -19,7 +19,6 @@ interface IDrawElement {
   numberWallIndex: number;
   setCountWallDraw: (length: number) => void;
 }
-const {width, height} = Dimensions.get('window');
 
 export default function DrawElement({drawing, numberWallIndex}: IDrawElement) {
   const dispatch = useDispatch();

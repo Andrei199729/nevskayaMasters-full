@@ -11,6 +11,7 @@ import {
 } from '../../../services/actions/room';
 import {isValidArray} from '../../../utils/validators';
 import {setIsVisibleEditModal} from '../../../services/actions/modalOpen';
+import PositionTextModal from '../PositionTextModal/PositionTextModal';
 
 interface IModalSizesElement {
   nameElement: string;
@@ -89,68 +90,51 @@ export default function ModalSizesElement({
           {position + 1}. {nameElement}
         </Text>
         <View style={styles.blockData}>
-          {element?.data.locationElementTop !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>1. Расположение сверху</Text>
-              <Text style={styles.text}>
-                {element?.data.locationElementTop}
-              </Text>
-            </View>
-          )}
-          {element?.data.locationElementBottom !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>2. Расположение снизу</Text>
-              <Text style={styles.text}>
-                {element?.data.locationElementBottom}
-              </Text>
-            </View>
-          )}
-          {element?.data.locationElementRight !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>3. Расположение справа</Text>
-              <Text style={styles.text}>
-                {element?.data.locationElementRight}
-              </Text>
-            </View>
-          )}
-          {element?.data.locationElementLeft !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>4. Расположение слева</Text>
-              <Text style={styles.text}>
-                {element?.data.locationElementLeft}
-              </Text>
-            </View>
-          )}
-          {element?.data.widthTop !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>5. Размер стены сверху</Text>
-              <Text style={styles.text}>{element?.data.widthTop}</Text>
-            </View>
-          )}
-          {element?.data.widthBottom !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>6. Размер стены снизу</Text>
-              <Text style={styles.text}>{element?.data.widthBottom}</Text>
-            </View>
-          )}
-          {element?.data.heightRight !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>7. Размер стены справа</Text>
-              <Text style={styles.text}>{element?.data.heightRight}</Text>
-            </View>
-          )}
-          {element?.data.heightLeft !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>8. Размер стены слева</Text>
-              <Text style={styles.text}>{element?.data.heightLeft}</Text>
-            </View>
-          )}
-          {element?.data.radiusElement !== '' && (
-            <View style={styles.blockText}>
-              <Text style={styles.text}>9. Радиус стены</Text>
-              <Text style={styles.text}>{element?.data.radiusElement}</Text>
-            </View>
-          )}
+          <PositionTextModal
+            textElement={element?.data.locationElementTop}
+            namePosition="Расположение сверху"
+            numberPosition={1}
+          />
+          <PositionTextModal
+            textElement={element?.data.locationElementBottom}
+            namePosition="Расположение снизу"
+            numberPosition={2}
+          />
+          <PositionTextModal
+            textElement={element?.data.locationElementRight}
+            namePosition="Расположение справа"
+            numberPosition={3}
+          />
+          <PositionTextModal
+            textElement={element?.data.locationElementLeft}
+            namePosition="Расположение слева"
+            numberPosition={4}
+          />
+          <PositionTextModal
+            textElement={element?.data.widthTop}
+            namePosition="Размер стены сверху"
+            numberPosition={5}
+          />
+          <PositionTextModal
+            textElement={element?.data.widthBottom}
+            namePosition="Размер стены снизу"
+            numberPosition={6}
+          />
+          <PositionTextModal
+            textElement={element?.data.heightRight}
+            namePosition="Размер стены справа"
+            numberPosition={7}
+          />
+          <PositionTextModal
+            textElement={element?.data.heightLeft}
+            namePosition="Размер стены слева"
+            numberPosition={8}
+          />
+          <PositionTextModal
+            textElement={element?.data.radiusElement}
+            namePosition="Радиус стены"
+            numberPosition={9}
+          />
         </View>
         <View style={styles.blockBtns}>
           <ButtonCustom textBtn="Редактировать" onPress={onClickEdit} />
@@ -203,15 +187,6 @@ const styles = StyleSheet.create({
   },
   blockData: {
     gap: 10,
-  },
-
-  blockText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  text: {
-    fontSize: Fonts.f18,
-    color: Colors.black,
   },
   blockBtns: {
     marginTop: 20,

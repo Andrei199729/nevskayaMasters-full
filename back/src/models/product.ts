@@ -117,10 +117,11 @@ export interface IDrawing {
 }
 
 export interface IProductRoom {
-  dataProduct: any;
+  dataProduct: IDrawing[];
   nameRoom: string;
   owner: mongoose.Types.ObjectId;
-  createdAt: Date;
+  createdAt: string;
+  _id: string;
 }
 
 const PointSchema = new mongoose.Schema(
@@ -128,7 +129,7 @@ const PointSchema = new mongoose.Schema(
     x: Number,
     y: Number,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ShapsSchema = new mongoose.Schema(
@@ -138,7 +139,7 @@ const ShapsSchema = new mongoose.Schema(
     length: Number,
     points: [PointSchema],
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ElementDataSchema = new mongoose.Schema(
@@ -154,7 +155,7 @@ const ElementDataSchema = new mongoose.Schema(
     heightRight: { type: String, required: false },
     radiusElement: { type: String, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ElementDataObjSchema = new mongoose.Schema(
@@ -163,7 +164,7 @@ const ElementDataObjSchema = new mongoose.Schema(
     stateElement: String,
     id: Number,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ElementSchema = new mongoose.Schema(
@@ -172,7 +173,7 @@ const ElementSchema = new mongoose.Schema(
     data: ElementDataSchema,
     dataObj: ElementDataObjSchema,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const SizeSchema = new mongoose.Schema(
@@ -188,7 +189,7 @@ const SizeSchema = new mongoose.Schema(
     arrElements: {
       elements: [ElementSchema],
     },
-  }
+  },
   // { _id: false }
 );
 
@@ -197,7 +198,7 @@ const WallSchema = new mongoose.Schema(
     size: SizeSchema,
     numberWall: Number,
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const DrawingDataSchema = new mongoose.Schema(
@@ -207,23 +208,23 @@ export const DrawingDataSchema = new mongoose.Schema(
     shapes: [ShapsSchema],
     walls: [WallSchema],
   },
-  { _id: false }
+  { _id: false },
 );
 
 const DataProductSchema = new mongoose.Schema(
   {
     drawingData: DrawingDataSchema,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const productSchema = new mongoose.Schema({
   nameRoom: { type: String, required: true },
   dataProduct: [DataProductSchema],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  apartament: {
+  apartment: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Apartament",
+    ref: "Apartment",
     required: true,
   },
   createdAt: { type: Date, default: Date.now },

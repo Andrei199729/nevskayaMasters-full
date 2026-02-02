@@ -10,7 +10,7 @@ interface AuthSectionProps {
   title: string;
   navigation: NavigationProp<RootStackParamList>;
   textBtn?: string;
-  pathLink?: string;
+  pathLink?: any;
   textWithBtn?: string;
 }
 

@@ -15,6 +15,7 @@ import {
   POST_LOGOUT_REQUEST,
   POST_LOGOUT_SUCCESS,
   POST_LOGOUT_FAILED,
+  SET_LOADING,
 } from '../constants/constants';
 import {TLogout, TUserWrapper} from '../types/data';
 import {AppDispatch} from '../types/index';
@@ -22,10 +23,12 @@ import {deleteKeychain, getKeychain, setKeychain} from '../../utils/keychain';
 import auth from '../../utils/auth';
 import api from '../../utils/api';
 import {accessToken} from '../../utils/constants';
+import {getErrorMessage} from '../../utils/errorHandler';
+import {IUserDataRegister} from '../../shared/types';
 // Типизация экшенов
 export interface IPostRegisterSuccessAction {
   readonly type: typeof POST_REGISTER_SUCCESS;
-  readonly userData: TUserWrapper;
+  readonly userDataRegister: IUserDataRegister;
 }
 
 export interface IPostRegisterRequestAction {
@@ -51,8 +54,11 @@ export interface IPostLoginFailedAction {
 
 export interface ISetUserData {
   readonly type: typeof SET_USER_DATA;
-  readonly userData: TUserWrapper | null;
-  readonly accessToken: string | undefined;
+  payload: {
+    userData: TUserWrapper | null;
+    accessToken: string | undefined;
+    refreshToken: string | undefined;
+  };
 }
 
 export interface IGetAboutUserSuccessAction {
@@ -93,6 +99,10 @@ export interface IPostLogoutFailedAction {
   readonly error: string;
 }
 
+export interface ISetLoadingAction {
+  readonly type: typeof SET_LOADING;
+  payload: boolean;
+}
 // Объединяем в Union
 export type TUserAction =
   | IPostRegisterSuccessAction
@@ -110,14 +120,15 @@ export type TUserAction =
   | IPostRefressTokenFailedAction
   | IPostLogoutSuccessAction
   | IPostLogoutRequestAction
-  | IPostLogoutFailedAction;
+  | IPostLogoutFailedAction
+  | ISetLoadingAction;
 
 // Генераторы экшенов
 export const postRegisterSuccess = (
-  userData: TUserWrapper,
+  userDataRegister: IUserDataRegister,
 ): IPostRegisterSuccessAction => ({
   type: POST_REGISTER_SUCCESS,
-  userData,
+  userDataRegister,
 });
 
 export const postRegisterRequest = (): IPostRegisterRequestAction => ({
@@ -147,15 +158,14 @@ export const setAuthloggedIn = (
   authloggedIn,
 });
 
-export const setUserData = (
-  userData: TUserWrapper | null,
-  accessToken: string | undefined,
-): ISetUserData => ({
+export const setUserData = (payload: {
+  userData: TUserWrapper | null;
+  accessToken: string | undefined;
+  refreshToken: string | undefined;
+}): ISetUserData => ({
   type: SET_USER_DATA,
-  userData,
-  accessToken,
+  payload,
 });
-
 export const getAboutUserRequestAction = (): IGetAboutUserRequestAction => ({
   type: GET_ABOUT_USER_REQUEST,
 });
@@ -204,6 +214,10 @@ export const postLogoutFailedAction = (
   error,
 });
 
+export const setLoading = (payload: boolean): ISetLoadingAction => ({
+  type: SET_LOADING,
+  payload,
+});
 export function postRegisterAuth(
   emailRegister: string,
   passwordRegister: string,
@@ -216,26 +230,39 @@ export function postRegisterAuth(
       dispatch(postRegisterSuccess(res));
       dispatch(setAuthloggedIn(true));
       return {success: true, email: res.email};
-    } catch (error: any) {
-      dispatch(postRegisterFailed(error.message || 'Ошибка регистрации'));
-      return {success: false, error: error.message || 'Ошибка регистрации'};
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка регистрации');
+      dispatch(postRegisterFailed(errorMessage || 'Ошибка регистрации'));
+      return {success: false, error: errorMessage || 'Ошибка регистрации'};
     }
   };
 }
 
 export function postLoginAuth(emailRegister: string, passwordRegister: string) {
   return async function (dispatch: AppDispatch) {
+    dispatch(setLoading(true));
     dispatch(postLoginRequest());
     try {
       const res = await auth.login(emailRegister, passwordRegister);
-      dispatch(setUserData(res, res.accessToken));
+
       dispatch(setAuthloggedIn(true));
       await setKeychain('accessToken', res.accessToken);
       await setKeychain('refreshToken', res.refreshToken);
       api.setToken(res.accessToken);
-    } catch (error: any) {
-      dispatch(postLoginFailed(error.message || 'Ошибка авторизации'));
-      return {success: false, error: error.message || 'Ошибка авторизации'};
+      dispatch(
+        setUserData({
+          userData: res,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        }),
+      );
+      dispatch(setLoading(false));
+      return {success: true, message: 'Авторизация успешна'};
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка авторизации');
+      dispatch(postLoginFailed(errorMessage || 'Ошибка авторизации'));
+      dispatch(setLoading(false));
+      return {success: false, error: errorMessage || 'Ошибка авторизации'};
     }
   };
 }
@@ -252,10 +279,25 @@ export function getUserData() {
 
       api.setToken(accessToken); // ✅ установить токен в API перед запросом
       const res = await api.getAboutUser();
-      dispatch(setUserData(res, res.accessToken));
+      dispatch(
+        setUserData({
+          userData: res,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        }),
+      );
+
       dispatch(setAuthloggedIn(true));
-    } catch (error: any) {
-      dispatch(getAboutUserFailedAction(error.message));
+    } catch (error) {
+      const errorMessage = getErrorMessage(
+        error,
+        'Ошибка запроса пользователя',
+      );
+      dispatch(getAboutUserFailedAction(errorMessage));
+      return {
+        success: false,
+        error: errorMessage || 'Ошибка запроса пользователя',
+      };
     }
   };
 }
@@ -268,8 +310,10 @@ export function postTokenRefresh(refreshToken: string) {
       await dispatch(getUserData());
       await setKeychain('accessToken', res.accessToken);
       await setKeychain('refreshToken', res.refreshToken);
-    } catch (error: any) {
-      dispatch(postRefressTokenFailed(error.message));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка токена');
+
+      dispatch(postRefressTokenFailed(errorMessage));
     }
   };
 }
@@ -284,12 +328,18 @@ export function postLogoutAuth(token: string | undefined) {
           deleteKeychain('accessToken');
           deleteKeychain('refreshToken');
           dispatch(postLogoutSuccessAction(res));
-
-          dispatch(setUserData(null, undefined));
+          dispatch(
+            setUserData({
+              userData: null,
+              accessToken: undefined,
+              refreshToken: undefined,
+            }),
+          );
         })
         .catch(error => dispatch(postLogoutFailedAction(error)));
-    } catch (error: any) {
-      dispatch(postLogoutFailedAction(error));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка выхода');
+      dispatch(postLogoutFailedAction(errorMessage));
     }
   };
 }
@@ -298,11 +348,16 @@ export const checkUserAuth = () => {
   return async (dispatch: AppDispatch) => {
     if (await accessToken) {
       dispatch(getUserData())
-        .then(res => console.log(res, 'getUserData'))
         .catch(() => {
           deleteKeychain('accessToken');
           deleteKeychain('refreshToken');
-          dispatch(setUserData(null, undefined));
+          dispatch(
+            setUserData({
+              userData: null,
+              accessToken: undefined,
+              refreshToken: undefined,
+            }),
+          );
         })
         .finally(() => dispatch(setAuthloggedIn(true)));
     } else {

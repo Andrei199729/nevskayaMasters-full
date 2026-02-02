@@ -1,12 +1,11 @@
 import {StyleSheet, Text, View} from 'react-native';
-// import {useDispatch, useSelector} from '../../../services/hooks';
 import useInput from '../../../hooks/useInput';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect} from 'react';
 import {Input} from '../../../shared/Input/Input';
 import ButtonCustom from '../../../shared/ButtonCustom/ButtonCustom';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Fonts} from '../../../shared/tokens';
-import {ObjectStatus, StatusButton} from '../../../shared/types';
+import {StatusButton} from '../../../shared/types';
 import UnwrappedProductObject from '../../../shared/UnwrappedProductObject/UnwrappedProductObject';
 import {useDispatch, useSelector} from '../../../services/hooks';
 import {
@@ -16,35 +15,47 @@ import {
 } from '../../../services/actions/apartment';
 
 export default function FormsApplication() {
-  const [isInitialized, setIsInitialized] = useState(false);
   const dispatch = useDispatch();
-  const {isVisible, apartments, applicationId, formApplication} = useSelector(
+  const {isVisible, apartments, applicationId} = useSelector(
     state => state.apartment,
   );
-  const applicationData =
-    apartments.find((apartment: any) => apartment._id === applicationId) ??
-    formApplication;
-  const addressApplication = useInput(
-    applicationData?.dataApplication?.addressApplication || '',
-  );
-  const nameCompany = useInput(
-    applicationData?.dataApplication?.nameCompany || '',
-  );
-  const telSalon = useInput(applicationData?.dataApplication?.telSalon || '');
-  const telManager = useInput(
-    applicationData?.dataApplication?.telManager || '',
-  );
-  const telClient = useInput(applicationData?.dataApplication?.telClient || '');
-  const telForeman = useInput(
-    applicationData?.dataApplication?.telForeman || '',
-  );
-  const dateRegistration = useInput(
-    applicationData?.dataApplication?.dateRegistration || '',
-  );
-  const nameClient = useInput(
-    applicationData?.dataApplication?.nameClient || '',
-  );
-  const price = useInput(applicationData?.dataApplication?.price || '');
+  const isEditMode = Boolean(applicationId);
+  const applicationData = isEditMode
+    ? apartments.find(apartment => apartment._id === applicationId)
+    : null;
+
+  const addressApplication = useInput('');
+  const nameCompany = useInput('');
+  const telSalon = useInput('');
+  const telManager = useInput('');
+  const telClient = useInput('');
+  const telForeman = useInput('');
+  const dateRegistration = useInput('');
+  const nameClient = useInput('');
+  const price = useInput('');
+
+  const resetForm = useCallback(() => {
+    addressApplication.onChangeText('');
+    nameCompany.onChangeText('');
+    telSalon.onChangeText('');
+    telManager.onChangeText('');
+    telClient.onChangeText('');
+    telForeman.onChangeText('');
+    dateRegistration.onChangeText('');
+    nameClient.onChangeText('');
+    price.onChangeText('');
+  }, [
+    addressApplication,
+    dateRegistration,
+    nameClient,
+    nameCompany,
+    price,
+    telClient,
+    telForeman,
+    telManager,
+    telSalon,
+  ]);
+
   const onSaveDataApplication = useCallback(() => {
     //     // Убедимся, что все поля имеют строковые значения
     const normalizedSize = {
@@ -61,21 +72,22 @@ export default function FormsApplication() {
       price: price?.value || '',
       status: '', // узнать какие статусы есть
     };
+
     dispatch(setFormApplication(normalizedSize));
     dispatch(setViewApplicationForm(false));
     dispatch(updateApartmentApplication(applicationId, normalizedSize));
-    setIsInitialized(false);
   }, [
-    addressApplication?.value,
-    dateRegistration?.value,
+    addressApplication,
+    applicationId,
+    dateRegistration,
     dispatch,
-    nameClient?.value,
-    nameCompany?.value,
-    price?.value,
-    telClient?.value,
-    telForeman?.value,
-    telManager?.value,
-    telSalon?.value,
+    nameClient,
+    nameCompany,
+    price,
+    telClient,
+    telForeman,
+    telManager,
+    telSalon,
   ]);
 
   const onEditDataApplication = () => {
@@ -83,7 +95,7 @@ export default function FormsApplication() {
   };
 
   useEffect(() => {
-    if (!isInitialized) return;
+    if (!isEditMode || !applicationData?.dataApplication) return;
     if (applicationData?.dataApplication) {
       addressApplication.onChangeText(
         applicationData?.dataApplication?.addressApplication || '',
@@ -106,13 +118,12 @@ export default function FormsApplication() {
         applicationData?.dataApplication?.telManager || '',
       );
       telSalon.onChangeText(applicationData?.dataApplication?.telSalon || '');
-      setIsInitialized(true);
     }
   }, [
     addressApplication,
     applicationData?.dataApplication,
     dateRegistration,
-    isInitialized,
+    isEditMode,
     nameClient,
     nameCompany,
     price,
@@ -121,7 +132,13 @@ export default function FormsApplication() {
     telManager,
     telSalon,
   ]);
+  useEffect(() => {
+    if (isEditMode) return;
 
+    if (!isVisible) {
+      resetForm();
+    }
+  }, [isEditMode, isVisible, resetForm]);
   return (
     <>
       {isVisible && (
@@ -226,7 +243,7 @@ export default function FormsApplication() {
       )}
       {!isVisible && (
         <View>
-          <UnwrappedProductObject status={ObjectStatus.Created} />
+          <UnwrappedProductObject />
           <ButtonCustom
             textBtn="Редактировать данные заявки"
             onPress={onEditDataApplication}

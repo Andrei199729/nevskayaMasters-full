@@ -6,10 +6,15 @@ import jwt from "jsonwebtoken";
 import UserToken from "../models/userToken";
 import InternalServerError from "../errors/InternalServerError";
 
+interface IRefreshTokenPayload {
+  _id: string;
+  roles: string;
+}
+
 export const refreshToken = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { refreshToken } = req.body || {};
@@ -17,27 +22,22 @@ export const refreshToken = async (
       return next(new BadRequestError("Refresh token не передан"));
     }
 
+    const tokenDetails = (await verifyRefreshToken(
+      refreshToken,
+    )) as IRefreshTokenPayload;
+    const payload = {
+      userId: tokenDetails._id,
+      roles: tokenDetails.roles,
+    };
+    const accessToken = jwt.sign(payload, JWT_SECRET, {
+      expiresIn: "14m",
+    });
     // verifyRefreshToken — должна быть функция, которая проверяет и возвращает данные
-    verifyRefreshToken(refreshToken)
-      .then((tokenDetails: any) => {
-        const payload = {
-          userId: tokenDetails._id,
-          roles: tokenDetails.roles,
-        };
-        const accessToken = jwt.sign(payload, JWT_SECRET, {
-          expiresIn: "14m",
-        });
-        res.status(200).send({
-          error: false,
-          accessToken,
-          message: "Access token created successfully",
-        });
-      })
-      .catch((err) => {
-        return next(
-          new BadRequestError("Неверный или просроченный refresh token")
-        );
-      });
+    res.status(200).send({
+      error: false,
+      accessToken,
+      message: "Access token created successfully",
+    });
   } catch (error) {
     return next(new InternalServerError("Ошибка на сервере"));
   }
@@ -47,7 +47,7 @@ export const refreshToken = async (
 export const logout = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { refreshToken } = req.body || {};

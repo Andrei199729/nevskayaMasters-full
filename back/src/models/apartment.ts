@@ -1,6 +1,28 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
-const ApplicationSchema = new mongoose.Schema(
+export interface IApplication {
+  addressApplication?: string;
+  nameCompany?: string;
+  telSalon?: string;
+  telManager?: string;
+  telClient?: string;
+  telForeman?: string;
+  dateRegistration?: string;
+  nameClient?: string;
+  price?: string;
+  numberApplication?: number;
+}
+
+export interface IApartment extends Document {
+  dataApplication: IApplication;
+  owner: Types.ObjectId;
+  rooms: Types.ObjectId[];
+  isDraft: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ApplicationSchema = new mongoose.Schema<IApplication>(
   {
     addressApplication: String,
     nameCompany: String,
@@ -13,10 +35,10 @@ const ApplicationSchema = new mongoose.Schema(
     price: String,
     numberApplication: Number,
   },
-  { _id: false }
+  { _id: false },
 );
 
-const apartamentSchema = new mongoose.Schema(
+const apartmentSchema = new mongoose.Schema<IApartment>(
   {
     dataApplication: { type: ApplicationSchema, required: true },
     owner: {
@@ -37,12 +59,12 @@ const apartamentSchema = new mongoose.Schema(
       default: true, // по умолчанию шаблонная заявка
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// apartamentSchema.pre("save", function (next) {
+// apartmentSchema.pre("save", function (next) {
 //   this.updateAt = Date.now();
 //   next();
 // });
 
-export default mongoose.model<any>("apartament", apartamentSchema);
+export default mongoose.model<IApartment>("Apartment", apartmentSchema);

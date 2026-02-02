@@ -16,14 +16,14 @@ interface IPopupScreen {
 }
 
 export default function PopupScreen({children, ...props}: IPopupScreen) {
+  const containerStyle = [
+    styles.containerPopup,
+    props.path === PathScreenHeader.Search ? styles.flexOne : styles.flexZero,
+  ];
   return (
     <HeaderScreen>
       <MainScreen path={props.path}>
-        <View
-          style={{
-            ...styles.containerPopup,
-            flex: props.path === PathScreenHeader.Search ? 1 : 0,
-          }}>
+        <View style={containerStyle}>
           <LinearGradient
             colors={[Colors.darkGrayCold, Colors.darkGrayLight]}
             start={{x: 1, y: 0}}
@@ -45,11 +45,6 @@ export default function PopupScreen({children, ...props}: IPopupScreen) {
 
 const styles = StyleSheet.create({
   containerPopup: {
-    // padding: 18,
-    // backgroundColor: Colors.lightGrayFive,
-    // borderRadius: Radius.r8,
-    // zIndex: -1,
-    // gap: Gaps.g18,
     paddingBottom: 50,
   },
   title: {color: Colors.white},
@@ -63,5 +58,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  flexOne: {
+    flex: 1,
+  },
+  flexZero: {
+    flex: 0,
   },
 });

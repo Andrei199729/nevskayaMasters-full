@@ -3,6 +3,7 @@ import {Dimensions, StyleSheet, View} from 'react-native';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
+  PanGestureHandlerGestureEvent,
 } from 'react-native-gesture-handler';
 import Svg, {Circle, Path} from 'react-native-svg';
 import LineSvg from '../../../shared/LineSvg/LineSvg';
@@ -40,7 +41,7 @@ const DrawingCanvas = () => {
   );
   // Обработчик события при движении пальца
   const onGestureEvent = useCallback(
-    (event: any) => {
+    (event: PanGestureHandlerGestureEvent) => {
       const {x, y} = event.nativeEvent; // Получаем координаты текущего жеста.
       if (isNaN(x) || isNaN(y)) {
         console.warn('Invalid coordinates: x and y must be numbers');

@@ -1,0 +1,12 @@
+export const APARTMENTS = "/apartments";
+export const ROOMS = "/rooms"; // вместо products
+export const USERS = "/users";
+export const ME = "/me";
+export const SIGNUP = "/signup";
+export const SIGNIN = "/signin";
+export const LOGOUT = "/logout";
+export const USERID = "/:id";
+export const ROOMID = "/:cardId";
+export const SIZEID = "/:sizeId";
+export const ELEMENTID = "/:elementId";
+export const APARTMENTID = "/:apartmentId";

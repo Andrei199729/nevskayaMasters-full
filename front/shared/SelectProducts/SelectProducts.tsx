@@ -11,7 +11,6 @@ interface ISelect {
 }
 
 export default function SelectProducts({
-  isSelect,
   options,
   nameSelect,
   ...props

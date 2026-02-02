@@ -77,7 +77,7 @@ export default function SelectCustom({
     isActiveBtnState(false);
     onSelectedReset(isDimmed, isOpen);
   };
-
+  const dynamicTextStyle = isDimmed ? styles.textDimmed : styles.text;
   return (
     <View>
       <Pressable {...props} onPress={toggleAnimation}>
@@ -87,13 +87,7 @@ export default function SelectCustom({
               ...styles.select,
               ...(!isSelectActive && styles.selectActive),
             }}>
-            <Text
-              style={{
-                ...styles.text,
-                opacity: isDimmed ? 0.5 : 1,
-              }}>
-              {selectedOption.text}
-            </Text>
+            <Text style={dynamicTextStyle}>{selectedOption.text}</Text>
           </View>
           <Animated.View
             style={{
@@ -185,5 +179,8 @@ const styles = StyleSheet.create({
     color: Colors.black,
     fontSize: Fonts.f14,
     fontFamily: Fonts.regular,
+  },
+  textDimmed: {
+    opacity: 0.5,
   },
 });

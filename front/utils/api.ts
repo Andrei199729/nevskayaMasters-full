@@ -1,35 +1,62 @@
 import axios, {AxiosInstance} from 'axios';
-import {IDrawing} from '../shared/types';
-
+import {IApartments, IDrawing, INormalizedSize} from '../shared/types';
+import store from '../services/store';
+import {
+  textAddApartment,
+  textAddApplication,
+  textAddProduct,
+  textDeleteApplication,
+  textEditRoom,
+  textIdApartment,
+} from './textErrors';
+import {APARTMENTS, ROOMS, USERS, ME} from '../sharedPath/apiPaths';
 interface IApi {
   address: string;
-  token: string;
 }
+
+const handleAxiosError = (err: unknown, message: string) => {
+  if (axios.isAxiosError(err)) {
+    throw err;
+  } else {
+    throw new Error(message);
+  }
+};
 class Api {
   private client: AxiosInstance;
-  constructor({address, token}: IApi) {
+  constructor({address}: IApi) {
     this.client = axios.create({
       baseURL: address,
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
+    this.client.interceptors.request.use(config => {
+      const token = store.getState().user.accessToken;
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      return config;
+    });
   }
 
-  async getInitialApartaments() {
-    const res = await this.client.get('/apartaments');
-    return res.data.apartament;
+  async getInitialApartments() {
+    const res = await this.client.get(APARTMENTS);
+    return res.data.apartment;
   }
 
-  async getInitialProducts(apartamentId: any) {
-    const res = await this.client.get(`/apartaments/${apartamentId}/products`);
+  async getInitialProducts(apartmentId: string | null | undefined) {
+    if (!apartmentId) {
+      throw new Error(textIdApartment);
+    }
+    const res = await this.client.get(`${APARTMENTS}/${apartmentId}${ROOMS}`);
 
     return res.data;
   }
 
   async getAboutUser() {
-    const res = await this.client.get('/users/me');
+    const res = await this.client.get(`${USERS}${ME}`);
 
     return res.data;
   }
@@ -37,11 +64,14 @@ class Api {
   async addProduct(
     nameRoom: string,
     dataProduct: IDrawing[],
-    apartamentId: string | null,
+    apartmentId: string | null,
   ) {
+    if (!apartmentId) {
+      throw new Error(textIdApartment);
+    }
     try {
       const response = await this.client.post(
-        `/apartaments/${apartamentId}/products`,
+        `${APARTMENTS}/${apartmentId}${ROOMS}`,
         {
           nameRoom,
           dataProduct,
@@ -49,80 +79,71 @@ class Api {
       );
 
       return response.data;
-    } catch (err: any) {
-      console.error(
-        'Ошибка при создании продукта:',
-        err.response?.data || err.message,
-      );
-      throw err;
+    } catch (error) {
+      handleAxiosError(error, textAddProduct);
     }
   }
 
   async addApplication() {
     try {
-      const response = await this.client.post('/apartaments');
+      const response = await this.client.post(APARTMENTS);
       return response.data;
-    } catch (err: any) {
-      console.error(
-        'Ошибка при создании помещения:',
-        err.response?.data || err.message,
-      );
-      throw err;
+    } catch (error) {
+      handleAxiosError(error, textAddApplication);
     }
   }
 
-  async addApartament(apartamentId: string | null, dataApplication: any) {
-    if (!apartamentId) {
-      console.error('addApartament: apartamentId не найден');
-      throw new Error('Id квартиры не найден');
+  async addApartment(
+    apartmentId: string | null,
+    dataApplication: INormalizedSize | null,
+  ) {
+    if (!apartmentId) {
+      console.error(textIdApartment);
+      throw new Error(textIdApartment);
     }
     try {
-      const response = await this.client.patch(`/apartaments/${apartamentId}`, {
-        apartamentId,
+      const response = await this.client.patch(`${APARTMENTS}/${apartmentId}`, {
+        apartmentId,
         dataApplication,
       });
-      return response.data;
-    } catch (err: any) {
-      console.error(
-        'Ошибка при создании заявки:',
-        err.response?.data || err.message,
-      );
-      throw err;
+      return response.data as IApartments;
+    } catch (error) {
+      handleAxiosError(error, textAddApartment);
     }
   }
 
-  async editRoom(dataProduct: IDrawing[], dataId: string, apartamentId: any) {
+  async editRoom(
+    dataProduct: IDrawing[],
+    dataId: string,
+    apartmentId: string | null | undefined,
+  ) {
+    if (!apartmentId) {
+      console.error(textIdApartment);
+      throw new Error(textIdApartment);
+    }
     try {
       const response = await this.client.patch(
-        `/apartaments/${apartamentId}/products/${dataId}`,
+        `${APARTMENTS}/${apartmentId}${ROOMS}/${dataId}`,
         {
           dataProduct,
         },
       );
       return response.data;
-    } catch (err: any) {
-      console.error(
-        'Ошибка при редактировании продукта:',
-        err.response?.data || err.message,
-      );
-      throw err;
+    } catch (error) {
+      handleAxiosError(error, textEditRoom);
     }
   }
 
-  async deleteApplication(apartamentId: string | null) {
-    if (!apartamentId) {
-      console.warn('apartamentId не передан');
-      return;
+  async deleteApplication(apartmentId: string | null) {
+    if (!apartmentId) {
+      console.warn(textIdApartment);
+      throw new Error(textIdApartment);
     }
     try {
-      const response = await this.client.delete(`/apartaments/${apartamentId}`);
+      const response = await this.client.delete(`${APARTMENTS}/${apartmentId}`);
       return response.data;
-    } catch (err: any) {
-      console.error(
-        'Ошибка при удалении заявки:',
-        err.response?.data || err.message,
-      );
-      throw err;
+    } catch (error) {
+      handleAxiosError(error, textDeleteApplication);
     }
   }
 
@@ -135,7 +156,6 @@ const api = new Api({
   // address: 'http://10.207.190.140:3000',
   address: 'http://10.0.2.2:3000', //основной
   // address: 'https://zamerprog.ru/api/back',
-  token: '',
 });
 
 export default api;

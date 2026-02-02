@@ -1,5 +1,5 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import {Colors, Fonts, Gaps, Radius} from '../../../shared/tokens';
+import {Colors, Gaps} from '../../../shared/tokens';
 import ButtonHeader from '../../../shared/ButtonHeader/ButtonHeader';
 import {useCallback, useContext, useEffect, useState} from 'react';
 import Search from '../../../assets/images/icon/iconFunc/search';
@@ -12,7 +12,11 @@ import ProfilePopup from '../ProfilePopup/ProfilePopup';
 import ButtonContext from '../../../shared/ButtonContext/ButtonContext';
 import LogoIcon from '../../../assets/images/icon/iconFunc/LogoIcon';
 import {useDispatch} from 'react-redux';
-import {postLogoutAuth, setUserData} from '../../../services/actions/user';
+import {
+  postLogoutAuth,
+  setLoading,
+  setUserData,
+} from '../../../services/actions/user';
 import {getKeychain} from '../../../utils/keychain';
 
 interface IButtonState {
@@ -91,7 +95,14 @@ export default function Header() {
 
       if (!refreshToken) {
         // Если токена нет, просто очисти состояние и навигируй
-        dispatch(setUserData(null, undefined));
+        dispatch(
+          setUserData({
+            userData: null,
+            accessToken: undefined,
+            refreshToken: undefined,
+          }),
+        );
+        // dispatch(setLoading(false));
         navigation.reset({
           index: 0,
           routes: [{name: PathScreenAuth.Register}],
@@ -124,7 +135,7 @@ export default function Header() {
       </View>
       <View style={styles.blockButtonsHeader}>
         <Pressable onPress={onLogout}>
-          <View style={{borderWidth: 1, width: 30}}>
+          <View style={styles.buttonTest}>
             <Text>Выход</Text>
           </View>
         </Pressable>
@@ -152,17 +163,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.goldenYellow,
     position: 'relative',
   },
-  logo: {
-    backgroundColor: Colors.lightGray,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: Radius.r20,
+
+  buttonTest: {
+    borderWidth: 1,
+    width: 30,
   },
-  logoText: {
-    fontFamily: Fonts.regular,
-    fontSize: Fonts.f14,
-    color: Colors.black,
-  },
+
   blockButtonsHeader: {
     flexDirection: 'row',
     gap: Gaps.g6,

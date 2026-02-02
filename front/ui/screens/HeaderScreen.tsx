@@ -1,7 +1,7 @@
 import {View, StyleSheet} from 'react-native';
 import Header from '../components/Header/Header';
 
-function HeaderScreen({children}: {children: React.ReactNode} & any) {
+function HeaderScreen({children}: {children: React.ReactNode}) {
   return (
     <View style={styles.container}>
       <Header />

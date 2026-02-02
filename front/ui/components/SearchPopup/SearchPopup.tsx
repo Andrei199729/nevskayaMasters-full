@@ -14,7 +14,6 @@ export default function SearchPopup() {
     state => state.routes[state.index].name,
   );
 
-  const [selectedOption, setSelectedOption] = useState<IDataItem | null>(null);
   const [searchText, setSearchText] = useState('');
   const [isActiveBtn, setIsActiveBtn] = useState<boolean>(true);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -36,7 +35,6 @@ export default function SearchPopup() {
   };
 
   const handleOptionSelect = (option: IDataItem) => {
-    setSelectedOption(option);
     setSearchText(option.name);
     setIsOpen(false);
     setIsDimmed(false);

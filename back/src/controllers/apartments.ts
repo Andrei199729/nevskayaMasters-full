@@ -1,42 +1,37 @@
 import { Request, Response, NextFunction } from "express";
-import path from "path";
-import getDataFromFile from "../helpers/files";
 import { AuthenticatedRequest } from "../middlewares/auth";
 import BadRequestError from "../errors/BadRequestError";
 import ErrorNotFound from "../errors/ErrorNotFound";
 import Forbidden from "../errors/Forbidden";
-import Apartament from "../models/apartament";
-import product from "../models/product";
-import mongoose from "mongoose";
+import Apartment from "../models/apartment";
 import InternalServerError from "../errors/InternalServerError";
 
-export const getApartaments = async (
+export const getApartments = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    Apartament.find({})
-      .then((apartament) => res.send({ apartament }))
+    Apartment.find({})
+      .then((apartment) => res.send({ apartment }))
       .catch((err) => next(err));
   } catch (err) {
     return next(err);
   }
 };
 
-export const getApartament = async (
+export const getApartment = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { apartamentId } = req.params;
-    const apartament =
-      await Apartament.findById(apartamentId).populate("rooms");
-    if (!apartament) {
+    const { apartmentId } = req.params;
+    const apartment = await Apartment.findById(apartmentId).populate("rooms");
+    if (!apartment) {
       return next(new ErrorNotFound({ message: "Апартамент не найден" }));
     }
-    res.send({ apartament });
+    res.send({ apartment });
   } catch (err) {
     return next(err);
   }
@@ -53,7 +48,7 @@ export const createApplication = async (
     return next(new Forbidden({ message: "Необходима авторизация" }));
   }
   try {
-    const application = await Apartament.create({
+    const application = await Apartment.create({
       dataApplication: {},
       owner: ownerId,
       rooms: [],
@@ -77,24 +72,24 @@ export const createApplication = async (
   }
 };
 
-export const createApartament = async (
+export const createApartment = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ) => {
-  const { apartamentId, dataApplication } = req.body;
+  const { apartmentId, dataApplication } = req.body;
 
   const ownerId = req?.user?._id;
   if (!ownerId) {
     return next(new Forbidden({ message: "Необходима авторизация" }));
   }
-  // Защита: если apartamentId нет
-  if (!apartamentId) {
+  // Защита: если apartmentId нет
+  if (!apartmentId) {
     return next(new BadRequestError({ message: "Не передан _id квартиры" }));
   }
   try {
-    const apartament = await Apartament.findOneAndUpdate(
-      { _id: apartamentId, owner: ownerId },
+    const apartment = await Apartment.findOneAndUpdate(
+      { _id: apartmentId, owner: ownerId },
       {
         dataApplication,
         isDraft: false,
@@ -105,11 +100,11 @@ export const createApartament = async (
       },
     );
 
-    if (!apartament) {
+    if (!apartment) {
       return next(new BadRequestError({ message: "Квартира не найдена" }));
     }
 
-    res.status(200).send(apartament);
+    res.status(200).send(apartment);
   } catch (err) {
     console.error("Ошибка обновления квартиры:", err); // реальная ошибка
     return next(
@@ -121,15 +116,15 @@ export const createApartament = async (
   }
 };
 
-export function updateApartaments(
+export function updateApartments(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ) {
-  const apartamentId = req?.params?.apartamentId;
+  const apartmentId = req?.params?.apartmentId;
 
-  Apartament.findByIdAndUpdate(
-    apartamentId,
+  Apartment.findByIdAndUpdate(
+    apartmentId,
     {
       dataApplication: req.body.dataApplication,
     },
@@ -138,13 +133,13 @@ export function updateApartaments(
       runValidators: true,
     },
   )
-    .then((apartament) => {
-      if (!apartament) {
+    .then((apartment) => {
+      if (!apartment) {
         return next(
           new ErrorNotFound({ message: "Переданы некорректные данные" }),
         );
       }
-      return res.send(apartament);
+      return res.send(apartment);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -162,20 +157,20 @@ export const deleteApplication = async (
   next: NextFunction,
 ) => {
   try {
-    const { apartamentId } = req.params;
+    const { apartmentId } = req.params;
     const ownerId = req.user?._id;
 
-    if (!apartamentId) {
+    if (!apartmentId) {
       return next(new BadRequestError({ message: "Не передан id квартиры" }));
     }
 
-    const apartament = await Apartament.findOneAndDelete({
-      _id: apartamentId,
+    const apartment = await Apartment.findOneAndDelete({
+      _id: apartmentId,
       owner: ownerId,
       isDraft: true,
     });
 
-    if (!apartament) {
+    if (!apartment) {
       // ничего не удалилось, но ошибки не кидаем
       res.status(200).send({ success: false, message: "Нечего удалять" });
     }

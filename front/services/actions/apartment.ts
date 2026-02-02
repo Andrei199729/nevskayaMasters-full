@@ -1,4 +1,6 @@
+import {IApartments, INormalizedSize} from '../../shared/types';
 import api from '../../utils/api';
+import {getErrorMessage} from '../../utils/errorHandler';
 import {getKeychain} from '../../utils/keychain';
 import {
   ADD_APARTMENT,
@@ -16,13 +18,14 @@ import {
   POST_ADD_APPLICATION_SUCCESS,
   RESET_CURRENT_APPLICATION,
   RESET_FORM_APPLICATION,
+  RESET_VIEW_APPLICATION_ID,
   SET_FORM_APPLICATION,
+  SET_LOADING_APARTMENTS,
   SET_VIEW_APPLICATION_FORM,
   SET_VIEW_APPLICATION_ID,
   UPDATE_APARTMENT_APPLICATION,
 } from '../constants/constants';
 import {AppDispatch} from '../types';
-import {IApartment} from '../types/data';
 import {resetRooms} from './room';
 
 import {ISetAuthLoggedInAction, setAuthloggedIn} from './user';
@@ -42,7 +45,7 @@ export interface IGetApartmentFailedAction {
 
 export interface IPostAddApplicationSuccessAction {
   readonly type: typeof POST_ADD_APPLICATION_SUCCESS;
-  readonly payload: any;
+  readonly payload: IApartments;
 }
 
 export interface IPostAddApplicationRequestAction {
@@ -56,7 +59,8 @@ export interface IPostAddApplicationFailedAction {
 // это тут
 export interface IPatchApartmentSuccessAction {
   readonly type: typeof PATCH_APARTMENT_SUCCESS;
-  readonly payload: any;
+  readonly id: string;
+  readonly updateApartment: IApartments;
 }
 
 export interface IPatchApartmentRequestAction {
@@ -66,16 +70,6 @@ export interface IPatchApartmentRequestAction {
 export interface IPatchApartmentFailedAction {
   readonly type: typeof POST_ADD_APARTMENT_FAILED;
   readonly error: string;
-}
-
-export interface IPatchEditApartmentSuccessAction {
-  readonly type: typeof PATCH_APARTMENT_SUCCESS;
-  readonly payload: {};
-}
-
-export interface IPatchApartmentSuccessAction {
-  readonly type: typeof PATCH_APARTMENT_SUCCESS;
-  readonly payload: any;
 }
 
 export interface IPatchEditApartmentRequestAction {
@@ -89,17 +83,17 @@ export interface IPatchEditApartmentFailedAction {
 
 export interface IAddApartmentAction {
   readonly type: typeof ADD_APARTMENT;
-  readonly payload: IApartment;
+  readonly payload: IApartments[];
 }
 
 export interface ISetApplicationAction {
   readonly type: typeof SET_FORM_APPLICATION;
-  readonly payload: any;
+  readonly payload: INormalizedSize | null;
 }
 
 export interface ISetApplicationIdAction {
   readonly type: typeof SET_VIEW_APPLICATION_ID;
-  readonly applicationId: any;
+  readonly applicationId: string | null;
 }
 export interface ISetViewApplicationFormAction {
   readonly type: typeof SET_VIEW_APPLICATION_FORM;
@@ -126,10 +120,20 @@ export interface IResetCurrentApplication {
 
 export interface IUpdateApartmentApplication {
   readonly type: typeof UPDATE_APARTMENT_APPLICATION;
-  readonly payload: {applicationId: string; dataApplication: any};
+  readonly payload: {
+    applicationId: string | null;
+    dataApplication: INormalizedSize;
+  };
 }
 
+export interface IResetViewApplicationId {
+  readonly type: typeof RESET_VIEW_APPLICATION_ID;
+}
 // Объединяем в Union
+export interface ISetLoadingApartmentsAction {
+  readonly type: typeof SET_LOADING_APARTMENTS;
+  readonly payload: boolean;
+}
 
 export type TApartmentAction =
   | IGetApartmentSuccessAction
@@ -140,7 +144,6 @@ export type TApartmentAction =
   | IPatchApartmentSuccessAction
   | IPatchEditApartmentFailedAction
   | IPatchEditApartmentRequestAction
-  | IPatchEditApartmentSuccessAction
   | ISetAuthLoggedInAction
   | IAddApartmentAction
   | ISetApplicationAction
@@ -152,7 +155,9 @@ export type TApartmentAction =
   | IPostAddApplicationSuccessAction
   | ICurrentApplicationIdAction
   | IResetCurrentApplication
-  | IUpdateApartmentApplication;
+  | IUpdateApartmentApplication
+  | IResetViewApplicationId
+  | ISetLoadingApartmentsAction;
 
 // генераторы экшенов
 export const getApartmentRequestAction = (): IGetApartmentRequestAction => ({
@@ -175,7 +180,7 @@ export const postAddApplicationRequestAction =
     type: POST_ADD_APPLICATION_REQUEST,
   });
 export const postAddApplicationSuccessAction = (
-  payload: any,
+  payload: IApartments,
 ): IPostAddApplicationSuccessAction => ({
   type: POST_ADD_APPLICATION_SUCCESS,
   payload,
@@ -194,10 +199,12 @@ export const patchApartmentRequestAction =
   });
 
 export const patchApartmentSuccessAction = (
-  payload: any,
+  id: string,
+  updateApartment: IApartments,
 ): IPatchApartmentSuccessAction => ({
   type: PATCH_APARTMENT_SUCCESS,
-  payload,
+  id,
+  updateApartment,
 });
 
 export const patchApartmentFailedAction = (
@@ -212,37 +219,20 @@ export const patchEditApartmentRequestAction =
     type: PATCH_APARTMENT_REQUEST,
   });
 
-export const patchEditApartmentFailedAction = (
-  error: string,
-): IPatchEditApartmentFailedAction => ({
-  type: PATCH_APARTMENT_FAILED,
-  error,
-});
-
-export const patchEditApartmentSuccesAction =
-  (payload: {}): IPatchEditApartmentSuccessAction => ({
-    type: PATCH_APARTMENT_SUCCESS,
-    payload,
-  });
-
-export const patchApartmentSuccesAction = (
-  payload: any,
-): IPatchApartmentSuccessAction => ({
-  type: PATCH_APARTMENT_SUCCESS,
-  payload,
-});
-export const setApartmentData = (payload: any): IAddApartmentAction => ({
+export const setApartmentData = (
+  payload: IApartments[],
+): IAddApartmentAction => ({
   type: ADD_APARTMENT,
   payload,
 });
 export const setFormApplication = (
-  application: any,
+  application: INormalizedSize | null,
 ): ISetApplicationAction => ({
   type: SET_FORM_APPLICATION,
   payload: application,
 });
 export const setApplicationId = (
-  applicationId: any,
+  applicationId: string | null,
 ): ISetApplicationIdAction => ({
   type: SET_VIEW_APPLICATION_ID,
   applicationId,
@@ -270,11 +260,22 @@ export const resetCurrentApplication = (): IResetCurrentApplication => ({
 });
 
 export const updateApartmentApplication = (
-  applicationId: string,
-  dataApplication: any,
+  applicationId: string | null,
+  dataApplication: INormalizedSize,
 ): IUpdateApartmentApplication => ({
   type: UPDATE_APARTMENT_APPLICATION,
   payload: {applicationId, dataApplication},
+});
+
+export const resetViewApplicationId = (): IResetViewApplicationId => ({
+  type: RESET_VIEW_APPLICATION_ID,
+});
+
+export const setLoadingApartments = (
+  payload: boolean,
+): ISetLoadingApartmentsAction => ({
+  type: SET_LOADING_APARTMENTS,
+  payload,
 });
 
 export function addApplication() {
@@ -290,35 +291,45 @@ export function addApplication() {
         );
         return;
       }
-
       dispatch(postAddApplicationSuccessAction(application));
       dispatch(currentApplicationId(application._id));
       return {application};
-    } catch (error: any) {
-      dispatch(postAddApplicationFailedAction(error.message));
+    } catch (error) {
+      const errorMessage = getErrorMessage(
+        error,
+        'Некорректные данные от сервера',
+      );
+      dispatch(postAddApplicationFailedAction(errorMessage));
     }
   };
 }
 
 export function updateApartment(
-  apartamentId: string | null,
-  dataApplication: any,
+  apartmentId: string | null,
+  dataApplication: INormalizedSize | null,
 ) {
-  return async function (dispatch: AppDispatch) {
+  return async function (dispatch: AppDispatch): Promise<IApartments | void> {
     // 🔒 Защита: если id нет, выходим
-    if (!apartamentId) {
-      console.error('updateApartment: apartamentId не найден');
+    if (!apartmentId) {
+      console.error('updateApartment: apartmentId не найден');
       return;
     }
     dispatch(patchApartmentRequestAction());
 
     try {
-      const apartament = await api.addApartament(apartamentId, dataApplication);
+      const apartment = await api.addApartment(apartmentId, dataApplication);
+      console.log(apartment, 'apartment');
 
-      dispatch(patchApartmentSuccessAction(apartament));
-      return {apartament};
-    } catch (error: any) {
-      dispatch(patchApartmentFailedAction(error.message));
+      if (apartment) {
+        dispatch(patchApartmentSuccessAction(apartmentId, apartment)); // точно IApartments
+      }
+      return apartment;
+    } catch (error) {
+      const errorMessage = getErrorMessage(
+        error,
+        'Ошибка редактировния заявки',
+      );
+      dispatch(patchApartmentFailedAction(errorMessage));
     }
   };
 }
@@ -326,6 +337,7 @@ export function updateApartment(
 export function getApartmentsInitial() {
   return async function (dispatch: AppDispatch) {
     dispatch(getApartmentRequestAction());
+    dispatch(setLoadingApartments(true));
     try {
       const accessToken = await getKeychain('accessToken');
 
@@ -334,17 +346,19 @@ export function getApartmentsInitial() {
       }
 
       api.setToken(accessToken); // ✅ установить токен в API перед запросом
-      const apartament = await api.getInitialApartaments();
+      const apartment = await api.getInitialApartments();
       dispatch(setAuthloggedIn(true));
 
-      if (apartament && apartament && Array.isArray(apartament)) {
-        dispatch(setApartmentData(apartament));
+      if (apartment && apartment && Array.isArray(apartment)) {
+        dispatch(setApartmentData(apartment));
       } else {
         console.warn('Некорректный формат данных от API');
         dispatch(getApartmentFailedAction('Некорректный формат данных'));
       }
-    } catch (error: any) {
-      dispatch(getApartmentFailedAction(error.message));
+      dispatch(setLoadingApartments(false));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Некорректный формат данных');
+      dispatch(getApartmentFailedAction(errorMessage));
     }
   };
 }
@@ -377,19 +391,20 @@ export function editApartment() {
   };
 }
 
-export function deleteApplication(apartamentId: string | null) {
+export function deleteApplication(apartmentId: string | null) {
   return async (dispatch: AppDispatch) => {
-    if (!apartamentId) return;
+    if (!apartmentId) return;
     try {
-      const response = await api.deleteApplication(apartamentId);
+      const response = await api.deleteApplication(apartmentId);
       const {success} = response;
       if (!success) {
         dispatch(resetCurrentApplication());
         dispatch(resetRooms());
         dispatch(resetFormApplication());
       }
-    } catch (e) {
-      console.error('Ошибка удаления заявки', e);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error, 'Ошибка удаления заявки');
+      console.error('Ошибка удаления заявки', errorMessage);
     }
   };
 }

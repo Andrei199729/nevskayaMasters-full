@@ -1,5 +1,3 @@
-import {ViewStyle} from 'react-native';
-
 export const Colors = {
   black: '#000000',
   white: '#ffffff',
@@ -31,6 +29,7 @@ export const Gaps = {
   g12: 12,
   g14: 14,
   g18: 18,
+  g24: 24,
 };
 
 export const Radius = {
